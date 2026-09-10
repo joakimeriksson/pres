@@ -95,7 +95,10 @@
 /* demo slide: the emulator page is the slide background; only a slim caption floats over it */
 .reveal .slides section.demo-slide{padding:0}
 .reveal .slides section.demo-slide::after,.reveal .slides section.stack::after{display:none}
-.reveal .demo-cap{position:absolute;left:0;right:0;bottom:0;padding:10px 64px;background:rgba(255,255,255,.92);border-top:2px solid var(--teal);font-size:19px;pointer-events:none}
+.reveal .demo-cap{position:absolute;left:0;right:0;bottom:0;padding:10px 200px 10px 64px;background:rgba(255,255,255,.92);border-top:2px solid var(--teal);font-size:19px;pointer-events:none}
+.reveal .demo-nav{position:absolute;right:64px;bottom:7px;display:flex;gap:8px;pointer-events:auto}
+.reveal .demo-nav button{font:700 22px/1 var(--sans);color:#fff;background:var(--teal);border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+.reveal .demo-nav button:hover{background:#007d85}
 .reveal .kbd{font-family:var(--mono);font-size:.85em;background:#eee;padding:1px 6px;border-radius:4px}
 /* run strip (slide 5): one cell per CI run */
 .reveal .runs{display:inline-flex;gap:3px;vertical-align:middle;margin:0 8px 0 4px}
@@ -367,14 +370,17 @@
 <section>
 <section data-demo-fw="atech" data-background-interactive class="demo-slide" data-timing="45">
   <div class="demo-cap"><strong>Live:</strong> the same emulator, compiled to run in a browser, booting the board's real firmware. <span class="grey">Press <span class="kbd">D</span> to reboot · <span class="kbd">↓</span> two more scenarios.</span></div>
+  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">6:20 (45 s; the two sub-slides below are extras, skip them if late). esp32sim boots the Atech firmware: mask ROM, bootloader, app. Point at the console diff scrolling by and the readable display. Click "enable audio" for the synth. If it misbehaves: that is the talk. D reboots it.</aside>
 </section>
 <section data-demo-fw="c6-contiki-net" data-background-interactive class="demo-slide" data-timing="0">
   <div class="demo-cap"><strong>Extra:</strong> two emulated wireless nodes running Contiki-NG on one shared, emulated radio channel, in this tab. The second powers on 1.3 s later; both hear each other's broadcasts.</div>
+  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">Extra. Two C6 motes, unmodified Contiki-NG, one emulated radio medium, no simulator behind them. Deterministic to the cycle: boot two identical images at the same time and every frame collides, which is why the second one starts 1.3 s late.</aside>
 </section>
 <section data-demo-fw="atech-sid" data-background-interactive class="demo-slide" data-timing="0">
   <div class="demo-cap"><strong>Extra:</strong> the same firmware playing Commodore 64 music: an emulated C64 sound chip inside the emulated ESP32. Click "enable audio".</div>
+  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">Extra, for fun and for the two-wrongs story on the next slide: this is the audio path where 2× tempo and 0.5× real time cancelled. Enable audio; Commando by Rob Hubbard.</aside>
 </section>
 </section>
@@ -656,6 +662,40 @@ function runGrids(on){
 }
 Reveal.on('ready', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); });
 Reveal.on('slidechanged', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); });
+
+// Demo slides: the emulator page takes keyboard focus once you click in it, so the deck would stop
+// hearing the arrow keys. Two ways back: the ‹ › buttons in the caption bar, and forwarding of the
+// navigation keys from inside the (same-origin) emulator page to the deck.
+document.querySelectorAll('.demo-nav button').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation();
+  b.dataset.go === 'next' ? Reveal.right() : Reveal.left();
+  window.focus();
+}));
+const NAV_KEYS = { ArrowRight: () => Reveal.right(), ArrowLeft: () => Reveal.left(), ArrowDown: () => Reveal.down(), ArrowUp: () => Reveal.up(),
+                   PageDown: () => Reveal.next(), PageUp: () => Reveal.prev(), Escape: () => Reveal.toggleOverview() };
+function hookDemoKeys(slide){
+  const bg = Reveal.getSlideBackground(slide), f = bg && bg.querySelector('iframe');
+  if (!f) return;
+  const attach = () => {
+    try {
+      const doc = f.contentDocument;
+      if (!doc || doc.__deckKeys) return;
+      doc.__deckKeys = true;
+      doc.addEventListener('keydown', e => {
+        const t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+        const go = NAV_KEYS[e.key];
+        if (!go || typing) return;
+        e.preventDefault();
+        go();
+        window.focus();
+      });
+    } catch (err) { /* cross-origin page: buttons still work */ }
+  };
+  attach();
+  f.addEventListener('load', attach);
+}
+Reveal.on('slidechanged', e => { if (e.currentSlide.classList.contains('demo-slide')) setTimeout(() => hookDemoKeys(e.currentSlide), 300); });
+Reveal.on('ready', e => { if (e.currentSlide.classList.contains('demo-slide')) setTimeout(() => hookDemoKeys(e.currentSlide), 300); });
 
 // 'D' reboots the demo: reloads the current slide's iframe, inline or background
 Reveal.addKeyBinding({ keyCode: 68, key: 'D', description: 'Reboot demo' }, () => {

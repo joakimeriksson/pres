@@ -16,6 +16,7 @@ A local server is required once your own WASM build uses `fetch()` or SharedArra
 | `S` | speaker view — notes, next slide, elapsed clock and per-slide pacing (set to 10:00 total) |
 | `F` | full screen |
 | `D` | reboot the emulator on the demo slide (if it wedges mid-talk) |
+| `‹` `›` buttons | leave the demo slide with the mouse; after clicking inside the emulator the arrow keys and `Esc` are forwarded to the deck too |
 | `Esc` / `O` | slide overview |
 | `B` | black out |
 
