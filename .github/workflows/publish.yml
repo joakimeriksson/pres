@@ -1,0 +1,50 @@
+# Publishes every deck in this repo (each top-level folder with an index.html) to
+# https://joakimeriksson.github.io/p/<folder>/ by pushing it into the p/ folder of the
+# user-site repo joakimeriksson/joakimeriksson.github.io (branch master).
+#
+# Auth: the private half of a deploy key that has write access on the user-site repo,
+# stored here as the secret PAGES_DEPLOY_KEY.
+name: Publish decks to joakimeriksson.github.io/p
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: publish-p
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect decks
+        run: |
+          mkdir -p dist
+          {
+            echo '<!doctype html><meta charset="utf-8"><title>Talks</title>'
+            echo '<style>body{font:18px/1.5 Helvetica,Arial,sans-serif;margin:48px;color:#222}a{color:#009BA5}</style>'
+            echo '<h1>Talks</h1><ul>'
+          } > dist/index.html
+          for d in */; do
+            d="${d%/}"
+            [ -f "$d/index.html" ] || continue
+            rsync -a --exclude 'demos/esp32sim' "$d/" "dist/$d/"
+            title=$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$d/index.html" | head -1)
+            echo "<li><a href=\"$d/\">${title:-$d}</a></li>" >> dist/index.html
+          done
+          echo '</ul>' >> dist/index.html
+          find dist -maxdepth 2 | sort
+
+      - name: Push into joakimeriksson.github.io/p
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.PAGES_DEPLOY_KEY }}
+          external_repository: joakimeriksson/joakimeriksson.github.io
+          publish_branch: master
+          publish_dir: ./dist
+          destination_dir: p
+          commit_message: "publish decks from presentations@${{ github.sha }}"

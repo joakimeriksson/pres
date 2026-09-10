@@ -46,12 +46,14 @@ emulator boots when you arrive, so the audience sees the ROM → bootloader → 
 * Taking the deck to another machine without network: replace the symlink with a copy of `~/work/esp32sim/web`
   (about 80 MB with all firmware; the Espressif mask ROM in `wasm/fw/` is not redistributable, keep it off public hosts).
 
-## Hosting on GitHub Pages
+## Hosting
 
-Everything is static and nothing needs special headers, so a plain Pages site works: push this directory (the symlink is
-git-ignored) and enable Pages. The demo slides then load the emulator from the esp32sim Pages site, which is the same origin,
-so `D` (reboot) keeps working. Speaker view (`S`) opens a popup, allow it once.
-* `demos/hello-wasm.html` is the original 52-byte placeholder; it still works in an ordinary `<iframe>` slide.
+The deck is published at **https://joakimeriksson.github.io/p/agentic-hw/** by `.github/workflows/publish.yml` in the
+repo root: on every push to `main` it copies each top-level folder that has an `index.html` into the `p/` folder of the
+user-site repo `joakimeriksson/joakimeriksson.github.io`. Nothing needs special headers: the demo slides detect the
+github.io host and load the emulator from `joakimeriksson.github.io/esp32sim` (same origin, so `D` still reboots it).
+Speaker view (`S`) opens a popup, allow it once. The workflow needs the secret `PAGES_DEPLOY_KEY`: the private half of a
+deploy key with write access on the user-site repo.
 
 ## The other animated bits
 
