@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hardware in the agentic loop — Joakim Eriksson, RISE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="vendor/reset.css">
+<link rel="stylesheet" href="vendor/reveal.css">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --ink:#222222;
+  --grey:#666666;
+  --mute:#9a9a9a;
+  --teal:#009BA5;
+  --teal-tint:#E6F4F5;
+  --yellow:#FFE500;     /* RISE accent: reserved for the human in the loop */
+  --coral:#D9534F;
+  --coral-tint:#FBEBEA;
+  --paper:#ffffff;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+/* ---------- base ---------- */
+.reveal{font-family:var(--sans);color:var(--ink);font-size:24px;line-height:1.35}
+.reveal .slides{text-align:left}
+.reveal .slides section{height:720px;box-sizing:border-box;padding:52px 64px 48px 64px}
+.reveal .slides section::after{content:"";position:absolute;right:48px;bottom:36px;width:38px;height:48px;
+  background:url(assets/rise-logo.png) no-repeat center/contain}
+.reveal .slides section.title::after{width:88px;height:112px;right:64px;top:52px;bottom:auto}
+.reveal h1,.reveal h2,.reveal h3{font-family:var(--sans);color:var(--ink);text-transform:none;letter-spacing:-.015em;margin:0}
+.reveal h1{font-size:76px;font-weight:400;line-height:1.02}
+.reveal h2{font-size:40px;font-weight:700;line-height:1.15;margin-bottom:6px}
+.reveal h3{font-size:24px;font-weight:700;color:var(--teal);margin:0 0 10px}
+.reveal p{margin:0 0 .6em}
+.reveal .sub{font-size:22px;color:var(--grey);margin-bottom:28px}
+.reveal ul{margin:0;padding-left:1.1em}
+.reveal li{margin:0 0 .45em;padding-left:.15em}
+.reveal li::marker{color:var(--teal)}
+.reveal strong{font-weight:700}
+.reveal em{font-style:italic}
+.reveal code,.reveal .mono{font-family:var(--mono);font-size:.92em}
+.reveal .small{font-size:19px}
+.reveal .grey{color:var(--grey)}
+.reveal .teal{color:var(--teal)}
+.reveal .coral{color:var(--coral)}
+.reveal .num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;
+  background:var(--teal);color:#fff;font-weight:700;font-size:22px;vertical-align:middle;margin-right:14px;position:relative;top:-4px}
+.reveal .quote{background:var(--teal-tint);padding:16px 22px;font-style:italic;font-size:22px;margin-top:18px}
+.reveal .quote .who{display:block;font-style:normal;font-size:17px;color:var(--grey);margin-top:4px}
+.reveal .warn{background:var(--coral-tint)}
+.reveal .cols{display:grid;gap:36px}
+.reveal .cols.two{grid-template-columns:1fr 1fr}
+.reveal .cols.three{grid-template-columns:1fr 1fr 1fr;gap:22px}
+.reveal .card{background:var(--teal-tint);padding:20px 22px;font-size:20px}
+.reveal .card h3{font-size:22px}
+.reveal .card li{margin-bottom:.4em}
+.reveal .foot{position:absolute;left:64px;right:140px;bottom:44px;font-size:20px}
+.reveal .stats{display:flex;gap:44px;margin:26px 0 30px}
+.reveal .stat b{display:block;font-size:56px;font-weight:700;color:var(--teal);line-height:1;letter-spacing:-.02em}
+.reveal .stat span{display:block;font-size:17px;color:var(--grey);margin-top:6px;max-width:170px}
+.reveal .stat.bad b{color:var(--coral)}
+.reveal .stat b i{font-style:normal}
+.reveal .small{line-height:1.32}
+.reveal .pattern strong{font-size:22px}
+.reveal .pattern .num{width:38px;height:38px;font-size:19px}
+.reveal .card p:has(> .num){display:flex;align-items:flex-start;gap:12px}
+.reveal .card p:has(> .num) .num{flex:none;margin:0;top:-2px}
+.reveal .card p:has(> .num) strong{line-height:1.25;padding-top:6px}
+/* role chip on example slides */
+.reveal .role{position:absolute;right:64px;top:16px;display:flex;gap:6px;align-items:center;font-size:15px;color:var(--mute)}
+.reveal .role i{font-style:normal;padding:3px 9px;border:1px solid #ccc;border-radius:14px}
+.reveal .role i.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:700}
+.reveal .role i.human{background:var(--yellow);border-color:var(--yellow);color:var(--ink);font-weight:700}
+/* tables */
+.reveal table{border-collapse:collapse;width:100%;font-size:20px;margin:10px 0}
+.reveal th{text-align:left;font-weight:700;padding:8px 14px}
+.reveal td{padding:10px 14px;vertical-align:middle;border:0}
+.reveal tr:nth-child(even) td{background:var(--teal-tint)}
+.reveal table.head th{background:var(--teal);color:#fff}
+.reveal .sim{color:var(--grey)}
+.reveal .board{color:var(--ink)}
+/* loop diagrams */
+.reveal svg text{font-family:var(--sans)}
+.reveal .node{fill:#fff;stroke:var(--teal);stroke-width:2.5}
+.reveal .node.em{fill:var(--teal-tint)}
+.reveal .node.si{fill:var(--teal)}
+.reveal .arrow{stroke:var(--teal);stroke-width:2.5;fill:none;marker-end:url(#ah)}
+.reveal .dot{fill:var(--yellow);stroke:var(--ink);stroke-width:1.5}
+.reveal .dot.model{fill:var(--teal);stroke:none}
+/* fragments: keep quiet */
+.reveal .fragment.rise{opacity:0;transform:translateY(8px);transition:all .35s ease}
+.reveal .fragment.rise.visible{opacity:1;transform:none}
+.reveal .fragment.dim.visible{opacity:.35}
+/* demo slide: the emulator page is the slide background; only a slim caption floats over it */
+.reveal .slides section.demo-slide{padding:0}
+.reveal .slides section.demo-slide::after,.reveal .slides section.stack::after{display:none}
+.reveal .demo-cap{position:absolute;left:0;right:0;bottom:0;padding:10px 64px;background:rgba(255,255,255,.92);border-top:2px solid var(--teal);font-size:19px;pointer-events:none}
+.reveal .kbd{font-family:var(--mono);font-size:.85em;background:#eee;padding:1px 6px;border-radius:4px}
+/* run strip (slide 5): one cell per CI run */
+.reveal .runs{display:inline-flex;gap:3px;vertical-align:middle;margin:0 8px 0 4px}
+.reveal .runs i{width:14px;height:22px;background:var(--coral);border-radius:2px}
+.reveal .runs i.ok{background:var(--teal)}
+/* frame player (slide 6): a sprite of Verilator frames, stepped by JS */
+.reveal .player{position:relative;width:100%;aspect-ratio:2/1;background:#0000aa url(assets/rv32-boot-frames.png) 0 0/2400% 100% no-repeat;image-rendering:pixelated;border:1px solid #ddd;overflow:hidden}
+.reveal .player .fno{position:absolute;right:8px;bottom:6px;font-family:var(--mono);font-size:14px;color:#fff;background:rgba(0,0,0,.45);padding:1px 8px;border-radius:3px}
+/* LED grids (slide 10): the measured maps, one chain LED at a time */
+.reveal .grids{display:flex;gap:26px;align-items:center;margin:10px 0 4px}
+.reveal .grid{display:grid;grid-template-columns:repeat(3,26px);gap:4px;padding:8px;background:#1d1f22;border-radius:6px}
+.reveal .grid b{width:26px;height:26px;border-radius:4px;background:#2b2e33;display:flex;align-items:center;justify-content:center;font-size:12px;color:#555;font-weight:400}
+.reveal .grid b.lit{background:var(--yellow);color:var(--ink);font-weight:700;box-shadow:0 0 10px 2px rgba(255,229,0,.6)}
+.reveal .gridlbl{font-size:15px;color:var(--grey);text-align:center;margin-top:4px}
+.reveal .chain{font-family:var(--mono);font-size:17px}
+@media (prefers-reduced-motion:reduce){ .reveal .fragment.rise{transition:none} .reveal svg animateMotion{display:none} }
+/* print */
+@media print{ .reveal .slides section::after{display:block} }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============ 1 · Title ============ -->
+<section class="title" data-timing="15">
+  <div style="margin-top:110px;max-width:900px">
+    <h1>Hardware in the<br>agentic loop</h1>
+    <p style="font-size:34px;color:var(--grey);margin:30px 0 40px">Four examples, one pattern</p>
+    <p style="font-size:22px"><strong>Contiki-NG 5.2 release</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>Cooja-NG vs. silicon</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>a RISC-V on an FPGA</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>the Atech emulator</strong></p>
+    <p class="small grey">Joakim Eriksson, RISE — September 2026</p>
+  </div>
+  <aside class="notes">0:00. One line: this summer, four hardware projects were built with coding agents in the loop. Very different projects; the pattern that made them work is the same. Ten minutes.</aside>
+</section>
+
+<!-- ============ 2 · The problem ============ -->
+<section data-timing="45">
+  <h2>The loop a coding agent closes is its own</h2>
+  <div class="cols two" style="margin-top:34px">
+    <div>
+      <p class="fragment rise" data-fragment-index="1">Coding agents are extremely good <strong>at closing loops they can observe.</strong></p>
+      <p class="fragment rise" data-fragment-index="2">Left alone, the loop they observe is <strong>their own model of the world</strong>: the code they wrote, the tests they wrote, the log lines they expected.</p>
+      <p class="fragment rise" data-fragment-index="3">Tests written by the same model that wrote the code <strong>share its blind spots.</strong> Green is not the same as correct.</p>
+      <p class="fragment rise teal" data-fragment-index="4"><strong>Hardware does not share the model's blind spots.</strong></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 520 360" width="520" height="360">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <rect x="14" y="14" width="492" height="300" rx="10" fill="none" stroke="#bbb" stroke-dasharray="6 6"/>
+        <text x="260" y="342" text-anchor="middle" font-size="15" fill="#9a9a9a" font-style="italic">the model's world — same blind spots on every side</text>
+        <rect class="node" x="170" y="40" width="180" height="56" rx="12"/>
+        <text x="260" y="75" text-anchor="middle" font-size="19" font-weight="700">Agent</text>
+        <rect class="node" x="40" y="220" width="180" height="56" rx="12"/>
+        <text x="130" y="255" text-anchor="middle" font-size="19" font-weight="700">Code it wrote</text>
+        <rect class="node" x="300" y="220" width="180" height="56" rx="12"/>
+        <text x="390" y="255" text-anchor="middle" font-size="19" font-weight="700">Tests it wrote</text>
+        <path class="arrow" d="M225 96 L150 220"/>
+        <path class="arrow" d="M220 248 L300 248"/>
+        <path class="arrow" d="M370 220 L295 96"/>
+        <text x="372" y="160" font-size="16" fill="#9a9a9a" font-style="italic">"all green"</text>
+        <circle class="dot model" r="7">
+          <animateMotion dur="4s" repeatCount="indefinite" path="M225 96 L150 220 L220 248 L300 248 L370 220 L295 96 Z"/>
+        </circle>
+      </svg>
+    </div>
+  </div>
+  <div class="quote foot fragment rise" data-fragment-index="4">Green suites that are green by accident are the failure mode that scares me: the tests pass, the model is happy, and nobody touched a board.</div>
+  <aside class="notes">0:15. The claim. Agents close loops. The danger is that the loop they close is entirely inside their own head: code, tests and expectations all come from the same model. Hardware is the one thing in the room that does not share those blind spots. So: how do you put it in the loop, in practice?</aside>
+</section>
+
+<!-- ============ 3 · The fix ============ -->
+<section data-timing="50">
+  <h2>Put the chip in the loop, and give the agent eyes</h2>
+  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:14px">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
+           <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
+    <!-- nodes -->
+    <rect class="node" x="10" y="60" width="240" height="70" rx="14"/>
+    <text x="130" y="103" text-anchor="middle" font-size="22" font-weight="700">Agent</text>
+    <rect class="node" x="310" y="60" width="240" height="70" rx="14"/>
+    <text x="430" y="102" text-anchor="middle" font-size="20" font-weight="700">Code / HDL / firmware</text>
+    <g class="fragment" data-fragment-index="1">
+      <rect class="node em" x="610" y="60" width="240" height="70" rx="14"/>
+      <text x="730" y="103" text-anchor="middle" font-size="22" font-weight="700">Emulator</text>
+    </g>
+    <g class="fragment" data-fragment-index="2">
+      <rect class="node si" x="910" y="60" width="230" height="70" rx="14"/>
+      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Silicon</text>
+      <rect x="1000" y="16" width="80" height="26" rx="13" fill="#FFE500"/>
+      <text x="1040" y="34" text-anchor="middle" font-size="14" font-weight="700">a human</text>
+      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">holds the board</text>
+    </g>
+    <path class="arrow" style="marker-end:url(#ah2)" d="M250 95 L308 95"/>
+    <path class="arrow fragment" data-fragment-index="1" style="marker-end:url(#ah2)" d="M550 95 L608 95"/>
+    <path class="arrow fragment" data-fragment-index="2" style="marker-end:url(#ah2)" d="M850 95 L908 95"/>
+    <g class="fragment" data-fragment-index="3">
+      <path d="M908 80 L852 80" stroke="#666" stroke-width="1.6" fill="none" style="marker-end:url(#ahg)"/>
+      <text x="880" y="150" text-anchor="middle" font-size="15" fill="#666" font-style="italic">diff against each other</text>
+    </g>
+    <!-- return path -->
+    <g class="fragment" data-fragment-index="4">
+      <path class="arrow" style="marker-end:url(#ah2)" d="M1025 130 L1025 200 L130 200 L130 134"/>
+      <text x="580" y="232" text-anchor="middle" font-size="18"><tspan font-weight="700" fill="#009BA5">observation: </tspan><tspan fill="#666">console diffs · PNG frames · instruction counts · JTAG lock-step · cycle counters · WAV hashes · one LED at a time</tspan></text>
+      <circle class="dot" r="8">
+        <animateMotion dur="6s" repeatCount="indefinite" path="M130 95 L430 95 L730 95 L1025 95 L1025 200 L130 200 Z"/>
+      </circle>
+    </g>
+    <!-- roles -->
+    <g class="fragment rise" data-fragment-index="5">
+      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Oracle</tspan><tspan fill="#666"> — the board has the last word</tspan></text>
+    </g>
+    <g class="fragment rise" data-fragment-index="6">
+      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Calibrator</tspan><tspan fill="#666"> — silicon numbers set the emulator's cost model</tspan></text>
+    </g>
+    <g class="fragment rise" data-fragment-index="7">
+      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — deterministic, 2400× real time; a loop the agent can iterate in</tspan></text>
+    </g>
+  </svg>
+  <p class="foot grey small" style="font-style:italic">Three roles for hardware in the loop. The four examples use all of them.</p>
+  <aside class="notes">1:00. The pattern in one picture. The agent still writes the code, but what it observes now comes from an emulator and from silicon, diffed against each other. Hardware plays three roles: oracle, calibrator, proxy. Every example is one trip around this loop.</aside>
+</section>
+
+<!-- ============ 4 · Contiki-NG 5.2 ============ -->
+<section data-timing="55">
+  <div class="role"><i>agent</i><i>code</i><i>emulator</i><i class="on">silicon = oracle</i><i class="human">human: cable + button</i></div>
+  <h2><span class="num">1</span>Contiki-NG 5.2: the agent ran the hardware tests</h2>
+  <p class="sub">Released 2026-08-13 · first release with TrustZone-M, nRF54L15 and RISC-V · board tests agent-driven</p>
+  <div class="stats" style="margin:18px 0 22px">
+    <div class="stat"><b class="count" data-to="458">0</b><span>commits</span></div>
+    <div class="stat"><b class="count" data-to="113">0</b><span>pull requests</span></div>
+    <div class="stat"><b class="count" data-to="11">0</b><span>contributors</span></div>
+    <div class="stat"><b class="count" data-to="16">0</b><span>required CI checks 17 groups × 2 OS</span></div>
+    <div class="stat"><b><i class="count" data-to="18">0</i> / 18</b><span>real boards, checklist #3190</span></div>
+  </div>
+  <div class="cols two">
+    <div>
+      <h3>The agent as release engineer</h3>
+      <ul class="small">
+        <li class="fragment rise">The merge team set the rules, as every year: the plan, the runbook and the board checklist (#3190), copied from last release. No tag until every board row is green.</li>
+        <li class="fragment rise">The agent worked inside them. Reading build.yml it noticed: <em>"CI has never tested the release head."</em> So the release PR became the CI gate.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>The agent on the boards</h3>
+      <ul class="small">
+        <li class="fragment rise">Built, flashed and read back <strong>every checklist row on real boards</strong>: Firefly + CC1200, CC13x0/CC1352, nRF52840/nRF5340, nRF54L15, Gecko, Sky, FR5969.</li>
+        <li class="fragment rise"><strong>The human's job: plug in the cable, press the button.</strong> Everything else was the agent.</li>
+        <li class="fragment rise">Board-only findings went into the release notes: CC1200 RX starvation, two TSCH ports that don't work yet, a 1.8 V DK that <em>"will burn you."</em></li>
+      </ul>
+    </div>
+  </div>
+  <div class="quote foot">Simulation proves the logic; the board proves everything else. Hardware as oracle — and the agent now runs the oracle.</div>
+  <aside class="notes">1:50. First example, hardware as oracle. The merge team set the rules as always: plan, runbook and board checklist, copied from last year's release. The agent worked inside them, made the release PR the CI gate, and then ran the hardware tests itself: built, flashed, read the serial output and filled in the checklist on eight board families. The human plugged in cables and pressed buttons — that was all. 18 of 18. The board is the oracle, and the agent now operates the oracle.</aside>
+</section>
+
+<!-- ============ 5 · Cooja-NG ============ -->
+<section data-timing="60">
+  <div class="role"><i>agent</i><i>code</i><i class="on">emulator = proxy</i><i class="on">silicon = calibrator</i></div>
+  <h2><span class="num">2</span>Cooja-NG: silicon and emulator correct each other</h2>
+  <p class="sub">The Contiki-NG simulator reimplemented in C, kept honest by the boards it emulates</p>
+  <div class="cols three" style="font-size:18px">
+    <div class="card fragment rise" style="font-size:18px">
+      <h3>Silicon calibrates the emulator</h3>
+      <ul>
+        <li>nRF54L15 DK, DWT CYCCNT over SWD: one TrustZone transition (NS → SG → secure → BXNS) = <strong>58 cycles</strong>.</li>
+        <li>Cooja-NG tz-boot on the same image: 389 SG + 390 BXNS.</li>
+        <li><strong>The silicon number sets the emulator's cost model, not the other way round.</strong></li>
+      </ul>
+    </div>
+    <div class="card fragment rise" style="font-size:18px">
+      <h3>Hardware finds what emulation cannot</h3>
+      <ul>
+        <li>CC1200 sub-GHz: polling starved the RX IRQ on the SPI bus (#3140, #3206). <strong>Only visible with a logic analyzer.</strong></li>
+        <li>Two negative results written down: TSCH on nRF54L15 and on Gecko. Writing is cheap now.</li>
+      </ul>
+    </div>
+    <div class="card fragment rise" style="font-size:18px">
+      <h3>The emulator closes the CI loop</h3>
+      <ul>
+        <li>93 / 93 upstream tests pass. <code>SIMULATOR=cooja-ng</code> is a one-line switch; CI downloads a binary per tag.</li>
+        <li><strong>~2400× real time: a 60 s scenario in &lt; 0.1 s.</strong></li>
+      </ul>
+      <img src="assets/cooja-perf.png" alt="Cooja-NG vs Cooja (Java) run time, log scale" style="width:230px;display:block;margin:4px auto 0">
+    </div>
+  </div>
+  <div class="quote fragment rise" style="font-style:normal;font-size:19px;margin-top:16px;margin-right:76px">
+    <strong>A four-year-old flake:</strong> <em>21-cooja-rpl-tsch-security</em>, gcc, 15 runs: <span class="runs" aria-label="14 of 15 runs failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="ok"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span> clang passes <em>"by luck of stack contents"</em>. Uninitialised TSCH enhanced-ACK params (#3205), hidden since a 2022 timeout bump. One memset.<br>
+    <em class="teal"><strong>A deterministic simulator turns "flaky" into "14 of 15", and 14 of 15 is something an agent can work on.</strong></em>
+  </div>
+  <aside class="notes">2:45. Second example, hardware as calibrator. A cycle count measured over SWD on the real nRF54L15 becomes the emulator's cost model. The CC1200 bug was only visible on a logic analyzer — no emulator would have shown it. Once the emulator is trustworthy it becomes the proxy: 2400× real time, deterministic, in CI. Which is how a four-year-old flake finally got fixed: 14 of 15 is a number, flaky is not.</aside>
+</section>
+
+<!-- ============ 6 · FPGA ============ -->
+<section data-timing="50">
+  <div class="role"><i>agent</i><i>code</i><i class="on">emulator = proxy</i><i>silicon</i></div>
+  <h2><span class="num">3</span>A RISC-V on an FPGA: 497 lines to a computer</h2>
+  <p class="sub"><code>rv32_core.v</code> · RV32I · Tang Nano 20K @ 27 MHz · fully open flow (Yosys → nextpnr → Apycula)</p>
+  <div class="cols two" style="grid-template-columns:1.15fr 1fr">
+    <div>
+      <h3>What it does</h3>
+      <ul class="small">
+        <li>Boots <strong>unmodified Contiki-NG</strong>; 640×480 HDMI text mode, a C64-style greeting.</li>
+        <li>Written and debugged with an agent; the human held the board and the datasheets.</li>
+      </ul>
+      <h3 style="margin-top:22px">The loop the agent could see</h3>
+      <ul class="small">
+        <li class="fragment rise"><strong>58 riscv-tests</strong> under Verilator: 56 pass, 2 expected failures — both absent CSRs.</li>
+        <li class="fragment rise">Testbench writes <strong>PNG frames</strong> — a wrong character in the greeting is a diff the agent can read.</li>
+        <li class="fragment rise"><strong>200 000 random vectors</strong> against a known-good TMDS encoder: a wrong control constant shows up in the first ten lines.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="player" id="player" data-frames="24" role="img" aria-label="Verilator testbench frames: Contiki-NG booting on the rv32 core"><span class="fno">frame 000</span></div>
+      <p class="small grey" style="font-style:italic;margin-top:8px">The Verilator testbench's "virtual monitor": Contiki-NG booting on the core, one PNG per 60 Hz frame, replayed here. The agent can see the screen.</p>
+    </div>
+  </div>
+  <div class="quote foot" style="right:560px">A failure you can explain is a specification; one you cannot is a bug.</div>
+  <aside class="notes">3:45. Third example, the emulator as proxy, in HDL. 497 lines of Verilog to a computer that boots Contiki-NG. The important move: the Verilator testbench writes a PNG per frame — that gives the agent eyes. Random vectors against a golden TMDS encoder catch a wrong constant in ten lines. Almost every bug was found here. Almost.</aside>
+</section>
+
+<!-- ============ 7 · The board fights back ============ -->
+<section data-timing="50">
+  <div class="role"><i>agent</i><i>code</i><i>emulator</i><i class="on">silicon = oracle</i><i class="human">human: eyes on the board</i></div>
+  <h2>The monitor stays black — the board fights back</h2>
+  <p class="sub">TMDS encoder bit-exact in simulation. On the board: nothing.</p>
+  <table>
+    <tr><th></th><th class="teal">In simulation</th><th class="coral">On the board</th></tr>
+    <tr class="fragment rise"><td><strong>HDMI pads</strong></td><td class="sim">PNG frames correct</td><td>Black. Missing <code>IO_TYPE=LVDS25</code>: the pads were single-ended. <em>"Differential pads are a constraint, not code."</em></td></tr>
+    <tr class="fragment rise"><td><strong>Timers</strong></td><td class="sim">Ticks at 1 Hz</td><td>27× too fast: objects reused from the simulator's 1 MHz build. Fix: one build dir per clock.</td></tr>
+    <tr class="fragment rise"><td><strong>Warm reset</strong></td><td class="sim">printf works</td><td>printf silent: RAM keeps modified <code>.data</code>, newlib wakes up stale. Fix: save/restore <code>.data</code>; the simulator learned reset injection.</td></tr>
+    <tr class="fragment rise"><td><strong>USB serial</strong></td><td class="sim">Clean stream</td><td>The BL616 bridge wedges or replays buffered serial; rate measurements lie.</td></tr>
+    <tr class="fragment rise"><td><strong>Custom HDMI TX</strong></td><td class="sim">Bit-exact</td><td>Flickers. Root cause unproven. Shipped with hdl-util instead.</td></tr>
+  </table>
+  <div class="quote foot fragment rise">"Nearly every bug in this project was found in simulation" — and the ones that weren't are the ones on this slide. The PNG frames were right; the photons were wrong.</div>
+  <aside class="notes">4:35. And then the board. Everything here was invisible to the emulator, because none of it is logic: a constraint file, a stale build directory, what RAM does across a reset, a USB bridge that lies. Each was found by a human looking at a board, and each was then fed back so the simulator could reproduce it next time.</aside>
+</section>
+
+<!-- ============ 8 · Atech ============ -->
+<section data-timing="55">
+  <div class="role"><i>agent</i><i>code</i><i class="on">emulator</i><i class="on">silicon = oracle + calibrator</i></div>
+  <h2><span class="num">4</span>The Atech emulator: diff against silicon</h2>
+  <p class="sub"><code>esp32sim</code> runs the board's real binary — mask ROM → bootloader → app — natively and in the browser</p>
+  <table class="head">
+    <tr><th>Loop</th><th>Method</th><th>Result</th></tr>
+    <tr class="fragment rise"><td><strong>Decoder</strong></td><td>Every instruction of three real binaries vs <code>objdump</code></td><td>977 k / 161 k / 126 k instructions, <strong>0 mismatches</strong></td></tr>
+    <tr class="fragment rise"><td><strong>ESP32-S3</strong></td><td>JTAG lock-step: chip and emulator stepped on the same flash dump</td><td>8 000 + 3 000 steps, <strong>0 PC divergences</strong></td></tr>
+    <tr class="fragment rise"><td><strong>ESP32-C3 / C6</strong></td><td>Console diff against a real boot log</td><td>205 / 208 and 203 / 204 lines identical</td></tr>
+  </table>
+  <div class="cols two" style="grid-template-columns:1.4fr 1fr;margin-top:14px">
+    <div class="fragment rise">
+      <h3>What only silicon could tell us</h3>
+      <ul class="small">
+        <li>Missing <code>salt</code> / <code>s32nb</code> / MAC16 instruction encodings.</li>
+        <li>SPI flash command one quantum late; cycle counter not restarting at reset.</li>
+        <li>Interrupt threshold at the wrong register — the handler re-entered <strong>3 867 times</strong>.</li>
+      </ul>
+    </div>
+    <div class="quote fragment rise" style="margin-top:0">The symptom was an illegal instruction in <code>rtos_int_enter</code>; the cause was 500 KB away.</div>
+  </div>
+  <p style="margin-top:14px"><strong>The diff target is always something the model did not write: <span class="teal">objdump, JTAG, a boot log.</span></strong></p>
+  <aside class="notes">5:25. Fourth example, all three roles at once. The emulator is verified by diffing against things the agent did not produce: objdump, the real chip in lock-step over JTAG, a real boot log. Zero divergences is a number an agent can defend. The list of what silicon found is the point: an emulator can only be wrong in ways it can't see. Next slide: the emulator, live.</aside>
+</section>
+
+<!-- ============ 9 · Live demo (WASM) ============ -->
+<!-- esp32sim's own web page, full-bleed and interactive. data-demo-fw names the firmware manifest (see demos.json);
+     the script below turns it into data-background-iframe: the local symlink demos/esp32sim -> ~/work/esp32sim/web
+     when served from localhost, the hosted joakimeriksson.github.io/esp32sim when the deck itself is on GitHub Pages.
+     No data-preload on purpose: the emulator boots when the slide appears, so the audience sees the boot. -->
+<section>
+<section data-demo-fw="atech" data-background-interactive class="demo-slide" data-timing="45">
+  <div class="demo-cap"><strong>Live:</strong> the same emulator core, compiled to WebAssembly, booting the board's real binary. <span class="grey">Press <span class="kbd">D</span> to reboot · <span class="kbd">↓</span> two more scenarios.</span></div>
+  <aside class="notes">6:20 (45 s; the two sub-slides below are extras, skip them if late). esp32sim boots the Atech firmware: mask ROM, bootloader, app. Point at the console diff scrolling by and the readable display. Click "enable audio" for the synth. If it misbehaves: that is the talk. D reboots it.</aside>
+</section>
+<section data-demo-fw="c6-contiki-net" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Extra:</strong> two emulated ESP32-C6 motes running Contiki-NG on one 802.15.4 medium, in this tab. The second powers on 1.3 s later; both hear each other's broadcasts.</div>
+  <aside class="notes">Extra. Two C6 motes, unmodified Contiki-NG, one emulated radio medium, no simulator behind them. Deterministic to the cycle: boot two identical images at the same time and every frame collides, which is why the second one starts 1.3 s late.</aside>
+</section>
+<section data-demo-fw="atech-sid" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Extra:</strong> the same Atech firmware as a C64 SID jukebox: cRSID emulates a whole C64 inside the emulated ESP32-S3. Click "enable audio".</div>
+  <aside class="notes">Extra, for fun and for the two-wrongs story on the next slide: this is the audio path where 2× tempo and 0.5× real time cancelled. Enable audio; Commando by Rob Hubbard.</aside>
+</section>
+</section>
+
+<!-- ============ 10 · Two stories ============ -->
+<section data-timing="55">
+  <h2>Two stories the green tests never told</h2>
+  <div class="cols two" style="margin-top:26px">
+    <div class="card fragment rise">
+      <h3>Two wrongs made a right</h3>
+      <ul>
+        <li>The I2S model hard-coded 44.1 kHz; the SID player programs 22.05 kHz → <strong>double tempo…</strong></li>
+        <li>…while the emulator ran at 0.5–0.8× real time. <strong>The errors cancelled.</strong> Every test stayed green until the pacing was exact.</li>
+        <li>It surfaced the day the JIT made real-time pacing exact. Bonus from the scope: the vendor's I2S driver actually runs at 44 101 Hz.</li>
+      </ul>
+      <p style="text-align:center;font-size:26px;margin:14px 0 8px"><span class="coral">2×</span> tempo &nbsp;×&nbsp; <span class="coral">0.5×</span> speed &nbsp;≈&nbsp; <strong>sounds right</strong></p>
+      <p><strong>Making the emulator faster found a correctness bug. Every green test had passed with both errors in place.</strong></p>
+    </div>
+    <div class="card fragment rise">
+      <h3>Light one LED and look</h3>
+      <ul>
+        <li>The LED-grid map was <em>"inferred from two photos."</em> Wrong. Twice. VU bars "came out scattered across the module" while the emulator's page looked right.</li>
+        <li><code>grid-selftest</code>: light one chain LED at a time on the real module. Column-serpentine, and the two slots hold it 90° apart.</li>
+      </ul>
+      <div class="grids" id="grids" data-p7="0,3,6,7,4,1,2,5,8" data-p11="2,1,0,3,4,5,8,7,6">
+        <div><div class="grid" data-grid="p7"></div><div class="gridlbl">port 7</div></div>
+        <div><div class="grid" data-grid="p11"></div><div class="gridlbl">port 11</div></div>
+        <div class="small grey">chain LED <span class="chain teal" id="chainno">0</span> → its glass cell on each module, as measured.<br>Same map now in firmware <em>and</em> emulator.</div>
+      </div>
+      <p><strong>Two photos → wrong map, twice. One self-test → right, once.</strong></p>
+    </div>
+  </div>
+  <aside class="notes">7:05. Two stories about why green is not correct. Left: two bugs that cancelled — the emulator was slow by about the factor the audio was fast. Speed found it. Right: the agent inferred the LED wiring from photos, twice, wrong. One self-test that lights one LED at a time settled it in an afternoon.</aside>
+</section>
+
+<!-- ============ 11 · The pattern ============ -->
+<section data-timing="40">
+  <h2>The pattern</h2>
+  <div class="cols two pattern" style="margin-top:22px;row-gap:26px">
+    <div class="fragment rise"><p><span class="num">1</span><strong>Make the loop observable</strong></p><p class="small grey">Console diffs, PNG frames, instruction counts, WAV hashes, cycle counters. If the agent cannot see it, it cannot fix it.</p></div>
+    <div class="fragment rise"><p><span class="num">2</span><strong>Make it deterministic</strong></p><p class="small grey">"Flaky" is not a work item. "14 of 15" is.</p></div>
+    <div class="fragment rise"><p><span class="num">3</span><strong>Diff against silicon, not against yourself</strong></p><p class="small grey">objdump, JTAG lock-step, a real boot log, one LED at a time. The golden must come from outside the model.</p></div>
+    <div class="fragment rise"><p><span class="num">4</span><strong>Pin goldens, then go faster</strong></p><p class="small grey">Speed is safe only when every output stays byte-identical — and going faster is how the cancelling bugs surface.</p></div>
+    <div class="fragment rise"><p><span class="num">5</span><strong>Keep the receipts, including the rejections</strong></p><p class="small grey">JSON + hashes + repro for every claim; rejected candidates stay, with numbers. "alice": 120 commits, 25 PRs, 5 days, every one with receipts.</p></div>
+    <div class="fragment rise"><p><span class="num">6</span><strong>A human holds the board and names the cause</strong></p><p class="small grey">The agent applies fixes; the human decides what "correct" means and what a green test is hiding.</p></div>
+  </div>
+  <p class="foot teal fragment rise" style="font-style:italic">Six rules — none of them about the model. All of them about what the model gets to observe.</p>
+  <aside class="notes">8:00. The pattern, six rules. None of them is about the model. They are all about what the model gets to observe, and making sure the golden it is measured against did not come from its own head.</aside>
+</section>
+
+<!-- ============ 12 · Where the agents stopped ============ -->
+<section data-timing="40">
+  <h2>Where the agents stopped</h2>
+  <div class="cols two" style="margin-top:26px">
+    <div>
+      <h3>What we saw, again and again</h3>
+      <div class="quote fragment rise" style="margin-top:8px">"The agent could apply a fix once we named the cause, but it could not reliably name the cause itself."<span class="who">— Cooja-NG paper, SNCNW 2026</span></div>
+      <div class="quote fragment rise">"…often proposed a local workaround ('enlarge the buffer', 'treat as non-fatal') when the correct fix was further up the call stack."<span class="who">— Cooja-NG paper, SNCNW 2026</span></div>
+      <p class="fragment rise" style="margin-top:18px"><strong>What worked:</strong> a persistent bug ledger — human-named root causes, fed back into the agent's context on every run.</p>
+    </div>
+    <div>
+      <h3>Three correct numbers, one question</h3>
+      <div class="stats" style="margin:12px 0 10px;gap:34px">
+        <div class="stat"><b>6.15×</b><span>JIT speedup, synthetic</span></div>
+        <div class="stat"><b>3.42×</b><span>on Zephyr</span></div>
+        <div class="stat fragment rise"><b>1.00×</b><span>on the demo firmware: it is paced to wall time</span></div>
+      </div>
+      <p class="fragment rise">All three came with receipts, and all three are right. The last one measures a loop that <em>cannot</em> go faster than the clock on the wall.</p>
+      <p class="fragment rise"><strong>Which number the work was for is a question the agent never asked. That was the human's job.</strong></p>
+    </div>
+  </div>
+  <aside class="notes">8:40. Two quotes from the Cooja-NG paper: the agent applies fixes but does not reliably name causes, and it reaches for local workarounds. And the JIT: 6× on synthetic code, 3.4× on Zephyr, 1.00× on the demo firmware, because that one is paced to real time and cannot go faster. All three numbers are right. The agent never asked which one the work was for; that question stayed with the human.</aside>
+</section>
+
+<!-- ============ 13 · Conclusions ============ -->
+<section data-timing="35">
+  <h2>What I actually learned this summer</h2>
+  <div class="cols three" style="margin-top:26px">
+    <div class="card fragment rise"><p><span class="num">1</span><strong>The bottleneck moved from writing to observing</strong></p><p class="small grey">Code is cheap now. The scarce work was building the instrument: the PNG per frame, the JTAG lock-step, the one-LED self-test. Whoever builds the eyes decides what gets fixed.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>Green by accident is the new default failure</strong></p><p class="small grey">The bugs that survive a competent agent are the ones that cancel each other out. They don't show up in tests — they show up when you go faster, or when you diff against silicon.</p></div>
+    <div class="card fragment rise"><p><span class="num">3</span><strong>Naming the cause is still human work</strong></p><p class="small grey">The agent applied fixes once we named the cause, and reached for local workarounds when we didn't. Verification is automatable. The bug ledger of human-named root causes was the most valuable file in every repo.</p></div>
+  </div>
+  <div class="quote warn fragment rise" style="font-style:normal;display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center;margin-top:22px">
+    <strong class="coral">The one that scares me</strong>
+    <span><strong>What was left for the human in the loop was a cable and a button.</strong> Those are the rows we will automate first — and then the same blind spots that give us green-by-accident tests will give us green-by-accident actuation.</span>
+  </div>
+  <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:26px">The models are super competent. <strong class="teal">Put the hardware in the loop anyway.</strong></p>
+  <aside class="notes">9:20. Three conclusions. One: the bottleneck moved from writing code to building the instrument that observes it. Two: green by accident is the failure mode that survives a competent agent. Three: verification is automatable, naming the cause is not yet; the bug ledger of human-named root causes was the most valuable file in every repo. And the warning: what was left for the human was a cable and a button, and those are the first rows we will automate. The models are super competent. Put the hardware in the loop anyway.</aside>
+</section>
+
+<!-- ============ 14 · Thanks ============ -->
+<section data-timing="5">
+  <div class="cols two" style="grid-template-columns:1fr 1.1fr;align-items:center;margin-top:40px">
+    <div>
+      <h1 style="font-size:64px">Thanks for<br>listening</h1>
+      <p class="grey" style="font-size:22px;margin-top:26px">Joakim Eriksson, RISE</p>
+      <p class="small grey" style="line-height:1.6">contiki-ng/contiki-ng<br>Cooja-NG, SNCNW 2026<br>joakimeriksson.github.io/esp32sim<br>atech.dev</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 560 400" width="560" height="400" role="img" aria-label="A robot arm pressing the user buttons on an IoT board while a camera watches">
+        <defs>
+          <linearGradient id="pcb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E6F4F5"/><stop offset="1" stop-color="#cfe9eb"/></linearGradient>
+        </defs>
+        <!-- bench -->
+        <line x1="20" y1="336" x2="540" y2="336" stroke="#bbb" stroke-width="2"/>
+        <!-- IoT board with two user buttons -->
+        <rect x="296" y="282" width="222" height="54" rx="6" fill="url(#pcb)" stroke="#009BA5" stroke-width="2.5"/>
+        <rect x="312" y="298" width="46" height="24" rx="3" fill="#fff" stroke="#009BA5" stroke-width="1.5"/>
+        <text x="335" y="315" text-anchor="middle" font-size="11" fill="#009BA5" font-weight="700">MCU</text>
+        <rect x="366" y="302" width="18" height="16" rx="2" fill="#fff" stroke="#009BA5" stroke-width="1.5"/>
+        <rect x="388" y="302" width="18" height="16" rx="2" fill="#fff" stroke="#009BA5" stroke-width="1.5"/>
+        <!-- antenna -->
+        <path d="M502 282 L502 246" stroke="#009BA5" stroke-width="2.5" fill="none"/><circle cx="502" cy="243" r="4" fill="#009BA5"/>
+        <!-- the cable: the other row we automate -->
+        <path d="M518 306 C 546 306, 546 360, 566 360" stroke="#666" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <rect x="510" y="298" width="12" height="16" rx="2" fill="#666"/>
+        <!-- LED: on while a button is held -->
+        <circle cx="490" cy="310" r="7" fill="#ddd" stroke="#999" stroke-width="1.2">
+          <animate attributeName="fill" values="#ddd;#ddd;#009BA5;#009BA5;#ddd;#ddd;#009BA5;#009BA5;#ddd;#ddd" keyTimes="0;0.19;0.21;0.36;0.38;0.64;0.66;0.81;0.83;1" dur="8s" repeatCount="indefinite"/>
+        </circle>
+        <text x="490" y="330" text-anchor="middle" font-size="9" fill="#666">LED</text>
+        <!-- user button 1 -->
+        <rect x="409" y="272" width="30" height="12" rx="2" fill="#999"/>
+        <rect x="412" y="258" width="24" height="16" rx="3" fill="#FFE500" stroke="#222" stroke-width="1.5">
+          <animate attributeName="y" values="258;258;265;265;258;258" keyTimes="0;0.17;0.19;0.36;0.38;1" dur="8s" repeatCount="indefinite"/>
+        </rect>
+        <text x="424" y="300" text-anchor="middle" font-size="9" fill="#666">USER 1</text>
+        <!-- user button 2 -->
+        <rect x="445" y="272" width="30" height="12" rx="2" fill="#999"/>
+        <rect x="448" y="258" width="24" height="16" rx="3" fill="#FFE500" stroke="#222" stroke-width="1.5">
+          <animate attributeName="y" values="258;258;265;265;258;258" keyTimes="0;0.62;0.64;0.81;0.83;1" dur="8s" repeatCount="indefinite"/>
+        </rect>
+        <text x="460" y="300" text-anchor="middle" font-size="9" fill="#666">USER 2</text>
+        <!-- robot arm: industrial six-axis look, base left, reaching right -->
+        <defs>
+          <pattern id="hz" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="18" height="18" fill="#FFE500"/><rect width="9" height="18" fill="#222"/></pattern>
+          <linearGradient id="lk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9dfe3"/></linearGradient>
+          <linearGradient id="lkv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9dfe3"/></linearGradient>
+        </defs>
+        <ellipse cx="150" cy="335" rx="84" ry="8" fill="#e4e7e9"/>
+        <ellipse cx="150" cy="326" rx="74" ry="12" fill="url(#hz)" stroke="#333" stroke-width="1.5"/>
+        <rect x="76" y="318" width="148" height="8" fill="url(#hz)"/>
+        <ellipse cx="150" cy="318" rx="74" ry="12" fill="#eceff1" stroke="#aeb6bb" stroke-width="1.5"/>
+        <path d="M108 318 C108 292 124 280 150 280 C176 280 192 292 192 318 Z" fill="url(#lk)" stroke="#aeb6bb" stroke-width="1.5"/>
+        <rect x="132" y="222" width="36" height="66" rx="10" fill="url(#lkv)" stroke="#aeb6bb" stroke-width="1.5"/>
+        <!-- upper arm rotates about the shoulder (160,212); inside it, the forearm rotates about the elbow (300,88).
+             The angles come from a two-link inverse kinematics solve for the four gripper positions. -->
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="-2.51 160 212;-2.51 160 212;0.96 160 212;0.96 160 212;-2.51 160 212;4.78 160 212;7.91 160 212;7.91 160 212;4.78 160 212;-2.51 160 212" keyTimes="0;0.1;0.18;0.3;0.38;0.55;0.63;0.75;0.83;1" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+          <g transform="rotate(-38 168 208)">
+            <rect x="112" y="178" width="112" height="60" rx="18" fill="url(#lk)" stroke="#aeb6bb" stroke-width="1.5"/>
+            <path d="M150 226 L164 196 L172 196 L158 226 Z M172 226 L186 196 L194 196 L180 226 Z" fill="#009BA5"/>
+          </g>
+          <path d="M160 212 L300 88" stroke="#aeb6bb" stroke-width="40" stroke-linecap="round" fill="none"/>
+          <path d="M160 212 L300 88" stroke="#eceff1" stroke-width="36" stroke-linecap="round" fill="none"/>
+          <path d="M156 206 L296 82" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none" opacity=".9"/>
+          <g>
+            <animateTransform attributeName="transform" type="rotate" values="5.09 300 88;5.09 300 88;4.18 300 88;4.18 300 88;5.09 300 88;-9.61 300 88;-10.53 300 88;-10.53 300 88;-9.61 300 88;5.09 300 88" keyTimes="0;0.1;0.18;0.3;0.38;0.55;0.63;0.75;0.83;1" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+            <path d="M300 88 L425 175" stroke="#aeb6bb" stroke-width="34" stroke-linecap="round" fill="none"/>
+            <path d="M300 88 L425 175" stroke="#eceff1" stroke-width="30" stroke-linecap="round" fill="none"/>
+            <path d="M296 82 L421 169" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none" opacity=".9"/>
+            <rect x="418" y="168" width="38" height="30" rx="8" fill="url(#lkv)" stroke="#aeb6bb" stroke-width="1.5"/>
+            <circle cx="437" cy="183" r="7" fill="#cfd5d9" stroke="#9aa3a8" stroke-width="1.2"/>
+            <rect x="421" y="198" width="32" height="22" rx="4" fill="#cfd5d9" stroke="#9aa3a8" stroke-width="1.2"/>
+            <rect x="426" y="204" width="22" height="3" fill="#9aa3a8"/><rect x="426" y="211" width="22" height="3" fill="#9aa3a8"/>
+            <rect x="427" y="220" width="6" height="30" rx="2" fill="#555"/>
+            <rect x="441" y="220" width="6" height="30" rx="2" fill="#555"/>
+          </g>
+          <circle cx="300" cy="88" r="21" fill="#eceff1" stroke="#aeb6bb" stroke-width="1.5"/>
+          <circle cx="300" cy="88" r="9" fill="#cfd5d9" stroke="#9aa3a8" stroke-width="1.2"/>
+        </g>
+        <circle cx="160" cy="212" r="17" fill="#eceff1" stroke="#aeb6bb" stroke-width="1.5"/>
+        <circle cx="160" cy="212" r="7" fill="#cfd5d9" stroke="#9aa3a8" stroke-width="1.2"/>
+        <!-- camera: the model's eyes, mounted top right, watching the board -->
+        <g>
+          <!-- view cone from the lens to the board -->
+          <path d="M496 76 L296 284 L518 284 Z" fill="#009BA5" fill-opacity=".07" stroke="#009BA5" stroke-opacity=".45" stroke-width="1" stroke-dasharray="4 4"/>
+          <!-- ceiling bracket -->
+          <line x1="524" y1="0" x2="524" y2="34" stroke="#aeb6bb" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="524" cy="38" r="6" fill="#cfd5d9" stroke="#9aa3a8" stroke-width="1.2"/>
+          <!-- body, tilted to look down-left at the board -->
+          <g transform="rotate(-42 524 50)">
+            <rect x="500" y="36" width="52" height="28" rx="6" fill="#3a3f44" stroke="#222" stroke-width="1.2"/>
+            <rect x="504" y="40" width="44" height="6" rx="3" fill="#5a6167"/>
+            <rect x="490" y="42" width="12" height="16" rx="3" fill="#2b2f33" stroke="#222" stroke-width="1.2"/>
+            <circle cx="490" cy="50" r="8" fill="#111" stroke="#666" stroke-width="1.5"/>
+            <circle cx="490" cy="50" r="4" fill="#009BA5"/>
+            <circle cx="487" cy="47" r="1.5" fill="#fff" opacity=".8"/>
+            <!-- tally light -->
+            <circle cx="544" cy="57" r="2.5" fill="#D9534F"><animate attributeName="opacity" values="1;1;0.15;0.15;1" keyTimes="0;0.45;0.5;0.95;1" dur="1.6s" repeatCount="indefinite"/></circle>
+          </g>
+          <text x="552" y="96" text-anchor="end" font-size="12" fill="#9a9a9a" font-style="italic">the agent's eyes</text>
+        </g>
+        <!-- serial line -->
+        <text x="296" y="372" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#666">&gt; <tspan>USER 1 pressed · camera sees LED on<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.2;0.22;0.5;0.52;1" dur="8s" repeatCount="indefinite"/></tspan></text>
+        <text x="296" y="372" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#666">&gt; <tspan>USER 2 pressed · camera sees LED on<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.65;0.67;0.95;0.97;1" dur="8s" repeatCount="indefinite"/></tspan></text>
+        <text x="20" y="372" font-size="14" fill="#9a9a9a" font-style="italic">the cable, the buttons, the eyes</text>
+      </svg>
+    </div>
+  </div>
+  <aside class="notes">10:00. Thank you. (The arm is pressing the button that was left for the human: the row we automate first.)</aside>
+</section>
+
+</div>
+</div>
+
+<script src="vendor/reveal.js"></script>
+<script src="vendor/notes.js"></script>
+<script>
+// Demo slides: pick the emulator source before Reveal reads the backgrounds.
+// Local: the symlink to the esp32sim web build. On GitHub Pages: the hosted build (same origin, so 'D' can still reload it).
+const demoBase = /\.github\.io$/.test(location.hostname) ? 'https://joakimeriksson.github.io/esp32sim/' : 'demos/esp32sim/index.html';
+document.querySelectorAll('section[data-demo-fw]').forEach(sec => {
+  sec.setAttribute('data-background-iframe', `${demoBase}?wasm&fw=${sec.dataset.demoFw}`);
+});
+
+Reveal.initialize({
+  width: 1280, height: 720, margin: 0.04,
+  center: false, hash: true, progress: true, controls: false,
+  slideNumber: slide => [Reveal.getIndices(slide).h + 1, '/', Reveal.getHorizontalSlides().length],   // count talk slides only, not the demo extras
+  transition: 'fade', transitionSpeed: 'fast', backgroundTransition: 'none',
+  defaultTiming: 45,           // seconds per slide for the speaker-view pacing timer
+  totalTime: 600,
+  preloadIframes: true,
+  plugins: [ RevealNotes ]
+});
+
+// Count-up stats when a slide becomes visible (respects reduced motion)
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countUp(section){
+  section.querySelectorAll('.count[data-to]').forEach(el => {
+    const to = +el.dataset.to;
+    if (reduce) { el.textContent = to; return; }
+    const t0 = performance.now(), dur = 900;
+    (function tick(now){
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * e);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  });
+}
+Reveal.on('ready', e => countUp(e.currentSlide));
+Reveal.on('slidechanged', e => countUp(e.currentSlide));
+
+// Frame player (slide 6): steps through the Verilator frame sprite while the slide is showing
+const player = document.getElementById('player');
+let playerTimer = null;
+function runPlayer(on){
+  clearInterval(playerTimer); playerTimer = null;
+  if (!player) return;
+  const n = +player.dataset.frames, fno = player.querySelector('.fno');
+  let i = 0;
+  // percentage background-position: 0% shows the first tile of the sprite, 100% the last
+  const show = () => { player.style.backgroundPosition = `${i / (n - 1) * 100}% 0`; fno.textContent = 'frame ' + String(i).padStart(3, '0'); };
+  show();
+  if (!on || reduce) { i = n - 1; show(); return; }
+  playerTimer = setInterval(() => { i = (i + 1) % (n + 4); if (i < n) show(); }, 250);   // 4 fps; hold the last frame a second
+}
+// LED grids (slide 10): light chain LED 0..8 on both modules, through their measured maps
+const grids = document.getElementById('grids');
+let gridTimer = null;
+function runGrids(on){
+  clearInterval(gridTimer); gridTimer = null;
+  if (!grids) return;
+  const maps = { p7: grids.dataset.p7.split(',').map(Number), p11: grids.dataset.p11.split(',').map(Number) };
+  grids.querySelectorAll('.grid').forEach(g => { if (!g.children.length) for (let c = 0; c < 9; c++) g.appendChild(document.createElement('b')); });
+  let k = 0;
+  const show = () => {
+    grids.querySelectorAll('.grid').forEach(g => {
+      const cell = maps[g.dataset.grid][k];
+      [...g.children].forEach((b, c) => { b.classList.toggle('lit', c === cell); b.textContent = c === cell ? k : ''; });
+    });
+    document.getElementById('chainno').textContent = k;
+  };
+  show();
+  if (!on || reduce) return;
+  gridTimer = setInterval(() => { k = (k + 1) % 9; show(); }, 600);
+}
+Reveal.on('ready', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); });
+Reveal.on('slidechanged', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); });
+
+// 'D' reboots the demo: reloads the current slide's iframe, inline or background
+Reveal.addKeyBinding({ keyCode: 68, key: 'D', description: 'Reboot demo' }, () => {
+  const slide = Reveal.getCurrentSlide();
+  const f = slide.querySelector('iframe') || Reveal.getSlideBackground(slide)?.querySelector('iframe');
+  if (f) f.contentWindow.location.reload();
+});
+</script>
+</body>
+</html>
