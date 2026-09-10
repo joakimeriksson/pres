@@ -48,12 +48,10 @@ emulator boots when you arrive, so the audience sees the ROM → bootloader → 
 
 ## Hosting
 
-The deck is published at **https://joakimeriksson.github.io/p/agentic-hw/** by `.github/workflows/publish.yml` in the
-repo root: on every push to `main` it copies each top-level folder that has an `index.html` into the `p/` folder of the
-user-site repo `joakimeriksson/joakimeriksson.github.io`. Nothing needs special headers: the demo slides detect the
-github.io host and load the emulator from `joakimeriksson.github.io/esp32sim` (same origin, so `D` still reboots it).
-Speaker view (`S`) opens a popup, allow it once. The workflow needs the secret `PAGES_DEPLOY_KEY`: the private half of a
-deploy key with write access on the user-site repo.
+Plain GitHub Pages, no build: the repo `joakimeriksson/pres` publishes its `main` branch root, so this deck is at
+**https://joakimeriksson.github.io/pres/agentic-hw/** and every other top-level folder with an `index.html` gets the
+same treatment. Nothing needs special headers: the demo slides detect the github.io host and load the emulator from
+`joakimeriksson.github.io/esp32sim` (same origin, so `D` still reboots it). Speaker view (`S`) opens a popup, allow it once.
 
 ## The other animated bits
 
