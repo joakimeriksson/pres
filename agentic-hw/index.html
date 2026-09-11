@@ -222,7 +222,7 @@
 </section>
 
 <!-- ============ 4 · Contiki-NG 5.2 ============ -->
-<section data-timing="55">
+<section data-timing="50">
   <div class="role"><i>agent</i><i>code</i><i>emulator</i><i class="on">board = oracle</i><i class="human">human: cable + button</i></div>
   <h2><span class="num">1</span>Contiki-NG 5.2: the agent ran the hardware tests</h2>
   <p class="sub">Contiki-NG: an open-source OS for small wireless devices · released 2026-08-13 · board tests run by the agent</p>
@@ -252,6 +252,22 @@
   </div>
   <div class="quote foot">Simulation proves the logic; the board proves everything else. Hardware as oracle — and the agent now runs the oracle.</div>
   <aside class="notes">1:50. First example, hardware as oracle. The merge team set the rules as always: plan, runbook and board checklist, copied from last year's release. The agent worked inside them, made the release PR the CI gate, and then ran the hardware tests itself: built, flashed, read the serial output and filled in the checklist on eight board families. The human plugged in cables and pressed buttons — that was all. 18 of 18. The board is the oracle, and the agent now operates the oracle.</aside>
+</section>
+
+<!-- ============ 4b · The receipts: issue #3190 ============ -->
+<section data-timing="5">
+  <div class="role"><i>agent</i><i>code</i><i>emulator</i><i class="on">board = oracle</i><i class="human">human: cable + button</i></div>
+  <h2>The receipts: one issue, 23 reports</h2>
+  <p class="sub">contiki-ng issue #3190 · under every ticked row, a report written by Claude from what the board printed</p>
+  <div style="display:grid;grid-template-columns:560px 1fr;gap:28px;align-items:start;margin-top:4px">
+    <img src="assets/gh-3190-checklist.png" alt="The ticked platform and module checklist of issue 3190" style="width:560px;border:1px solid #ddd">
+    <div>
+      <img src="assets/gh-3190-nrf54l15.png" alt="Claude's nRF54L15 test report: a table of tests and results" style="width:100%;border:1px solid #ddd">
+      <p class="small grey" style="margin-top:12px">One of the 23: the board that was new in this release. Same shape every time: what was built, what ran, what the board said back, and the one thing that does not work yet, written down.</p>
+      <p class="teal" style="font-size:22px;margin-top:6px"><strong>The human's part of each report: the cable and the button.</strong></p>
+    </div>
+  </div>
+  <aside class="notes">2:40 (5 s). Don't read it. This is what the checklist looks like: every row ticked, and under each row a post from Claude with a table of what the board actually printed. Twenty-three of them. Next.</aside>
 </section>
 
 <!-- ============ 5 · Cooja-NG ============ -->
