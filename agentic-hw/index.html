@@ -107,6 +107,18 @@
 /* frame player (slide 6): a sprite of Verilator frames, stepped by JS */
 .reveal .player{position:relative;width:100%;aspect-ratio:2/1;background:#0000aa url(assets/rv32-boot-frames.png) 0 0/2400% 100% no-repeat;image-rendering:pixelated;border:1px solid #ddd;overflow:hidden}
 .reveal .player .fno{position:absolute;right:8px;bottom:6px;font-family:var(--mono);font-size:14px;color:#fff;background:rgba(0,0,0,.45);padding:1px 8px;border-radius:3px}
+/* memory column (slide 8b): the stack eats the RAM, then the code */
+.reveal .mem{position:relative;width:300px;height:470px;border:2px solid var(--ink);background:#fff;font-size:15px;margin:0 auto}
+.reveal .mem .band{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 10px;box-sizing:border-box}
+.reveal .mem .reg{top:0;height:64px;background:#eee;border-bottom:2px solid var(--ink);line-height:1.2}
+.reveal .mem .ram{top:66px;height:280px;color:var(--grey)}
+.reveal .mem .code{bottom:0;height:120px;background:var(--teal-tint);border-top:2px solid var(--ink);font-weight:700;color:var(--teal)}
+.reveal .mem .stack{position:absolute;left:0;right:0;top:66px;height:0;background:var(--coral);opacity:.85;transition:none}
+.reveal .mem .cnt{position:absolute;left:0;right:0;top:80px;text-align:center;font-family:var(--mono);font-size:26px;font-weight:700;color:#fff;text-shadow:0 0 6px rgba(0,0,0,.4)}
+.reveal .mem .boom{position:absolute;left:8px;right:8px;bottom:36px;text-align:center;font-weight:700;color:#fff;background:var(--coral);padding:6px;opacity:0;transition:opacity .3s}
+.reveal .mem .boom.on{opacity:1}
+.reveal .mem .far{position:absolute;right:-92px;top:32px;bottom:60px;width:70px;border-right:2px solid var(--grey);border-top:2px solid var(--grey);border-bottom:2px solid var(--grey);color:var(--grey);font-size:14px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;box-sizing:border-box}
+.reveal .mem .far span{background:#fff;padding:2px 4px;position:relative;right:-40px;width:80px;text-align:center}
 /* LED grids (slide 10): the measured maps, one chain LED at a time */
 .reveal .grids{display:flex;gap:26px;align-items:center;margin:10px 0 4px}
 .reveal .grid{display:grid;grid-template-columns:repeat(3,26px);gap:4px;padding:8px;background:#1d1f22;border-radius:6px}
@@ -353,7 +365,7 @@
 </section>
 
 <!-- ============ 8 · Atech ============ -->
-<section data-timing="55">
+<section data-timing="45">
   <div class="role"><i>agent</i><i>code</i><i class="on">emulator</i><i class="on">board = oracle + calibrator</i></div>
   <h2><span class="num">4</span>The Atech emulator: compare against the real chip</h2>
   <p class="sub"><code>esp32sim</code> runs the board's real firmware from the chip's boot ROM onwards, on a laptop or in a browser tab</p>
@@ -372,10 +384,38 @@
         <li>An interrupt setting in the wrong register: the handler re-entered itself <strong>3 867 times</strong>.</li>
       </ul>
     </div>
-    <div class="quote fragment rise" style="margin-top:0">The symptom was a crash in the operating system's interrupt code; the cause was 500 KB away.</div>
+    <div class="quote fragment rise" style="margin-top:0">The symptom was a crash in the operating system's interrupt code; the cause was 500 KB away. <span class="grey small">(next slide)</span></div>
   </div>
   <p style="margin-top:14px"><strong>The reference never comes from the model: <span class="teal">a disassembler, the real chip, a boot log.</span></strong></p>
   <aside class="notes">5:25. Fourth example, all three roles at once. The emulator is verified by comparing against things the agent did not produce: the standard disassembler, the real chip stepped alongside, a real boot log. Zero divergences is a number an agent can defend. The list of what silicon found is the point: an emulator can only be wrong in ways it can't see. Next slide: the emulator, live.</aside>
+</section>
+
+<!-- ============ 8b · The 500 KB bug, explained ============ -->
+<section data-timing="25">
+  <div class="role"><i>agent</i><i>code</i><i class="on">emulator</i><i class="on">board = oracle</i></div>
+  <h2>Why the cause was 500 KB from the crash</h2>
+  <p class="sub">One wrong address in the emulator. The real chip's boot log was the only thing that disagreed.</p>
+  <div class="cols two" style="grid-template-columns:1.25fr 1fr;gap:20px;margin-top:6px">
+    <div>
+      <ol style="padding-left:1.2em;font-size:21px">
+        <li class="fragment rise" data-fragment-index="1"><strong>A timer interrupt arrives.</strong> The chip drops what it is doing and runs a small handler. The handler's first act is to flip a hardware switch that says <em>"no more of these until I'm done"</em>.</li>
+        <li class="fragment rise" data-fragment-index="2"><strong>The emulator had that switch at the wrong address.</strong> The write landed nowhere. Nothing complained.</li>
+        <li class="fragment rise" data-fragment-index="3"><strong>So the same interrupt fired again, inside its own handler.</strong> Each time, the chip notes where it was on the stack, its scratch pile in memory, and starts over. <strong class="coral">3 867 times.</strong></li>
+        <li class="fragment rise" data-fragment-index="4"><strong>The stack grew down through all of memory and into the program itself.</strong> When the chip next ran that part of the program, it was stack rubbish: <em>illegal instruction</em>.</li>
+      </ol>
+      <p class="fragment rise" data-fragment-index="5" style="margin-top:10px"><strong class="teal">The crash pointed at the handler. The bug was one address in a register model, 500 KB away, and only the real chip's boot log disagreed with the emulator.</strong></p>
+    </div>
+    <div class="mem" id="mem" data-frames="3867">
+      <div class="band reg">the switch the handler flips<br><span class="grey">emulator: wrong address, write lost</span></div>
+      <div class="band ram">RAM</div>
+      <div class="stack" id="memstack"></div>
+      <div class="cnt" id="memcnt"></div>
+      <div class="band code">program code</div>
+      <div class="boom" id="memboom">illegal instruction</div>
+      <div class="far"><span>500 KB</span></div>
+    </div>
+  </div>
+  <aside class="notes">5:55 (25 s). In plain words: an interrupt is the chip being tapped on the shoulder. The first thing the handler does is say "don't tap me again until I'm done", by writing a hardware switch. The emulator had that switch at the wrong address, so the write vanished. The chip got tapped again inside the handler, 3 867 times, each one adding to the stack, until the stack had overwritten the program. The crash was in the handler; the bug was one address in the emulator's register map, 500 KB away. Nothing inside the emulator could see it; the real board's boot log could.</aside>
 </section>
 
 <!-- ============ 9 · Live demo (WASM) ============ -->
@@ -384,7 +424,7 @@
      when served from localhost, the hosted joakimeriksson.github.io/esp32sim when the deck itself is on GitHub Pages.
      No data-preload on purpose: the emulator boots when the slide appears, so the audience sees the boot. -->
 <section>
-<section data-demo-fw="atech" data-background-interactive class="demo-slide" data-timing="45">
+<section data-demo-fw="atech" data-background-interactive class="demo-slide" data-timing="40">
   <div class="demo-cap"><strong>Live:</strong> the same emulator, compiled to run in a browser, booting the board's real firmware. <span class="grey">Press <span class="kbd">D</span> to reboot · <span class="kbd">↓</span> two more scenarios.</span></div>
   <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">6:20 (45 s; the two sub-slides below are extras, skip them if late). esp32sim boots the Atech firmware: mask ROM, bootloader, app. Point at the console diff scrolling by and the readable display. Click "enable audio" for the synth. If it misbehaves: that is the talk. D reboots it.</aside>
@@ -402,7 +442,7 @@
 </section>
 
 <!-- ============ 10 · Two stories ============ -->
-<section data-timing="55">
+<section data-timing="45">
   <h2>Two stories the green tests never told</h2>
   <div class="cols two" style="margin-top:26px">
     <div class="card fragment rise">
@@ -676,8 +716,32 @@ function runGrids(on){
   if (!on || reduce) return;
   gridTimer = setInterval(() => { k = (k + 1) % 9; show(); }, 600);
 }
-Reveal.on('ready', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); });
-Reveal.on('slidechanged', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); });
+// Memory column (slide 8b): the stack eats the RAM and then the code, counting re-entries
+let memTimer = null;
+function runMem(stage){          // 0 = reset, 1 = grow through RAM and into the code, then the crash
+  cancelAnimationFrame(memTimer);
+  const st = document.getElementById('memstack'), cnt = document.getElementById('memcnt'), boom = document.getElementById('memboom');
+  if (!st) return;
+  st.style.height = '0px'; cnt.textContent = ''; boom.classList.remove('on');
+  if (!stage) return;
+  const total = 3867, full = 400, dur = reduce ? 0 : 3200, t0 = performance.now();
+  (function tick(now){
+    const p = Math.min(1, (now - t0) / dur);
+    st.style.height = Math.round(full * p) + 'px';
+    cnt.textContent = Math.round(total * p).toLocaleString('en').replace(/,/g, '\u2009') + ' re-entries';
+    if (p < 1) memTimer = requestAnimationFrame(tick); else boom.classList.add('on');
+  })(t0);
+}
+function memStage(slide){
+  if (!slide.querySelector('#mem')) return;
+  const f3 = slide.querySelector('[data-fragment-index="3"]');
+  runMem(f3 && f3.classList.contains('visible') ? 1 : 0);
+}
+Reveal.on('fragmentshown', e => { if (e.fragment.dataset.fragmentIndex === '3') runMem(1); });
+Reveal.on('fragmenthidden', e => { if (e.fragment.dataset.fragmentIndex === '3') runMem(0); });
+
+Reveal.on('ready', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); memStage(e.currentSlide); });
+Reveal.on('slidechanged', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); memStage(e.currentSlide); });
 
 // Demo slides: the emulator page takes keyboard focus once you click in it, so the deck would stop
 // hearing the arrow keys. Two ways back: the ‹ › buttons in the caption bar, and forwarding of the
