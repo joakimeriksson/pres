@@ -151,10 +151,10 @@
   <h2>The loop a coding agent closes is its own</h2>
   <div class="cols two" style="margin-top:34px">
     <div>
-      <p class="fragment rise" data-fragment-index="1">Coding agents are extremely good <strong>at closing loops they can observe.</strong></p>
-      <p class="fragment rise" data-fragment-index="2">Left alone, the loop they observe is <strong>their own model of the world</strong>: the code they wrote, the tests they wrote, the log lines they expected.</p>
-      <p class="fragment rise" data-fragment-index="3">Tests written by the same model that wrote the code <strong>share its blind spots.</strong> Green is not the same as correct.</p>
-      <p class="fragment rise teal" data-fragment-index="4"><strong>Hardware does not share the model's blind spots.</strong></p>
+      <p>Coding agents are extremely good <strong>at closing loops they can observe.</strong></p>
+      <p>Left alone, the loop they observe is <strong>their own model of the world</strong>: the code they wrote, the tests they wrote, the log lines they expected.</p>
+      <p>Tests written by the same model that wrote the code <strong>share its blind spots.</strong> Green is not the same as correct.</p>
+      <p class="fragment rise teal" data-fragment-index="1"><strong>Hardware does not share the model's blind spots.</strong></p>
     </div>
     <div>
       <svg viewBox="0 0 520 360" width="520" height="360">
@@ -177,7 +177,7 @@
       </svg>
     </div>
   </div>
-  <div class="quote foot fragment rise" data-fragment-index="4">Green suites that are green by accident are the failure mode that scares me: the tests pass, the model is happy, and nobody touched a board.</div>
+  <div class="quote foot fragment rise" data-fragment-index="1">Green suites that are green by accident are the failure mode that scares me: the tests pass, the model is happy, and nobody touched a board.</div>
   <aside class="notes">0:15. The claim. Agents close loops. The danger is that the loop they close is entirely inside their own head: code, tests and expectations all come from the same model. Hardware is the one thing in the room that does not share those blind spots. So: how do you put it in the loop, in practice?</aside>
 </section>
 
@@ -222,10 +222,10 @@
     <g class="fragment rise" data-fragment-index="5">
       <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Oracle</tspan><tspan fill="#666"> — the real board has the last word on what is correct</tspan></text>
     </g>
-    <g class="fragment rise" data-fragment-index="6">
+    <g class="fragment rise" data-fragment-index="5">
       <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Calibrator</tspan><tspan fill="#666"> — timings measured on the board become the emulator's timings</tspan></text>
     </g>
-    <g class="fragment rise" data-fragment-index="7">
+    <g class="fragment rise" data-fragment-index="5">
       <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — a fast, repeatable stand-in for the board that the agent can iterate in</tspan></text>
     </g>
   </svg>
@@ -249,16 +249,16 @@
     <div>
       <h3>The agent as release engineer</h3>
       <ul class="small">
-        <li class="fragment rise">The merge team set the rules, as every year: a release plan, a runbook and a checklist of real boards to test, copied from last release. No release until every board row is green.</li>
-        <li class="fragment rise">The agent worked inside them. Reading the CI configuration it noticed: <em>"CI has never tested the release head."</em> So the release itself became what CI has to pass.</li>
+        <li>The merge team set the rules, as every year: a release plan, a runbook and a checklist of real boards to test, copied from last release. No release until every board row is green.</li>
+        <li>The agent worked inside them. Reading the CI configuration it noticed: <em>"CI has never tested the release head."</em> So the release itself became what CI has to pass.</li>
       </ul>
     </div>
     <div>
       <h3>The agent on the boards</h3>
       <ul class="small">
-        <li class="fragment rise">Built the firmware, loaded it onto <strong>every board on the checklist</strong>, read what the board printed back, filled in the row: eight board families (Nordic, TI, Silicon Labs).</li>
-        <li class="fragment rise"><strong>The human's job: plug in the cable, press the button.</strong> Everything else was the agent.</li>
-        <li class="fragment rise">Board-only findings went into the release notes: a radio that stopped receiving under load, two boards where the time-slotted radio mode is not ready, a dev kit whose 1.8 V setting <em>"will burn you."</em></li>
+        <li>Built the firmware, loaded it onto <strong>every board on the checklist</strong>, read what the board printed back, filled in the row: eight board families (Nordic, TI, Silicon Labs).</li>
+        <li><strong>The human's job: plug in the cable, press the button.</strong> Everything else was the agent.</li>
+        <li>Board-only findings went into the release notes: a radio that stopped receiving under load, two boards where the time-slotted radio mode is not ready, a dev kit whose 1.8 V setting <em>"will burn you."</em></li>
       </ul>
     </div>
   </div>
@@ -285,7 +285,7 @@
 <!-- ============ 5 · Cooja-NG ============ -->
 <section data-timing="60">
   <div class="role"><i>agent</i><i>code</i><i class="on">emulator = proxy</i><i class="on">board = calibrator</i></div>
-  <h2><span class="num">2</span>Cooja-NG: real chip and emulator correct each other</h2>
+  <h2><span class="num">2</span>Cooja-NG: chip calibrates emulator, emulator debugs firmware</h2>
   <p class="sub">The Contiki-NG network simulator, rewritten to be fast and repeatable, kept honest by the real boards it imitates</p>
   <div class="cols three" style="font-size:18px">
     <div class="card fragment rise" style="font-size:18px">
@@ -316,7 +316,7 @@
     <strong>A four-year-old flaky test:</strong> one compiler, 15 runs: <span class="runs" aria-label="14 of 15 runs failed"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="ok"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span> the other compiler passes <em>"by luck of stack contents"</em>. Cause: uninitialised bytes in a radio setting, hidden since 2022. Fix: one line.<br>
     <em class="teal"><strong>A deterministic simulator turns "flaky" into "14 of 15", and 14 of 15 is something an agent can work on.</strong></em>
   </div>
-  <aside class="notes">2:45. Second example, hardware as calibrator. A cycle count measured on the real board becomes the emulator's timing. The radio bug was only visible on a logic analyzer — no emulator would have shown it. Once the emulator is trustworthy it becomes the proxy: 2400× real time, deterministic, in CI. Which is how a four-year-old flake finally got fixed: 14 of 15 is a number, flaky is not.</aside>
+  <aside class="notes">2:45. Second example. One direction per pair: the chip calibrates the emulator, the chip and the emulator each find firmware bugs; nothing corrects the chip. A cycle count measured on the real board becomes the emulator's timing. The radio bug was only visible on a logic analyzer — no emulator would have shown it. Once the emulator is trustworthy it becomes the proxy: 2400× real time, deterministic, in CI. Which is how a four-year-old flake finally got fixed: 14 of 15 is a number, flaky is not.</aside>
 </section>
 
 <!-- ============ 6 · FPGA ============ -->
@@ -333,9 +333,9 @@
       </ul>
       <h3 style="margin-top:22px">The loop the agent could see</h3>
       <ul class="small">
-        <li class="fragment rise"><strong>The official RISC-V test suite</strong>, run in simulation: 56 of 58 pass; the 2 failures are features deliberately left out.</li>
-        <li class="fragment rise">The simulation writes the screen out as <strong>PNG images</strong>: a wrong character in the greeting becomes a diff the agent can read.</li>
-        <li class="fragment rise"><strong>200 000 random inputs</strong> through the new HDMI encoder and a known-good one, outputs compared: a wrong constant shows up in the first ten lines.</li>
+        <li><strong>The official RISC-V test suite</strong>, run in simulation: 56 of 58 pass; the 2 failures are features deliberately left out.</li>
+        <li>The simulation writes the screen out as <strong>PNG images</strong>: a wrong character in the greeting becomes a diff the agent can read.</li>
+        <li><strong>200 000 random inputs</strong> through the new HDMI encoder and a known-good one, outputs compared: a wrong constant shows up in the first ten lines.</li>
       </ul>
     </div>
     <div>
@@ -354,11 +354,11 @@
   <p class="sub">The HDMI encoder was bit-exact in simulation. On the board: nothing.</p>
   <table>
     <tr><th></th><th class="teal">In simulation</th><th class="coral">On the board</th></tr>
-    <tr class="fragment rise"><td><strong>HDMI pins</strong></td><td class="sim">Screen images correct</td><td>Black. One missing line in the pin configuration: the HDMI pins were in the wrong electrical mode. <em>"Differential pads are a constraint, not code."</em></td></tr>
-    <tr class="fragment rise"><td><strong>Timers</strong></td><td class="sim">Ticks at 1 Hz</td><td>27× too fast: build leftovers from the simulator's 1 MHz setting were reused for the 27 MHz board. Fix: one build folder per clock.</td></tr>
-    <tr class="fragment rise"><td><strong>Warm reset</strong></td><td class="sim">Printing works</td><td>Printing went silent: memory keeps its old values across a reset, so the C library woke up with stale state. Fix: restore it at boot; the simulator learned to inject resets.</td></tr>
-    <tr class="fragment rise"><td><strong>USB serial</strong></td><td class="sim">Clean stream</td><td>The board's USB-to-serial chip hangs or replays old output; any measurement through it lies.</td></tr>
-    <tr class="fragment rise"><td><strong>Own HDMI encoder</strong></td><td class="sim">Bit-exact</td><td>Flickers. Root cause never proven. Shipped with a known-good open-source encoder instead.</td></tr>
+    <tr><td><strong>HDMI pins</strong></td><td class="sim">Screen images correct</td><td>Black. One missing line in the pin configuration: the HDMI pins were in the wrong electrical mode. <em>"Differential pads are a constraint, not code."</em></td></tr>
+    <tr><td><strong>Timers</strong></td><td class="sim">Ticks at 1 Hz</td><td>27× too fast: build leftovers from the simulator's 1 MHz setting were reused for the 27 MHz board. Fix: one build folder per clock.</td></tr>
+    <tr><td><strong>Warm reset</strong></td><td class="sim">Printing works</td><td>Printing went silent: memory keeps its old values across a reset, so the C library woke up with stale state. Fix: restore it at boot; the simulator learned to inject resets.</td></tr>
+    <tr><td><strong>USB serial</strong></td><td class="sim">Clean stream</td><td>The board's USB-to-serial chip hangs or replays old output; any measurement through it lies.</td></tr>
+    <tr><td><strong>Own HDMI encoder</strong></td><td class="sim">Bit-exact</td><td>Flickers. Root cause never proven. Shipped with a known-good open-source encoder instead.</td></tr>
   </table>
   <div class="quote foot fragment rise">"Nearly every bug in this project was found in simulation" — and the ones that weren't are the ones on this slide. The screen images were right; the photons were wrong.</div>
   <aside class="notes">4:35. And then the board. Everything here was invisible to the emulator, because none of it is logic: a constraint file, a stale build directory, what RAM does across a reset, a USB bridge that lies. Each was found by a human looking at a board, and each was then fed back so the simulator could reproduce it next time.</aside>
@@ -371,9 +371,9 @@
   <p class="sub"><code>esp32sim</code> runs the board's real firmware from the chip's boot ROM onwards, on a laptop or in a browser tab</p>
   <table class="head">
     <tr><th>What</th><th>How it was checked</th><th>Result</th></tr>
-    <tr class="fragment rise"><td><strong>Instruction decoding</strong></td><td>Every instruction of three real firmware images, compared with the standard disassembler</td><td>977 k / 161 k / 126 k instructions, <strong>0 mismatches</strong></td></tr>
-    <tr class="fragment rise"><td><strong>ESP32-S3</strong></td><td>Real chip and emulator stepped one instruction at a time, side by side, over a debug cable</td><td>8 000 + 3 000 steps, <strong>never diverged</strong></td></tr>
-    <tr class="fragment rise"><td><strong>ESP32-C3 / C6</strong></td><td>The emulator's boot output compared line by line with the real board's</td><td>205 / 208 and 203 / 204 lines identical</td></tr>
+    <tr><td><strong>Instruction decoding</strong></td><td>Every instruction of three real firmware images, compared with the standard disassembler</td><td>977 k / 161 k / 126 k instructions, <strong>0 mismatches</strong></td></tr>
+    <tr><td><strong>ESP32-S3</strong></td><td>Real chip and emulator stepped one instruction at a time, side by side, over a debug cable</td><td>8 000 + 3 000 steps, <strong>never diverged</strong></td></tr>
+    <tr><td><strong>ESP32-C3 / C6</strong></td><td>The emulator's boot output compared line by line with the real board's</td><td>205 / 208 and 203 / 204 lines identical</td></tr>
   </table>
   <div class="cols two" style="grid-template-columns:1.4fr 1fr;margin-top:14px">
     <div class="fragment rise">
@@ -398,12 +398,12 @@
   <div class="cols two" style="grid-template-columns:1.25fr 1fr;gap:20px;margin-top:6px">
     <div>
       <ol style="padding-left:1.2em;font-size:21px">
-        <li class="fragment rise" data-fragment-index="1"><strong>A timer interrupt arrives.</strong> The chip drops what it is doing and runs a small handler. The handler's first act is to flip a hardware switch that says <em>"no more of these until I'm done"</em>.</li>
-        <li class="fragment rise" data-fragment-index="2"><strong>The emulator had that switch at the wrong address.</strong> The write landed nowhere. Nothing complained.</li>
-        <li class="fragment rise" data-fragment-index="3"><strong>So the same interrupt fired again, inside its own handler.</strong> Each time, the chip notes where it was on the stack, its scratch pile in memory, and starts over. <strong class="coral">3 867 times.</strong></li>
-        <li class="fragment rise" data-fragment-index="4"><strong>The stack grew down through all of memory and into the program itself.</strong> When the chip next ran that part of the program, it was stack rubbish: <em>illegal instruction</em>.</li>
+        <li><strong>A timer interrupt arrives.</strong> The chip drops what it is doing and runs a small handler. The handler's first act is to flip a hardware switch that says <em>"no more of these until I'm done"</em>.</li>
+        <li><strong>The emulator had that switch at the wrong address.</strong> The write landed nowhere. Nothing complained.</li>
+        <li><strong>So the same interrupt fired again, inside its own handler.</strong> Each time, the chip notes where it was on the stack, its scratch pile in memory, and starts over. <strong class="coral">3 867 times.</strong></li>
+        <li><strong>The stack grew down through all of memory and into the program itself.</strong> When the chip next ran that part of the program, it was stack rubbish: <em>illegal instruction</em>.</li>
       </ol>
-      <p class="fragment rise" data-fragment-index="5" style="margin-top:10px"><strong class="teal">The crash pointed at the handler. The bug was one address in a register model, 500 KB away, and only the real chip's boot log disagreed with the emulator.</strong></p>
+      <p class="fragment rise" style="margin-top:10px"><strong class="teal">The crash pointed at the handler. The bug was one address in a register model, 500 KB away, and only the real chip's boot log disagreed with the emulator.</strong></p>
     </div>
     <div class="mem" id="mem" data-frames="3867">
       <div class="band reg">the switch the handler flips<br><span class="grey">emulator: wrong address, write lost</span></div>
@@ -476,12 +476,12 @@
 <section data-timing="40">
   <h2>The pattern</h2>
   <div class="cols two pattern" style="margin-top:22px;row-gap:26px">
-    <div class="fragment rise"><p><span class="num">1</span><strong>Make the loop observable</strong></p><p class="small grey">What the board prints, what its screen shows, instruction counts, audio fingerprints, cycle counts. If the agent cannot see it, it cannot fix it.</p></div>
-    <div class="fragment rise"><p><span class="num">2</span><strong>Make it deterministic</strong></p><p class="small grey">"Flaky" is not a work item. "14 of 15" is.</p></div>
-    <div class="fragment rise"><p><span class="num">3</span><strong>Compare against the real chip, not yourself</strong></p><p class="small grey">A standard disassembler, the real chip stepped alongside, a real boot log, one LED at a time. The reference must come from outside the model.</p></div>
-    <div class="fragment rise"><p><span class="num">4</span><strong>Pin the reference outputs, then go faster</strong></p><p class="small grey">Speed is safe only when every output stays byte-identical — and going faster is how the cancelling bugs surface.</p></div>
-    <div class="fragment rise"><p><span class="num">5</span><strong>Keep the receipts, including the rejections</strong></p><p class="small grey">Data, checksums and a way to reproduce, for every claim; rejected candidates stay, with numbers. "alice": 120 commits, 25 PRs, 5 days, every one with receipts.</p></div>
-    <div class="fragment rise"><p><span class="num">6</span><strong>A human holds the board and names the cause</strong></p><p class="small grey">The agent applies fixes; the human decides what "correct" means and what a green test is hiding.</p></div>
+    <div><p><span class="num">1</span><strong>Make the loop observable</strong></p><p class="small grey">What the board prints, what its screen shows, instruction counts, audio fingerprints, cycle counts. If the agent cannot see it, it cannot fix it.</p></div>
+    <div><p><span class="num">2</span><strong>Make it deterministic</strong></p><p class="small grey">"Flaky" is not a work item. "14 of 15" is.</p></div>
+    <div><p><span class="num">3</span><strong>Compare against the real chip, not yourself</strong></p><p class="small grey">A standard disassembler, the real chip stepped alongside, a real boot log, one LED at a time. The reference must come from outside the model.</p></div>
+    <div><p><span class="num">4</span><strong>Pin the reference outputs, then go faster</strong></p><p class="small grey">Speed is safe only when every output stays byte-identical — and going faster is how the cancelling bugs surface.</p></div>
+    <div><p><span class="num">5</span><strong>Keep the receipts, including the rejections</strong></p><p class="small grey">Data, checksums and a way to reproduce, for every claim; rejected candidates stay, with numbers. "alice": 120 commits, 25 PRs, 5 days, every one with receipts.</p></div>
+    <div><p><span class="num">6</span><strong>A human holds the board and names the cause</strong></p><p class="small grey">The agent applies fixes; the human decides what "correct" means and what a green test is hiding.</p></div>
   </div>
   <p class="foot teal fragment rise" style="font-style:italic">Six rules — none of them about the model. All of them about what the model gets to observe.</p>
   <aside class="notes">8:00. The pattern, six rules. None of them is about the model. They are all about what the model gets to observe, and making sure the golden it is measured against did not come from its own head.</aside>
@@ -495,17 +495,17 @@
       <h3>What we saw, again and again</h3>
       <div class="quote fragment rise" style="margin-top:8px">"The agent could apply a fix once we named the cause, but it could not reliably name the cause itself."<span class="who">— Cooja-NG paper, SNCNW 2026</span></div>
       <div class="quote fragment rise">"…often proposed a local workaround ('enlarge the buffer', 'treat as non-fatal') when the correct fix was further up the call stack."<span class="who">— Cooja-NG paper, SNCNW 2026</span></div>
-      <p class="fragment rise" style="margin-top:18px"><strong>What worked:</strong> a persistent bug ledger — human-named root causes, fed back into the agent's context on every run.</p>
+      <p style="margin-top:18px"><strong>What worked:</strong> a persistent bug ledger — human-named root causes, fed back into the agent's context on every run.</p>
     </div>
     <div>
       <h3>Three correct numbers, one question</h3>
       <div class="stats" style="margin:12px 0 10px;gap:34px">
         <div class="stat"><b>6.15×</b><span>speed-up on a synthetic benchmark</span></div>
         <div class="stat"><b>3.42×</b><span>on a real operating system</span></div>
-        <div class="stat fragment rise"><b>1.00×</b><span>on the demo firmware: it is paced to wall time</span></div>
+        <div class="stat"><b>1.00×</b><span>on the demo firmware: it is paced to wall time</span></div>
       </div>
-      <p class="fragment rise">All three came with receipts, and all three are right. The last one measures a loop that <em>cannot</em> go faster than the clock on the wall.</p>
-      <p class="fragment rise"><strong>Which number the work was for is a question the agent never asked. That was the human's job.</strong></p>
+      <p>All three came with receipts, and all three are right. The last one measures a loop that <em>cannot</em> go faster than the clock on the wall.</p>
+      <p><strong>Which number the work was for is a question the agent never asked. That was the human's job.</strong></p>
     </div>
   </div>
   <aside class="notes">8:40. Two quotes from the Cooja-NG paper: the agent applies fixes but does not reliably name causes, and it reaches for local workarounds. And the JIT: 6× on synthetic code, 3.4× on Zephyr, 1.00× on the demo firmware, because that one is paced to real time and cannot go faster. All three numbers are right. The agent never asked which one the work was for; that question stayed with the human.</aside>
@@ -732,13 +732,7 @@ function runMem(stage){          // 0 = reset, 1 = grow through RAM and into the
     if (p < 1) memTimer = requestAnimationFrame(tick); else boom.classList.add('on');
   })(t0);
 }
-function memStage(slide){
-  if (!slide.querySelector('#mem')) return;
-  const f3 = slide.querySelector('[data-fragment-index="3"]');
-  runMem(f3 && f3.classList.contains('visible') ? 1 : 0);
-}
-Reveal.on('fragmentshown', e => { if (e.fragment.dataset.fragmentIndex === '3') runMem(1); });
-Reveal.on('fragmenthidden', e => { if (e.fragment.dataset.fragmentIndex === '3') runMem(0); });
+function memStage(slide){ runMem(slide.querySelector('#mem') ? 1 : 0); }
 
 Reveal.on('ready', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); memStage(e.currentSlide); });
 Reveal.on('slidechanged', e => { runPlayer(!!e.currentSlide.querySelector('#player')); runGrids(!!e.currentSlide.querySelector('#grids')); memStage(e.currentSlide); });
