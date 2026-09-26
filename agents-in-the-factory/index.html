@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agents in the factory loop — Joakim Eriksson, RISE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="vendor/reset.css">
+<link rel="stylesheet" href="vendor/reveal.css">
+<style>
+/* ---------- tokens (same as the hardware-in-the-loop deck) ---------- */
+:root{
+  --ink:#222222;
+  --grey:#666666;
+  --mute:#9a9a9a;
+  --teal:#009BA5;
+  --teal-dark:#007d85;
+  --teal-tint:#E6F4F5;
+  --yellow:#FFE500;     /* RISE accent: reserved for the human in the loop */
+  --coral:#D9534F;
+  --coral-tint:#FBEBEA;
+  --amber:#E69A00;
+  --paper:#ffffff;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+/* ---------- base ---------- */
+.reveal{font-family:var(--sans);color:var(--ink);font-size:24px;line-height:1.35}
+.reveal .slides{text-align:left}
+.reveal .slides section{height:720px;box-sizing:border-box;padding:52px 64px 48px 64px}
+.reveal .slides section::after{content:"";position:absolute;right:48px;bottom:36px;width:38px;height:48px;
+  background:url(assets/rise-logo.png) no-repeat center/contain}
+.reveal .slides section.title::after{width:88px;height:112px;right:64px;top:52px;bottom:auto}
+.reveal h1,.reveal h2,.reveal h3{font-family:var(--sans);color:var(--ink);text-transform:none;letter-spacing:-.015em;margin:0}
+.reveal h1{font-size:76px;font-weight:400;line-height:1.02}
+.reveal h2{font-size:40px;font-weight:700;line-height:1.15;margin-bottom:6px}
+.reveal h3{font-size:24px;font-weight:700;color:var(--teal);margin:0 0 10px}
+.reveal p{margin:0 0 .6em}
+.reveal .sub{font-size:22px;color:var(--grey);margin-bottom:24px}
+.reveal ul{margin:0;padding-left:1.1em}
+.reveal li{margin:0 0 .45em;padding-left:.15em}
+.reveal li::marker{color:var(--teal)}
+.reveal strong{font-weight:700}
+.reveal em{font-style:italic}
+.reveal code,.reveal .mono{font-family:var(--mono);font-size:.92em}
+.reveal .small{font-size:19px;line-height:1.32}
+.reveal .xs{font-size:16px}
+.reveal .grey{color:var(--grey)}
+.reveal .teal{color:var(--teal)}
+.reveal .coral{color:var(--coral)}
+.reveal .num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;
+  background:var(--teal);color:#fff;font-weight:700;font-size:22px;vertical-align:middle;margin-right:14px;position:relative;top:-4px}
+.reveal .quote{background:var(--teal-tint);padding:16px 22px;font-style:italic;font-size:22px;margin-top:18px}
+.reveal .quote .who{display:block;font-style:normal;font-size:17px;color:var(--grey);margin-top:4px}
+.reveal .warn{background:var(--coral-tint)}
+.reveal .human-box{background:#FFF9C4;border-left:6px solid var(--yellow)}
+.reveal .cols{display:grid;gap:36px}
+.reveal .cols.two{grid-template-columns:1fr 1fr}
+.reveal .cols.three{grid-template-columns:1fr 1fr 1fr;gap:22px}
+.reveal .cols.four{grid-template-columns:repeat(4,1fr);gap:18px}
+.reveal .card{background:var(--teal-tint);padding:20px 22px;font-size:20px}
+.reveal .card h3{font-size:22px}
+.reveal .card li{margin-bottom:.4em}
+.reveal .card.risk{background:var(--coral-tint)}
+.reveal .card.risk h3{color:var(--coral)}
+.reveal .card.human{background:#FFF9C4}
+.reveal .card.human h3{color:var(--ink)}
+.reveal .card.line{background:#fff;border:2px solid var(--teal-tint)}
+.reveal .foot{position:absolute;left:64px;right:140px;bottom:44px;font-size:20px}
+.reveal .stats{display:flex;gap:44px;margin:26px 0 30px}
+.reveal .stat b{display:block;font-size:56px;font-weight:700;color:var(--teal);line-height:1;letter-spacing:-.02em}
+.reveal .stat span{display:block;font-size:17px;color:var(--grey);margin-top:6px;max-width:190px}
+.reveal .stat.bad b{color:var(--coral)}
+.reveal .stat b i{font-style:normal}
+.reveal .pattern strong{font-size:22px}
+.reveal .pattern .num{width:38px;height:38px;font-size:19px}
+.reveal .card p:has(> .num){display:flex;align-items:flex-start;gap:12px}
+.reveal .card p:has(> .num) .num{flex:none;margin:0;top:-2px}
+.reveal .card p:has(> .num) strong{line-height:1.25;padding-top:6px}
+/* act chip, top left of every slide inside an act */
+.reveal .act{position:absolute;left:64px;top:18px;font-size:14px;color:var(--mute);letter-spacing:.09em;text-transform:uppercase}
+.reveal .act b{color:var(--teal);font-weight:700}
+/* role chip on example slides */
+.reveal .role{position:absolute;right:64px;top:16px;display:flex;gap:6px;align-items:center;font-size:15px;color:var(--mute)}
+.reveal .role i{font-style:normal;padding:3px 9px;border:1px solid #ccc;border-radius:14px}
+.reveal .role i.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:700}
+.reveal .role i.human{background:var(--yellow);border-color:var(--yellow);color:var(--ink);font-weight:700}
+/* act dividers: full-bleed teal */
+.reveal .slides section.divider{color:#fff;padding:0 96px}
+.reveal .slides section.divider::after{display:none}
+.reveal .divider .big{font-size:220px;font-weight:700;line-height:1;opacity:.22;position:absolute;right:96px;top:170px;letter-spacing:-.04em}
+.reveal .divider h1{color:#fff;font-size:72px;margin-top:230px}
+.reveal .divider p{color:#fff;opacity:.85;font-size:28px;margin-top:22px;max-width:820px}
+.reveal .divider .acts{position:absolute;left:96px;bottom:70px;display:flex;gap:10px}
+.reveal .divider .acts i{font-style:normal;font-size:16px;padding:6px 14px;border:1px solid rgba(255,255,255,.55);border-radius:18px;color:rgba(255,255,255,.8)}
+.reveal .divider .acts i.on{background:#fff;color:var(--teal);font-weight:700;border-color:#fff}
+/* tables */
+.reveal table{border-collapse:collapse;width:100%;font-size:20px;margin:10px 0}
+.reveal th{text-align:left;font-weight:700;padding:8px 14px}
+.reveal td{padding:10px 14px;vertical-align:middle;border:0}
+.reveal tr:nth-child(even) td{background:var(--teal-tint)}
+.reveal table.head th{background:var(--teal);color:#fff}
+.reveal td.c,.reveal th.c{text-align:center}
+.reveal td .bar{display:inline-block;height:12px;background:var(--teal);vertical-align:middle;margin-right:8px;border-radius:2px}
+.reveal td .bar.bad{background:var(--coral)}
+.reveal .sim{color:var(--grey)}
+/* loop diagrams */
+.reveal svg text{font-family:var(--sans)}
+.reveal .node{fill:#fff;stroke:var(--teal);stroke-width:2.5}
+.reveal .node.em{fill:var(--teal-tint)}
+.reveal .node.si{fill:var(--teal)}
+.reveal .node.hu{fill:var(--yellow);stroke:var(--ink);stroke-width:1.5}
+.reveal .node.bad{fill:var(--coral-tint);stroke:var(--coral)}
+.reveal .arrow{stroke:var(--teal);stroke-width:2.5;fill:none;marker-end:url(#ah)}
+.reveal .dot{fill:var(--yellow);stroke:var(--ink);stroke-width:1.5}
+.reveal .dot.model{fill:var(--teal);stroke:none}
+.reveal .axis{stroke:#bbb;stroke-width:1}
+.reveal .gridl{stroke:#eee;stroke-width:1}
+/* screenshots */
+.reveal .shot{display:block;width:100%;border:1px solid #ddd;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.reveal .cap{font-size:16px;color:var(--grey);font-style:italic;margin-top:8px}
+/* timeline (act 1) */
+.reveal .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:end;margin-top:30px}
+.reveal .step{background:var(--teal-tint);padding:16px 18px;font-size:18px;position:relative}
+.reveal .step b{display:block;font-size:15px;color:var(--teal);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.reveal .step strong{display:block;font-size:22px;margin-bottom:6px}
+.reveal .step.s1{height:120px}.reveal .step.s2{height:170px}.reveal .step.s3{height:220px}
+.reveal .step.s4{height:270px;background:var(--teal);color:#fff}.reveal .step.s4 b{color:#fff;opacity:.8}
+/* fragments: keep quiet */
+.reveal .fragment.rise{opacity:0;transform:translateY(8px);transition:all .35s ease}
+.reveal .fragment.rise.visible{opacity:1;transform:none}
+.reveal .fragment.dim.visible{opacity:.35}
+/* demo slides: the testbed viewer is the slide background; only a slim caption floats over it */
+.reveal .slides section.demo-slide{padding:0}
+.reveal .slides section.demo-slide::after{display:none}
+.reveal .demo-cap{position:absolute;left:0;right:0;bottom:0;padding:10px 200px 10px 64px;background:rgba(255,255,255,.94);border-top:2px solid var(--teal);font-size:19px;pointer-events:none}
+.reveal .demo-nav{position:absolute;right:64px;bottom:7px;display:flex;gap:8px;pointer-events:auto}
+.reveal .demo-nav button{font:700 22px/1 var(--sans);color:#fff;background:var(--teal);border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+.reveal .demo-nav button:hover{background:var(--teal-dark)}
+.reveal .kbd{font-family:var(--mono);font-size:.85em;background:#eee;padding:1px 6px;border-radius:4px}
+.reveal .topic{font-family:var(--mono);font-size:17px;background:#f4f6f7;padding:10px 14px;border-left:4px solid var(--teal);word-break:break-all}
+.reveal .topic span{color:var(--teal);font-weight:700}
+@media (prefers-reduced-motion:reduce){ .reveal .fragment.rise{transition:none} .reveal svg animateMotion{display:none} }
+@media print{ .reveal .slides section::after{display:block} .reveal .slides section.divider::after{display:none} }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============ 1 · Title ============ -->
+<section class="title" data-timing="20">
+  <div style="margin-top:96px;max-width:960px">
+    <h1>Agents in the<br>factory loop</h1>
+    <p style="font-size:34px;color:var(--grey);margin:30px 0 40px">What an agent is, what the hardware taught us,<br>and what it means for a plant</p>
+    <p style="font-size:22px"><strong>1 · What an agent is</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>2 · Hardware in the agentic loop</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>3 · The OTTO testbed</strong></p>
+    <p class="small grey">Joakim Eriksson, RISE — OTTO, IT/OT and cybersecurity, 2026</p>
+  </div>
+  <aside class="notes">0:00. Three parts. First what an agent actually is, in five minutes. Then what I learned this summer putting agents in a loop with real hardware. Then what that means for a factory: the OTTO testbed, where an agent operates a simulated sawmill and a drying kiln, through the plant's own IT/OT architecture. About 27 minutes plus questions.</aside>
+</section>
+
+<!-- ======================================================================= -->
+<!-- ACT 1 · WHAT AN AGENT IS                                                -->
+<!-- ======================================================================= -->
+<section class="divider" data-background-color="#009BA5" data-timing="10">
+  <div class="big">1</div>
+  <h1>What an agent is</h1>
+  <p>A language model, a set of tools and a loop. Five minutes on what changed, and why it matters for automation.</p>
+  <div class="acts"><i class="on">1 · Agents</i><i>2 · Hardware in the loop</i><i>3 · The factory</i></div>
+  <aside class="notes">0:20. Part one: what an agent is. Short, because the interesting questions come later.</aside>
+</section>
+
+<!-- ============ 1.1 · One year ============ -->
+<section data-timing="60">
+  <div class="act"><b>1</b> · agents</div>
+  <h2>In a year: from autocomplete to the whole loop</h2>
+  <p class="sub">What the model is trusted to do has grown one step at a time. Each step closes a longer loop without a human in it.</p>
+  <div class="steps">
+    <div class="step s1 fragment rise"><b>Completion</b><strong>The next line</strong>Suggests code as you type. You accept or reject every line.</div>
+    <div class="step s2 fragment rise"><b>Assistant</b><strong>The next answer</strong>Chat: explains, drafts, reviews. You copy the result and run it yourself.</div>
+    <div class="step s3 fragment rise"><b>Agent</b><strong>The next task</strong>Reads the code, edits files, runs the tests, reads the errors, tries again. You review the change.</div>
+    <div class="step s4 fragment rise"><b>Agent in the research loop</b><strong>The whole project</strong>Builds the system, sets up the experiments, evaluates them and writes up the result.</div>
+  </div>
+  <div class="quote foot fragment rise" style="font-style:normal"><strong>What gets automated is not a tool, it is the loop around the tools.</strong> AI-written papers have passed peer review; new benchmarks measure how well agents reproduce published research.</div>
+  <aside class="notes">0:30. The trend in one picture. Completion: the model guesses the next line. Assistant: it answers, and you do the work. Agent: it gets a task and works in a loop on its own, reading, editing, running tests, reading errors. And now agents run the whole research loop. The point is not that the model got smarter at one thing; it is that each step removes a human from a longer loop.</aside>
+</section>
+
+<!-- ============ 1.2 · The anatomy ============ -->
+<section data-timing="75">
+  <div class="act"><b>1</b> · agents</div>
+  <h2>An agent is a model, tools and a loop</h2>
+  <div class="cols two" style="grid-template-columns:1.25fr 1fr;margin-top:16px;align-items:center">
+    <div>
+      <svg viewBox="0 0 640 460" width="640" height="460">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <!-- the loop -->
+        <circle cx="300" cy="230" r="150" fill="none" stroke="#E6F4F5" stroke-width="34"/>
+        <rect class="node si" x="220" y="195" width="160" height="70" rx="14"/>
+        <text x="300" y="228" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Model</text>
+        <text x="300" y="252" text-anchor="middle" font-size="15" fill="#fff" opacity=".85">decides the next step</text>
+        <rect class="node" x="225" y="40" width="150" height="54" rx="12"/>
+        <text x="300" y="74" text-anchor="middle" font-size="20" font-weight="700">Goal</text>
+        <rect class="node" x="455" y="203" width="150" height="54" rx="12"/>
+        <text x="530" y="236" text-anchor="middle" font-size="20" font-weight="700">Act</text>
+        <rect class="node" x="225" y="366" width="150" height="54" rx="12"/>
+        <text x="300" y="400" text-anchor="middle" font-size="20" font-weight="700">Tools</text>
+        <rect class="node" x="-5" y="203" width="150" height="54" rx="12"/>
+        <text x="70" y="236" text-anchor="middle" font-size="20" font-weight="700">Observe</text>
+        <path class="arrow" d="M375 80 Q470 110 520 200"/>
+        <path class="arrow" d="M520 258 Q470 350 378 385"/>
+        <path class="arrow" d="M222 385 Q130 350 80 260"/>
+        <path class="arrow" d="M80 202 Q130 110 222 80"/>
+        <text x="505" y="122" font-size="15" fill="#666" font-style="italic">a tool call</text>
+        <text x="455" y="352" font-size="15" fill="#666" font-style="italic">it runs</text>
+        <text x="30" y="352" font-size="15" fill="#666" font-style="italic">its result comes back</text>
+        <text x="40" y="122" font-size="15" fill="#666" font-style="italic">done? if not, again</text>
+        <circle class="dot model" r="8"><animateMotion dur="5s" repeatCount="indefinite" path="M375 80 Q470 110 520 200 M520 258 Q470 350 378 385 M222 385 Q130 350 80 260 M80 202 Q130 110 222 80"/></circle>
+      </svg>
+    </div>
+    <div>
+      <ul class="small">
+        <li class="fragment rise"><strong>The model</strong> never touches the world. It only proposes the next tool call, as structured text.</li>
+        <li class="fragment rise"><strong>The tools</strong> do the work: read a file, run a test, query a historian, open a work order. Each has a schema; arguments are checked before anything runs.</li>
+        <li class="fragment rise"><strong>The loop</strong> feeds each result back, until the goal is met, the budget runs out, or the agent gives up.</li>
+        <li class="fragment rise"><strong>MCP</strong>, the Model Context Protocol, is becoming the standard plug: any system can expose its tools to any agent.</li>
+      </ul>
+      <div class="quote fragment rise" style="font-style:normal;font-size:20px"><strong>So an agent is exactly as good as what its tools let it see,</strong> and exactly as dangerous as what its tools let it do.</div>
+    </div>
+  </div>
+  <aside class="notes">1:30. The anatomy, because it demystifies. The model is a text predictor: it proposes a tool call. The tools do things, and their results come back into the context. The loop repeats. MCP is the plug that lets any system, a historian, a CMMS, a PLC gateway, offer tools to any agent. Two consequences frame the rest of the talk: the agent sees only what its tools return, and it can only do what its tools allow. That is an architecture question, and in a factory that is an IT/OT question.</aside>
+</section>
+
+<!-- ============ 1.3 · Agents vs automation ============ -->
+<section data-timing="75">
+  <div class="act"><b>1</b> · agents</div>
+  <h2>An agent is not a PLC</h2>
+  <p class="sub">Automation and agents are good at opposite things. That decides where an agent may sit.</p>
+  <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:40px">
+    <div>
+      <table class="head">
+        <tr><th></th><th>Control logic (PLC)</th><th>Agent</th></tr>
+        <tr><td><strong>Behaviour</strong></td><td>Deterministic, cyclic</td><td>Probabilistic, per decision</td></tr>
+        <tr><td><strong>Verified</strong></td><td>Tested, certified, locked</td><td>Evaluated on samples</td></tr>
+        <tr><td><strong>Timing</strong></td><td>Milliseconds, guaranteed</td><td>Seconds, not guaranteed</td></tr>
+        <tr><td><strong>The unforeseen</strong></td><td>Stops, alarms</td><td>Reasons, tries something</td></tr>
+        <tr><td><strong>Explains itself</strong></td><td>No</td><td>Yes, fluently, not always right</td></tr>
+      </table>
+    </div>
+    <div>
+      <svg viewBox="0 0 520 340" width="520" height="340">
+        <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <g font-size="14" fill="#666">
+          <rect x="0" y="0" width="520" height="60" fill="#E6F4F5"/><text x="12" y="35">L3 · operations</text>
+          <rect x="0" y="64" width="520" height="60" fill="#f4f6f7"/><text x="12" y="99">L2 · supervisory</text>
+          <rect x="0" y="128" width="520" height="60" fill="#E6F4F5"/><text x="12" y="163">L1 · control</text>
+          <rect x="0" y="192" width="520" height="60" fill="#f4f6f7"/><text x="12" y="227">L0 · the process</text>
+        </g>
+        <rect class="node si" x="190" y="12" width="150" height="38" rx="10"/>
+        <text x="265" y="37" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Agent</text>
+        <rect class="node" x="190" y="76" width="150" height="38" rx="10"/>
+        <text x="265" y="101" text-anchor="middle" font-size="16" font-weight="700">SCADA</text>
+        <rect class="node" x="190" y="140" width="150" height="38" rx="10"/>
+        <text x="265" y="165" text-anchor="middle" font-size="16" font-weight="700">PLC + interlocks</text>
+        <rect class="node" x="190" y="204" width="150" height="38" rx="10" style="stroke:#8a6a3b;fill:#f3ebe0"/>
+        <text x="265" y="229" text-anchor="middle" font-size="16" font-weight="700">saws, kiln</text>
+        <path class="arrow" style="marker-end:url(#ah3)" d="M265 50 L265 74"/>
+        <path class="arrow" style="marker-end:url(#ah3)" d="M265 114 L265 138"/>
+        <path class="arrow" style="marker-end:url(#ah3)" d="M265 178 L265 202"/>
+        <text x="275" y="67" font-size="12" fill="#666" font-style="italic">requests</text>
+        <path d="M340 31 C 400 31, 400 159, 342 159" stroke="#D9534F" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+        <text x="392" y="102" font-size="26" fill="#D9534F" font-weight="700">×</text>
+        <text x="412" y="100" font-size="13" fill="#D9534F">no direct</text><text x="412" y="116" font-size="13" fill="#D9534F">path</text>
+        <rect class="node hu" x="410" y="140" width="98" height="38" rx="10"/>
+        <text x="459" y="164" text-anchor="middle" font-size="14" font-weight="700">operator</text>
+        <path d="M410 159 L342 159" stroke="#222" stroke-width="1.5" fill="none"/>
+        <text x="0" y="288" font-size="17" fill="#222"><tspan font-weight="700" fill="#009BA5">Above the control loop:</tspan> diagnosis, planning,</text>
+        <text x="0" y="312" font-size="17" fill="#222">operator support. The interlocks stay in the PLC.</text>
+      </svg>
+    </div>
+  </div>
+  <div class="quote foot fragment rise" style="font-style:normal">The agent's strength is the unforeseen. The PLC's strength is that nothing is unforeseen. <strong>Put the agent where reasoning helps and a slow, wrong answer can be caught.</strong></div>
+  <aside class="notes">2:45. The key slide for an automation audience. A PLC is deterministic, verified, fast; when something unexpected happens it stops and alarms. An agent is the opposite: slow, probabilistic, but it can reason about the unexpected. So the agent does not belong in the control loop. It belongs above it, where it diagnoses, plans and advises, and where its requests go through SCADA to a PLC that keeps its interlocks. No direct path from the agent to the PLC. Remember that picture; the OTTO testbed enforces it.</aside>
+</section>
+
+<!-- ============ 1.4 · What an agent knows ============ -->
+<section data-timing="60">
+  <div class="act"><b>1</b> · agents</div>
+  <h2>An agent knows what it can observe, and nothing else</h2>
+  <div class="cols three" style="margin-top:30px">
+    <div class="card fragment rise"><p><span class="num">1</span><strong>It sees what its tools return</strong></p><p class="small grey">Stale data, missing data and a sensor that lies all look the same to it, unless something tells it the data is old. If a value never arrives, it reasons on without it.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>Its checks share its blind spots</strong></p><p class="small grey">When the same model writes the answer and the test, both come from the same picture of the world. Green is not the same as correct.</p></div>
+    <div class="card risk fragment rise"><p><span class="num" style="background:var(--coral)">3</span><strong>Instructions can hide in data</strong></p><p class="small grey">A work order that says <em>"diagnose this as a jam"</em> is data to us and can be an instruction to the model. Everything it reads is an input channel.</p></div>
+  </div>
+  <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:56px">Agents are very good at closing loops they can observe.<br><strong class="teal">So what do they observe?</strong></p>
+  <aside class="notes">4:00. Three properties that matter more than which model you pick. It sees only what its tools return: stale and wrong look like fresh and right. Its own checks share its blind spots. And any text it reads can carry instructions: a work order, a manual, a web page. The bridge to part two: agents close loops they can observe. The question is what they observe. This summer I found out the hard way, with hardware.</aside>
+</section>
+
+<!-- ======================================================================= -->
+<!-- ACT 2 · HARDWARE IN THE AGENTIC LOOP                                    -->
+<!-- ======================================================================= -->
+<section class="divider" data-background-color="#009BA5" data-timing="10">
+  <div class="big">2</div>
+  <h1>Hardware in the agentic loop</h1>
+  <p>Four hardware projects built with coding agents this summer. Very different projects, one pattern.</p>
+  <div class="acts"><i>1 · Agents</i><i class="on">2 · Hardware in the loop</i><i>3 · The factory</i></div>
+  <aside class="notes">5:00. Part two, the short version of a talk I gave in September: four hardware projects built with coding agents.</aside>
+</section>
+
+<!-- ============ 2.1 · The problem ============ -->
+<section data-timing="45">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>The loop a coding agent closes is its own</h2>
+  <div class="cols two" style="margin-top:34px">
+    <div>
+      <p>Coding agents are extremely good <strong>at closing loops they can observe.</strong></p>
+      <p>Left alone, the loop they observe is <strong>their own model of the world</strong>: the code they wrote, the tests they wrote, the log lines they expected.</p>
+      <p>Tests written by the same model that wrote the code <strong>share its blind spots.</strong></p>
+      <p class="fragment rise teal" data-fragment-index="1"><strong>Hardware does not share the model's blind spots.</strong></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 520 360" width="520" height="360">
+        <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <rect x="14" y="14" width="492" height="300" rx="10" fill="none" stroke="#bbb" stroke-dasharray="6 6"/>
+        <text x="260" y="342" text-anchor="middle" font-size="15" fill="#9a9a9a" font-style="italic">the model's world — same blind spots on every side</text>
+        <rect class="node" x="170" y="40" width="180" height="56" rx="12"/>
+        <text x="260" y="75" text-anchor="middle" font-size="19" font-weight="700">Agent</text>
+        <rect class="node" x="40" y="220" width="180" height="56" rx="12"/>
+        <text x="130" y="255" text-anchor="middle" font-size="19" font-weight="700">Code it wrote</text>
+        <rect class="node" x="300" y="220" width="180" height="56" rx="12"/>
+        <text x="390" y="255" text-anchor="middle" font-size="19" font-weight="700">Tests it wrote</text>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M225 96 L150 220"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M220 248 L300 248"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M370 220 L295 96"/>
+        <text x="372" y="160" font-size="16" fill="#9a9a9a" font-style="italic">"all green"</text>
+        <circle class="dot model" r="7"><animateMotion dur="4s" repeatCount="indefinite" path="M225 96 L150 220 L220 248 L300 248 L370 220 L295 96 Z"/></circle>
+      </svg>
+    </div>
+  </div>
+  <div class="quote foot fragment rise" data-fragment-index="1">Green suites that are green by accident are the failure mode that scares me: the tests pass, the model is happy, and nobody touched a board.</div>
+  <aside class="notes">5:10. The claim from the September talk. Code, tests and expectations all come from the same model. Hardware is the one thing in the room that does not share those blind spots.</aside>
+</section>
+
+<!-- ============ 2.2 · The fix ============ -->
+<section data-timing="60">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>Put the chip in the loop, and give the agent eyes</h2>
+  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:14px">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
+           <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
+    <rect class="node" x="10" y="60" width="240" height="70" rx="14"/>
+    <text x="130" y="103" text-anchor="middle" font-size="22" font-weight="700">Agent</text>
+    <rect class="node" x="310" y="60" width="240" height="70" rx="14"/>
+    <text x="430" y="102" text-anchor="middle" font-size="20" font-weight="700">Code and firmware</text>
+    <g class="fragment" data-fragment-index="1">
+      <rect class="node em" x="610" y="60" width="240" height="70" rx="14"/>
+      <text x="730" y="103" text-anchor="middle" font-size="22" font-weight="700">Emulator</text>
+    </g>
+    <g class="fragment" data-fragment-index="2">
+      <rect class="node si" x="910" y="60" width="230" height="70" rx="14"/>
+      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Real board</text>
+      <rect x="1000" y="16" width="80" height="26" rx="13" fill="#FFE500"/>
+      <text x="1040" y="34" text-anchor="middle" font-size="14" font-weight="700">a human</text>
+      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">holds the board</text>
+    </g>
+    <path class="arrow" style="marker-end:url(#ah2)" d="M250 95 L308 95"/>
+    <path class="arrow fragment" data-fragment-index="1" style="marker-end:url(#ah2)" d="M550 95 L608 95"/>
+    <path class="arrow fragment" data-fragment-index="2" style="marker-end:url(#ah2)" d="M850 95 L908 95"/>
+    <g class="fragment" data-fragment-index="3">
+      <path d="M908 80 L852 80" stroke="#666" stroke-width="1.6" fill="none" style="marker-end:url(#ahg)"/>
+      <text x="880" y="150" text-anchor="middle" font-size="15" fill="#666" font-style="italic">compared with each other</text>
+    </g>
+    <g class="fragment" data-fragment-index="4">
+      <path class="arrow" style="marker-end:url(#ah2)" d="M1025 130 L1025 200 L130 200 L130 134"/>
+      <text x="580" y="232" text-anchor="middle" font-size="18"><tspan font-weight="700" fill="#009BA5">observation: </tspan><tspan fill="#666">what the board prints · what its screen shows · instruction counts · chip and emulator stepped side by side · one LED at a time</tspan></text>
+      <circle class="dot" r="8"><animateMotion dur="6s" repeatCount="indefinite" path="M130 95 L430 95 L730 95 L1025 95 L1025 200 L130 200 Z"/></circle>
+    </g>
+    <g class="fragment rise" data-fragment-index="5">
+      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Oracle</tspan><tspan fill="#666"> — the real board has the last word on what is correct</tspan></text>
+      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Calibrator</tspan><tspan fill="#666"> — timings measured on the board become the emulator's timings</tspan></text>
+      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — a fast, repeatable stand-in for the board that the agent can iterate in</tspan></text>
+    </g>
+  </svg>
+  <p class="foot grey small" style="font-style:italic">Three roles for hardware in the loop. Keep them in mind: part three reuses all three.</p>
+  <aside class="notes">5:55. The pattern in one picture. The agent still writes the code, but what it observes now comes from an emulator and from silicon, compared with each other. Hardware plays three roles: oracle, calibrator, proxy. Part three reuses exactly these three roles, with a plant instead of a board.</aside>
+</section>
+
+<!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
+<section data-timing="50">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <div class="role"><i>agent</i><i>emulator</i><i class="on">board = oracle</i><i class="human">human: cable + button</i></div>
+  <h2><span class="num">1</span>Contiki-NG 5.2: the agent ran the hardware tests</h2>
+  <p class="sub">An open-source OS for small wireless devices · released 2026-08-13 · every board test run by the agent</p>
+  <div class="stats" style="margin:18px 0 22px">
+    <div class="stat"><b class="count" data-to="458">0</b><span>commits</span></div>
+    <div class="stat"><b class="count" data-to="113">0</b><span>pull requests</span></div>
+    <div class="stat"><b class="count" data-to="16">0</b><span>checks required before release</span></div>
+    <div class="stat"><b><i class="count" data-to="18">0</i> / 18</b><span>real boards, every row green</span></div>
+  </div>
+  <div class="cols two">
+    <ul class="small">
+      <li>The merge team set the rules, as every year: a release plan, a runbook and a checklist of real boards. No release until every row is green.</li>
+      <li>Reading the CI configuration the agent noticed: <em>"CI has never tested the release head."</em> The release itself became what CI has to pass.</li>
+    </ul>
+    <ul class="small">
+      <li>It built the firmware, loaded it onto <strong>every board on the checklist</strong>, read what the board printed and filled in the row, with a report under each.</li>
+      <li><strong>The human's job: plug in the cable, press the button.</strong></li>
+    </ul>
+  </div>
+  <div class="quote foot">Simulation proves the logic; the board proves everything else. The board is the oracle — and the agent now runs the oracle.</div>
+  <aside class="notes">6:55. First example, the board as oracle. The team set the rules; the agent worked inside them, and ran all the board tests. The human plugged in cables and pressed buttons. 18 of 18.</aside>
+</section>
+
+<!-- ============ 2.4 · Emulator and silicon ============ -->
+<section data-timing="60">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>Emulator and silicon keep each other honest</h2>
+  <div class="cols two" style="margin-top:24px">
+    <div class="card fragment rise">
+      <h3><span class="num" style="width:34px;height:34px;font-size:17px">2</span>Cooja-NG: the chip calibrates the emulator</h3>
+      <ul class="small">
+        <li>Measured on the real chip: one switch into the secure world and back costs <strong>58 cycles</strong>. That number becomes the emulator's timing, never the other way round.</li>
+        <li>Once trusted, the emulator is the proxy: <strong>~2400× real time</strong>, deterministic, in CI.</li>
+        <li>A four-year-old "flaky" test became <strong>"fails 14 of 15"</strong>: a number an agent can work on. The cause was uninitialised bytes; the fix one line.</li>
+      </ul>
+    </div>
+    <div class="card fragment rise">
+      <h3><span class="num" style="width:34px;height:34px;font-size:17px">3</span>esp32sim: compared against the real chip</h3>
+      <ul class="small">
+        <li>Every instruction of three real firmware images against the standard disassembler: <strong>0 mismatches</strong> in 1.2 M.</li>
+        <li>Real chip and emulator stepped side by side: <strong>never diverged</strong>.</li>
+        <li>What only the chip could tell: one register at the wrong address made an interrupt handler re-enter itself <strong class="coral">3 867 times</strong>. The crash was 500 KB from the cause.</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top:22px"><strong>The reference never comes from the model: <span class="teal">a disassembler, the real chip, a boot log, a logic analyzer.</span></strong></p>
+  <aside class="notes">7:45. Two more examples, fast. Cooja-NG: the chip calibrates the emulator; then the emulator is a fast proxy, and flaky becomes a number. esp32sim: verified against things the agent did not produce. The chip found what nothing inside the emulator could see. Common thread: the reference always comes from outside the model.</aside>
+</section>
+
+<!-- ============ 2.5 · The pattern ============ -->
+<section data-timing="45">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>The pattern: six rules</h2>
+  <div class="cols two pattern" style="margin-top:22px;row-gap:26px">
+    <div><p><span class="num">1</span><strong>Make the loop observable</strong></p><p class="small grey">If the agent cannot see it, it cannot fix it.</p></div>
+    <div><p><span class="num">2</span><strong>Make it deterministic</strong></p><p class="small grey">"Flaky" is not a work item. "14 of 15" is.</p></div>
+    <div><p><span class="num">3</span><strong>Compare against reality, not yourself</strong></p><p class="small grey">The reference must come from outside the model.</p></div>
+    <div><p><span class="num">4</span><strong>Pin the reference outputs, then go faster</strong></p><p class="small grey">Speed is safe only when every output stays byte-identical.</p></div>
+    <div><p><span class="num">5</span><strong>Keep the receipts</strong></p><p class="small grey">Data, checksums and a way to reproduce, for every claim.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human holds the board and names the cause</strong></p><p class="small grey">The agent applies fixes; the human decides what "correct" means.</p></div>
+  </div>
+  <p class="foot teal fragment rise" style="font-style:italic">Six rules — none of them about the model. All of them about what the model gets to observe.</p>
+  <aside class="notes">8:45. The six rules. None is about the model. They come back at the end of part three, translated for a plant.</aside>
+</section>
+
+<!-- ============ 2.6 · Where the agents stopped ============ -->
+<section data-timing="45">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>Where the agents stopped</h2>
+  <div class="cols two" style="margin-top:26px">
+    <div>
+      <div class="quote fragment rise" style="margin-top:8px">"The agent could apply a fix once we named the cause, but it could not reliably name the cause itself."<span class="who">— Cooja-NG paper, SNCNW 2026</span></div>
+      <div class="quote fragment rise">"…often proposed a local workaround ('enlarge the buffer', 'treat as non-fatal') when the correct fix was further up the call stack."<span class="who">— Cooja-NG paper, SNCNW 2026</span></div>
+    </div>
+    <div class="fragment rise">
+      <h3>What worked</h3>
+      <p>A persistent <strong>bug ledger</strong>: root causes named by a human, fed back into the agent's context on every run.</p>
+      <h3 style="margin-top:22px">What it means</h3>
+      <p><strong>Verification is automatable. Naming the cause is not, yet.</strong> Remember this sentence; the factory agents hit the same wall.</p>
+    </div>
+  </div>
+  <aside class="notes">9:30. Where they stopped. Agents apply fixes once the cause is named; they do not reliably name it themselves, and they reach for local workarounds. Hold on to that: in part three, the agents operating the plant hit exactly this wall.</aside>
+</section>
+
+<!-- ============ 2.7 · Flip it ============ -->
+<section data-timing="45">
+  <div class="act"><b>2 → 3</b> · now flip it</div>
+  <h2>Now flip it: the agent operates the plant</h2>
+  <p class="sub">Same loop, same three roles. The agent no longer writes code for a board; it runs part of a factory.</p>
+  <table class="head" style="margin-top:6px">
+    <tr><th style="width:24%"></th><th>Hardware in the loop</th><th>Agent in the factory</th></tr>
+    <tr><td><strong>The agent</strong></td><td class="sim">writes code and firmware</td><td>diagnoses, plans, asks for actions</td></tr>
+    <tr><td><strong>Proxy</strong></td><td class="sim">emulator: fast, repeatable</td><td><strong class="teal">the testbed</strong>: a deterministic plant, 1 000× real time</td></tr>
+    <tr><td><strong>Calibrator</strong></td><td class="sim">cycle counts from the chip</td><td>real figures: energy per m³, chip yield, schedules</td></tr>
+    <tr><td><strong>Oracle</strong></td><td class="sim">the real board</td><td>the simulator's hidden truth — later, the real plant</td></tr>
+    <tr><td><strong>What it observes</strong></td><td class="sim">serial output, frames, counters</td><td>only what the plant's <strong>information flow</strong> delivers</td></tr>
+    <tr><td><strong>The human</strong></td><td class="sim">holds the board</td><td>approves the restart</td></tr>
+  </table>
+  <aside class="notes">10:15. The bridge. Flip the direction: the agent operates the plant instead of writing code. The testbed is the emulator: a deterministic plant, fast, repeatable. Real plant figures calibrate it. Its hidden truth is the oracle, and later a real plant. And what the agent observes is whatever the plant's information flow delivers: that is where IT/OT and cybersecurity come in.</aside>
+</section>
+
+<!-- ======================================================================= -->
+<!-- ACT 3 · THE OTTO TESTBED                                                -->
+<!-- ======================================================================= -->
+<section class="divider" data-background-color="#009BA5" data-timing="10">
+  <div class="big">3</div>
+  <h1>Agents in the factory</h1>
+  <p>The OTTO testbed: a sawmill and a drying kiln you can break on purpose, seen through the plant's own IT/OT architecture.</p>
+  <div class="acts"><i>1 · Agents</i><i>2 · Hardware in the loop</i><i class="on">3 · The factory</i></div>
+  <aside class="notes">11:00. Part three: OTTO.</aside>
+</section>
+
+<!-- ============ 3.1 · The OTTO question ============ -->
+<section data-timing="50">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>The OTTO question</h2>
+  <p class="sub">An AI agent that runs part of a factory. Before anyone connects one, four questions need answers.</p>
+  <div class="cols four" style="margin-top:26px">
+    <div class="card fragment rise"><h3>Where does it sit?</h3><p class="small">Which zone, which host, which network. On-prem GPU or cloud. What it depends on.</p><p class="xs grey">IT/OT architecture</p></div>
+    <div class="card fragment rise"><h3>What does it see?</h3><p class="small">Which signals, named how, how fresh. What happens when the data stops.</p><p class="xs grey">information flow, UNS</p></div>
+    <div class="card fragment rise"><h3>What may it touch?</h3><p class="small">Which writes, through which path, logged where. What the firewall allows.</p><p class="xs grey">cybersecurity, zones</p></div>
+    <div class="card human fragment rise"><h3>Who answers for it?</h3><p class="small">Who approves a restart. How a decision is replayed and audited afterwards.</p><p class="xs grey">safety, governance</p></div>
+  </div>
+  <p class="fragment rise" style="margin-top:34px;font-size:26px">None of these can be tried out on a running plant. <strong class="teal">So we built one you can break on purpose.</strong></p>
+  <aside class="notes">11:10. The OTTO question in four parts: where the agent sits, what it sees, what it may touch, who answers for it. Architecture, information flow, security, governance. You cannot experiment with any of that on a running sawmill. So we built one you can break on purpose.</aside>
+</section>
+
+<!-- ============ 3.2 · The testbed ============ -->
+<section data-timing="70">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>A plant you can break on purpose</h2>
+  <div class="stats" style="margin:14px 0 18px;gap:40px">
+    <div class="stat"><b class="count" data-to="2">0</b><span>plants: a sawline and a drying kiln</span></div>
+    <div class="stat"><b><i class="count" data-to="1700">0</i>×</b><span>real time: a shift in seconds, a 3-day kiln charge in under 2 s</span></div>
+    <div class="stat"><b>0</b><span>wall clock or hidden randomness: same seed, same state hash</span></div>
+    <div class="stat"><b class="count" data-to="370">0</b><span>tests; every fault has one</span></div>
+  </div>
+  <div class="cols two" style="grid-template-columns:1.35fr 1fr;gap:28px">
+    <div>
+      <img class="shot" src="assets/line-sawline.png" alt="The testbed viewer: the sawline from debarker to green sorter">
+      <p class="cap">The sawline in the viewer: debarker, log scanner, breakdown saw, resaw, green sorter. Every value is what an instrument reports.</p>
+    </div>
+    <div>
+      <ul class="small">
+        <li><strong>Sawline</strong>: logs debarked, scanned, sawn and sorted by width, following Swedish Wood's "from log to plank". Chips come out at about 33 % of the log (source: 31 %).</li>
+        <li><strong>Drying kiln</strong>: 60 m³ of pine from 55 % to 18 % moisture in 76 h on 16.7 MWh, about 280 kWh per m³, in the range reported for pine kilns.</li>
+        <li><strong>Faults</strong>: jams, friction, stuck sensors, drifting probes, stuck valves, comm loss — each with a signature.</li>
+        <li><strong>The Python core is the authority</strong>; everything else only observes it.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">12:00. The testbed. Two plants, deterministic to the byte, about 1700 times real time. The sawline follows the real process; the kiln is calibrated to published energy figures, about 280 kWh per cubic metre. Faults are first-class: every one has a signature and a test. The simulator is the single source of truth; dashboards, protocols and agents only observe it. That is the proxy and the calibrator from part two.</aside>
+</section>
+
+<!-- ============ 3.3 · Two flows ============ -->
+<section data-timing="70">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Two flows: the wood, and the information about it</h2>
+  <svg viewBox="0 0 1150 330" width="1150" height="330" style="margin-top:6px">
+    <defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
+          <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8a6a3b"/></marker></defs>
+    <!-- manufacturing flow -->
+    <text x="0" y="300" font-size="15" fill="#8a6a3b" font-weight="700" letter-spacing="1.5">MANUFACTURING FLOW</text>
+    <g font-size="16" font-weight="700" text-anchor="middle">
+      <rect x="0" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="65" y="266">Log yard</text>
+      <rect x="170" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="235" y="266">Debarker</text>
+      <rect x="340" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="405" y="266">Saws</text>
+      <rect x="510" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="575" y="266">Sorter</text>
+      <rect x="680" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="745" y="266">Kiln</text>
+      <rect x="850" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="915" y="266">Grading</text>
+    </g>
+    <g stroke="#8a6a3b" stroke-width="2.5" fill="none" style="marker-end:url(#ahb)">
+      <path d="M130 260 L168 260"/><path d="M300 260 L338 260"/><path d="M470 260 L508 260"/><path d="M640 260 L678 260"/><path d="M810 260 L848 260"/>
+    </g>
+    <!-- information flow -->
+    <text x="0" y="22" font-size="15" fill="#009BA5" font-weight="700" letter-spacing="1.5">INFORMATION FLOW</text>
+    <g font-size="15" font-weight="700" text-anchor="middle">
+      <rect class="node" x="170" y="150" width="130" height="38" rx="8"/><text x="235" y="175">Sensors, I/O</text>
+      <rect class="node" x="340" y="150" width="130" height="38" rx="8"/><text x="405" y="175">PLC</text>
+      <rect class="node" x="510" y="150" width="130" height="38" rx="8"/><text x="575" y="175">SCADA</text>
+      <rect class="node si" x="680" y="95" width="150" height="44" rx="8"/><text x="755" y="122" fill="#fff">UNS broker</text>
+      <rect class="node" x="880" y="36" width="120" height="34" rx="8"/><text x="940" y="58">Historian</text>
+      <rect class="node" x="880" y="78" width="120" height="34" rx="8"/><text x="940" y="100">MES</text>
+      <rect class="node" x="880" y="120" width="120" height="34" rx="8"/><text x="940" y="142">Dashboards</text>
+      <rect class="node si" x="1020" y="78" width="120" height="34" rx="8"/><text x="1080" y="100" fill="#fff">AI agent</text>
+      <rect class="node" x="1020" y="120" width="120" height="34" rx="8"/><text x="1080" y="142">Cloud</text>
+    </g>
+    <g class="arrow" style="marker-end:url(#ah5)">
+      <path d="M235 238 L235 190" stroke-dasharray="4 4"/><path d="M405 238 L405 190" stroke-dasharray="4 4"/><path d="M575 238 L575 190" stroke-dasharray="4 4"/><path d="M745 238 L745 141" stroke-dasharray="4 4"/>
+      <path d="M300 169 L338 169"/><path d="M470 169 L508 169"/><path d="M640 160 L678 128"/>
+      <path d="M830 110 L878 55"/><path d="M830 115 L878 95"/><path d="M830 122 L878 135"/>
+    </g>
+    <path d="M1000 95 L1018 95" stroke="#009BA5" stroke-width="2"/>
+    <g font-size="14" fill="#666" font-style="italic">
+      <text x="320" y="210">fieldbus, cyclic 20 ms</text>
+      <text x="486" y="140">OPC UA, polled</text>
+      <text x="560" y="84">MQTT, on change</text>
+    </g>
+    <circle class="dot model" r="6"><animateMotion dur="4s" repeatCount="indefinite" path="M235 190 L235 169 L575 169 L680 128 L830 110 L1020 95"/></circle>
+  </svg>
+  <div class="cols two" style="grid-template-columns:1.6fr 1fr;gap:28px;margin-top:4px">
+    <div class="topic" style="font-size:15px"><span>otto-demo/sawmill-1/drying/kiln-1/chamber</span>/KL101/V1/position_fb</div>
+    <p class="small" style="margin:0">Every signal gets an ISA-95 name in a <strong>unified namespace</strong>, an OPC UA path and a PLC tag, generated from the plant.</p>
+  </div>
+  <p class="foot small"><strong class="teal">The agent sits at the end of the information flow.</strong> It never sees the wood — only what reaches it, when it reaches it.</p>
+  <aside class="notes">13:10. Two flows. The wood moves left to right. The information moves bottom-up: sensors to PLC on the fieldbus every 20 ms, SCADA polls the PLC over OPC UA, the UNS broker publishes on change over MQTT, and the historian, MES, dashboards, the cloud and the agent subscribe. Every signal has one name in the unified namespace. The point: the agent sits at the far end. If a link is down, a publisher silent or a firewall rule blocks it, the agent's picture of the plant is simply old. Let me show it.</aside>
+</section>
+
+<!-- ============ 3.4 · Live demo: the sawline ============ -->
+<section data-demo-src="viewer/index.html?src=runs/deck/sawline.jsonl&t=240&play=1" data-background-interactive class="demo-slide" data-timing="60">
+  <div class="demo-cap"><strong>Live:</strong> the sawline recording in the testbed viewer. Top: the line as instruments report it. Below: the information flow, message rates per link, zones. Right: the unified namespace. <span class="grey">Press <span class="kbd">D</span> to reload.</span></div>
+  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">14:20 (60 s). The viewer, playing a recorded shift. Point at: logs moving, cuts counting, motor currents. Scroll to the information flow: rates per link, the zones as horizontal bands, the AI agent in the DMZ. Click a signal in the namespace tree: topic, OPC UA path and PLC tag for the same value. If the demo misbehaves, the next slide has the same picture.</aside>
+</section>
+
+<!-- ============ 3.5 · Zones and conduits ============ -->
+<section data-timing="80">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Where the agent lives: zones and conduits</h2>
+  <img class="shot" src="assets/flow-asfound.png" alt="The information flow over the Purdue zones, as found: violating flows marked with amber triangles" style="margin-top:8px;width:1080px">
+  <div class="cols three" style="grid-template-columns:1fr 1fr 1fr 0.9fr;gap:22px;margin-top:14px;font-size:17px;line-height:1.3">
+    <div><strong class="teal">Zones</strong> follow IEC 62443 and the Purdue levels, with a <strong>DMZ</strong> between site and office.</div>
+    <div><strong class="teal">Conduits</strong> are the allowed paths: two zones, a direction, protocols. Supplier access via a jump host.</div>
+    <div><strong class="teal">A policy check</strong> tests every flow: a conduit directly between its zones, and nothing passes the DMZ.</div>
+    <div class="stat bad" style="margin-top:-6px"><b class="count" data-to="6" style="font-size:44px">0</b><span>flows violate the zone model, as found (amber)</span></div>
+  </div>
+  <aside class="notes">15:20. Where the agent lives. The zone model is IEC 62443 zones and conduits on the Purdue levels, with a DMZ between the site and the office. Every data flow, plant signals and IT requests alike, is checked against it. As found, the sawmill violates it six times: the dashboards and the supplier cloud read straight through the DMZ, ERP and MES talk across it, and the agent in the DMZ calls the LLM and the knowledge base down in site operations. And process data leaves the site to the supplier's cloud. This is modelled from the defender's side only: no exploits, only architecture.</aside>
+</section>
+
+<!-- ============ 3.6 · Firewall on ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Switch the firewall on — and see what goes dark</h2>
+  <img class="shot" src="assets/flow-segmented.png" alt="The same flows with the firewall enforced: six flows blocked, dashboards and cloud stale, a supplier session through the jump host" style="margin-top:8px;width:1080px">
+  <div class="cols four" style="gap:18px;margin-top:14px;font-size:17px;line-height:1.3">
+    <div class="fragment rise">The saw line <strong>runs on</strong>: control never crossed a boundary it should not.</div>
+    <div class="fragment rise">Dashboards, ERP and the cloud feed <strong class="coral">go stale</strong>: their flows were the violations.</div>
+    <div class="fragment rise"><strong class="coral">The agent goes dark</strong>: its LLM and knowledge base sit on the wrong side of the DMZ.</div>
+    <div class="fragment rise">The supplier's session via the jump host is <strong>allowed and logged</strong>.</div>
+  </div>
+  <p class="fragment rise" style="margin-top:12px;font-size:20px;margin-right:90px"><strong class="teal">Segmentation without redesigning the flows breaks the business side.</strong> Have that conversation before adding an agent.</p>
+  <aside class="notes">16:40. Now enforce the zone model, without redesigning anything. The line keeps sawing. Everything built on the violating flows goes dark: dashboards, ERP, the cloud, and the agent. Meanwhile the supplier's remote session is fine, because it uses the remote-access conduits properly, and every event is in the log. The lesson: the agent is an IT/OT participant like any other system, and its placement has to be designed with the zones, not added afterwards.</aside>
+</section>
+
+<!-- ============ 3.7 · Failures that do not alarm ============ -->
+<section data-timing="75">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Green by accident, in a kiln</h2>
+  <p class="sub">The kiln's humidity probe drifts +1 %RH per hour. The controller holds what it believes is the schedule.</p>
+  <div class="cols two" style="grid-template-columns:1.25fr 1fr;gap:28px">
+    <div>
+      <svg viewBox="0 0 600 370" width="600" height="370">
+        <!-- grid 0..100 % RH over 0..62 h -->
+        <g class="gridl"><line x1="50" y1="20" x2="570" y2="20"/><line x1="50" y1="77.5" x2="570" y2="77.5"/><line x1="50" y1="135" x2="570" y2="135"/><line x1="50" y1="192.5" x2="570" y2="192.5"/></g>
+        <line class="axis" x1="50" y1="250" x2="570" y2="250"/>
+        <g font-size="13" fill="#9a9a9a" text-anchor="end"><text x="44" y="24">100 %</text><text x="44" y="139">50 %</text><text x="44" y="254">0 %</text></g>
+        <g font-size="13" fill="#9a9a9a" text-anchor="middle"><text x="50" y="268">0 h</text><text x="217.7" y="268">20 h</text><text x="385.5" y="268">40 h</text><text x="553.2" y="268">60 h</text></g>
+        <path d="M50.0 54.5 L58.4 54.5 L66.8 54.5 L75.2 54.5 L83.5 54.5 L91.9 54.5 L100.3 54.5 L108.7 54.5 L117.1 54.5 L125.5 54.5 L125.5 70.6 L133.9 70.6 L142.3 70.6 L150.6 70.6 L159.0 70.6 L167.4 70.6 L175.8 70.6 L184.2 70.6 L192.6 70.6 L201.0 70.6 L209.4 70.6 L217.7 70.6 L226.1 70.6 L226.1 93.6 L234.5 93.6 L242.9 93.6 L251.3 93.6 L259.7 93.6 L268.1 93.6 L276.5 93.6 L284.8 93.6 L293.2 93.6 L301.6 93.6 L310.0 93.6 L318.4 93.6 L326.8 93.6 L326.8 121.2 L335.2 121.2 L343.5 121.2 L351.9 121.2 L360.3 121.2 L368.7 121.2 L377.1 121.2 L385.5 121.2 L393.9 121.2 L402.3 121.2 L410.6 121.2 L419.0 121.2 L427.4 121.2 L427.4 146.5 L435.8 146.5 L444.2 146.5 L452.6 146.5 L461.0 146.5 L469.4 146.5 L477.7 146.5 L486.1 146.5 L494.5 146.5 L502.9 146.5 L511.3 146.5 L519.7 146.5 L528.1 146.5 L536.5 146.5 L544.8 146.5 L553.2 146.5 L561.6 146.5" fill="none" stroke="#9a9a9a" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <path d="M50.0 66.0 L58.4 65.1 L66.8 56.8 L75.2 54.0 L83.5 53.3 L91.9 53.3 L100.3 53.1 L108.7 53.3 L117.1 53.3 L125.5 68.3 L133.9 68.5 L142.3 68.5 L150.6 68.3 L159.0 68.5 L167.4 68.5 L175.8 68.3 L184.2 68.5 L192.6 68.3 L201.0 68.5 L209.4 68.5 L217.7 68.3 L226.1 89.7 L234.5 89.7 L242.9 89.7 L251.3 89.7 L259.7 89.5 L268.1 89.5 L276.5 89.7 L284.8 89.5 L293.2 89.5 L301.6 89.5 L310.0 89.2 L318.4 89.2 L326.8 112.9 L335.2 112.7 L343.5 112.7 L351.9 112.2 L360.3 112.2 L368.7 112.0 L377.1 111.8 L385.5 111.3 L393.9 111.1 L402.3 110.8 L410.6 110.4 L419.0 110.2 L427.4 124.4 L435.8 123.3 L444.2 122.3 L452.6 121.2 L461.0 120.3 L469.4 119.1 L477.7 118.0 L486.1 116.6 L494.5 115.5 L502.9 114.1 L511.3 112.7 L519.7 111.1 L528.1 109.7 L536.5 108.1 L544.8 106.0 L553.2 103.9 L561.6 101.9" fill="none" stroke="#009BA5" stroke-width="3.5"/>
+        <path class="fragment" data-fragment-index="1" d="M50.0 66.0 L58.4 65.1 L66.8 56.8 L75.2 54.0 L83.5 53.3 L91.9 53.3 L100.3 53.1 L108.7 55.4 L117.1 57.7 L125.5 75.0 L133.9 77.5 L142.3 79.8 L150.6 81.9 L159.0 84.4 L167.4 86.7 L175.8 88.8 L184.2 91.3 L192.6 93.4 L201.0 95.9 L209.4 98.2 L217.7 100.3 L226.1 124.0 L234.5 126.3 L242.9 128.6 L251.3 130.9 L259.7 132.9 L268.1 135.2 L276.5 137.8 L284.8 139.8 L293.2 142.1 L301.6 144.4 L310.0 146.5 L318.4 148.8 L326.8 174.8 L335.2 176.9 L343.5 179.2 L351.9 181.0 L360.3 183.3 L368.7 185.4 L377.1 187.4 L385.5 189.3 L393.9 191.3 L402.3 193.4 L410.6 195.3 L419.0 197.3 L427.4 213.9 L435.8 215.0 L444.2 216.4 L452.6 217.6 L461.0 218.9 L469.4 220.1 L477.7 221.2 L486.1 222.2 L494.5 223.3 L502.9 224.2 L511.3 225.2 L519.7 225.8 L528.1 226.8 L536.5 227.5 L544.8 227.7 L553.2 227.9 L561.6 228.2" fill="none" stroke="#D9534F" stroke-width="3.5"/>
+        <text x="420" y="54" font-size="15" fill="#009BA5" font-weight="700">what the HMI shows</text>
+        <text x="420" y="72" font-size="13" fill="#9a9a9a">schedule (dashed)</text>
+        <text class="fragment" data-fragment-index="1" x="430" y="236" font-size="15" fill="#D9534F" font-weight="700">the real air</text>
+        <!-- crack index strip -->
+        <g class="fragment" data-fragment-index="2">
+          <text x="50" y="286" font-size="13" fill="#9a9a9a">drying stress (crack index)</text>
+          <line class="axis" x1="50" y1="340" x2="570" y2="340"/>
+          <path d="M50.0 340.0 L50.0 340.0 L58.4 340.0 L66.8 340.0 L75.2 340.0 L83.5 340.0 L91.9 340.0 L100.3 340.0 L108.7 340.0 L117.1 340.0 L125.5 340.0 L133.9 340.0 L142.3 340.0 L150.6 340.0 L159.0 340.0 L167.4 340.0 L175.8 340.0 L184.2 340.0 L192.6 340.0 L201.0 340.0 L209.4 340.0 L217.7 340.0 L226.1 339.3 L234.5 338.7 L242.9 338.0 L251.3 337.3 L259.7 336.6 L268.1 335.9 L276.5 335.2 L284.8 334.4 L293.2 333.6 L301.6 332.8 L310.0 332.0 L318.4 331.1 L326.8 328.1 L335.2 325.1 L343.5 321.9 L351.9 318.7 L360.3 315.4 L368.7 311.9 L377.1 308.4 L385.5 304.8 L393.9 301.0 L402.3 297.1 L410.6 293.1 L419.0 291.0 L427.4 291.0 L435.8 291.0 L444.2 291.0 L452.6 291.0 L461.0 291.0 L469.4 291.0 L477.7 291.0 L486.1 291.0 L494.5 291.0 L502.9 291.0 L511.3 291.0 L519.7 291.0 L528.1 291.0 L536.5 291.0 L544.8 291.0 L553.2 291.0 L561.6 291.0 L561.6 340.0 Z" fill="#FBEBEA" stroke="#D9534F" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+    <div>
+      <div class="stats" style="flex-wrap:wrap;gap:22px 34px;margin:10px 0 14px">
+        <div class="stat"><b>0</b><span>alarms, the whole run</span></div>
+        <div class="stat bad"><b>−14 h</b><span>"finished" early: 62 h instead of 76 h</span></div>
+        <div class="stat bad"><b>9 %</b><span>real humidity at the end, while the probe reads 64 %</span></div>
+        <div class="stat bad"><b class="count" data-to="29379">0</b><span>crack index: the charge checks, found days later at grading</span></div>
+      </div>
+      <p class="small fragment rise" data-fragment-index="2"><strong>Every value on the HMI is on schedule.</strong> Only the physics disagrees: the vent stays open longer, the heating works harder, the wood dries too fast.</p>
+    </div>
+  </div>
+  <aside class="notes">17:40. The kiln equivalent of green by accident. The humidity probe drifts upward by one percent per hour. The controller vents to keep what it believes is the scheduled humidity, so the real air gets drier and drier: 9 percent at the end while the probe reads 64. The HMI is green the whole time: zero alarms, and the charge even finishes 14 hours early. But the drying stress builds from hour 21, and the boards crack. You find out days later, at grading. The evidence was there: the vent open more than the step needs, extra heat, fast drying. Nothing alarms on physics. This is exactly the kind of fault an agent watching trends could catch, if it looked.</aside>
+</section>
+
+<!-- ============ 3.8 · Live demo: the kiln ============ -->
+<section data-demo-src="viewer/index.html?src=runs/deck/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="40">
+  <div class="demo-cap"><strong>Live:</strong> the same run in the viewer, hour 48. Each instrument beside its true value; MT101 <span class="coral">disagrees</span>. The red line: hidden truth no instrument measures. <span class="grey"><span class="kbd">D</span> reloads.</span></div>
+  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">18:55 (40 s). The kiln mimic at hour 48: MT101 reads 56 percent, the true air is 14. Below, the hidden truth: drying gradient almost 9, pine tolerates 3.5. Scrub back to hour 20 to show where the curves part. The agent would never see the true values; the viewer shows them because we are the oracle.</aside>
+</section>
+
+<!-- ============ 3.9 · Benchmark ============ -->
+<section data-timing="70">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>So: can today's agents diagnose a plant?</h2>
+  <p class="sub">Diagnosis tasks with a hidden fault. The verifier scores against the simulator's truth, never against the agent's own account.</p>
+  <table class="head">
+    <tr><th>Policy</th><th class="c">Sawline<br><span class="xs" style="font-weight:400">14 families × 10 seeds</span></th><th class="c">Kiln<br><span class="xs" style="font-weight:400">3 tasks × 3 seeds</span></th><th>What it is</th></tr>
+    <tr><td><strong>Oracle</strong></td><td class="c"><span class="bar" style="width:100px"></span>100 %</td><td class="c">9 / 9</td><td class="small grey">reads the hidden truth: checks that the tasks can be solved</td></tr>
+    <tr><td><strong>Rule-based</strong></td><td class="c"><span class="bar" style="width:14px"></span>14 %</td><td class="c">3 / 9</td><td class="small grey">"blame the device the alarm names"</td></tr>
+    <tr><td><strong>gemma4</strong></td><td class="c"><span class="bar bad" style="width:10px"></span>10 %</td><td class="c coral"><strong>0 / 9</strong></td><td class="small grey">local LLM on a laptop (Ollama)</td></tr>
+    <tr><td><strong>qwen3:14b</strong></td><td class="c"><span class="bar bad" style="width:9px"></span>9 %</td><td class="c coral"><strong>0 / 9</strong></td><td class="small grey">local LLM on a laptop (Ollama)</td></tr>
+    <tr><td><strong>Random</strong></td><td class="c">0 %</td><td class="c">0 / 9</td><td class="small grey">floor</td></tr>
+  </table>
+  <p class="small" style="margin-top:14px">A diagnosis submitted <strong>before the fault exists</strong> scores zero — an early lesson: the first version of the verifier let a model score by guessing at 30 s, before a jam at 60 s.</p>
+  <aside class="notes">19:35. The benchmark. On the sawline, 14 task families with 10 held-out seeds; on the kiln, three tasks. The oracle cheats by reading the truth; it proves every task is solvable. The rule-based policy blames whatever device the alarm names. Two local models, run on a MacBook: about one in ten on the sawline, zero on the kiln. Note the onset gate: an answer before the fault exists is a guess and scores nothing. The very first reward version leaked exactly that way.</aside>
+</section>
+
+<!-- ============ 3.10 · The trap ============ -->
+<section data-timing="75">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>The alarm names the healthy probe</h2>
+  <p class="sub">Kiln task k02: the control probe TT101 starts reading 5 °C low. The check probe TT102 raises the alarm.</p>
+  <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:26px">
+    <div>
+      <svg viewBox="0 0 590 340" width="590" height="340">
+        <g class="gridl"><line x1="50" y1="20" x2="570" y2="20"/><line x1="50" y1="98.6" x2="570" y2="98.6"/><line x1="50" y1="177.1" x2="570" y2="177.1"/></g>
+        <line class="axis" x1="50" y1="240" x2="570" y2="240"/>
+        <g font-size="13" fill="#9a9a9a" text-anchor="end"><text x="44" y="24">68 °C</text><text x="44" y="102">63 °C</text><text x="44" y="181">58 °C</text></g>
+        <g font-size="13" fill="#9a9a9a" text-anchor="middle"><text x="50" y="256">−30 min</text><text x="154" y="256">fault</text><text x="327.3" y="256">+80 min</text><text x="535" y="256">+2 h</text></g>
+        <line x1="154" y1="20" x2="154" y2="240" stroke="#FFE500" stroke-width="3"/>
+        <path d="M50.0 140.6 L53.5 140.7 L56.9 141.0 L60.4 141.2 L63.9 141.3 L67.3 141.5 L70.8 141.7 L74.3 141.9 L77.7 142.1 L81.2 142.3 L84.7 142.4 L88.1 142.6 L91.6 142.8 L95.1 142.9 L98.5 143.1 L102.0 143.3 L105.5 143.4 L108.9 143.6 L112.4 143.7 L115.9 143.8 L119.3 144.0 L122.8 144.1 L126.3 144.2 L129.7 144.4 L133.2 144.5 L136.7 144.6 L140.1 144.7 L143.6 144.8 L147.1 144.9 L150.5 145.0 L154.0 145.1 L157.5 143.7 L160.9 141.8 L164.4 139.9 L167.9 138.0 L171.3 136.2 L174.8 134.3 L178.3 132.4 L181.7 130.6 L185.2 128.7 L188.7 126.8 L192.1 125.0 L195.6 123.1 L199.1 121.3 L202.5 119.4 L206.0 117.6 L209.5 115.8 L212.9 114.0 L216.4 112.2 L219.9 110.4 L223.3 108.7 L226.8 106.9 L230.3 105.2 L233.7 103.5 L237.2 101.9 L240.7 100.2 L244.1 98.6 L247.6 97.0 L251.1 95.4 L254.5 93.9 L258.0 92.4 L261.5 90.9 L264.9 89.5 L268.4 88.1 L271.9 86.7 L275.3 85.3 L278.8 84.0 L282.3 82.7 L285.7 81.5 L289.2 80.2 L292.7 79.0 L296.1 77.9 L299.6 76.8 L303.1 75.7 L306.5 74.6 L310.0 73.6 L313.5 72.6 L316.9 71.7 L320.4 70.8 L323.9 69.9 L327.3 69.0 L330.8 68.2 L334.3 67.4 L337.7 66.7 L341.2 65.9 L344.7 65.3 L348.1 64.6 L351.6 64.0 L355.1 63.4 L358.5 62.8 L362.0 62.2 L365.5 61.7 L368.9 61.2 L372.4 60.8 L375.9 60.4 L379.3 59.9 L382.8 59.6 L386.3 59.2 L389.7 58.9 L393.2 58.6 L396.7 58.3 L400.1 58.0 L403.6 57.8 L407.1 57.6 L410.5 57.4 L414.0 57.2 L417.5 57.1 L420.9 56.9 L424.4 56.8 L427.9 56.7 L431.3 56.6 L434.8 56.6 L438.3 56.5 L441.7 56.5 L445.2 56.4 L448.7 56.4 L452.1 56.4 L455.6 56.5 L459.1 56.5 L462.5 56.5 L466.0 56.6 L469.5 56.7 L472.9 56.7 L476.4 56.8 L479.9 56.9 L483.3 57.0 L486.8 57.1 L490.3 57.3 L493.7 57.4 L497.2 57.5 L500.7 57.7 L504.1 57.8 L507.6 58.0 L511.1 58.1 L514.5 58.3 L518.0 58.4 L521.5 58.6 L524.9 58.8 L528.4 59.0 L531.9 59.1 L535.3 59.3 L538.8 59.5 L542.3 59.7 L545.7 59.9 L549.2 60.1 L552.7 60.2 L556.1 60.4 L559.6 60.6 L563.1 60.8 L566.5 61.0" fill="none" stroke="#009BA5" stroke-width="3.5"/>
+        <path d="M50.0 140.6 L53.5 140.7 L56.9 141.0 L60.4 141.2 L63.9 141.3 L67.3 141.5 L70.8 141.7 L74.3 141.9 L77.7 142.1 L81.2 142.3 L84.7 142.4 L88.1 142.6 L91.6 142.8 L95.1 142.9 L98.5 143.1 L102.0 143.3 L105.5 143.4 L108.9 143.6 L112.4 143.7 L115.9 143.8 L119.3 144.0 L122.8 144.1 L126.3 144.2 L129.7 144.4 L133.2 144.5 L136.7 144.6 L140.1 144.7 L143.6 144.8 L147.1 144.9 L150.5 145.0 L154.0 145.1 L157.5 222.3 L160.9 220.4 L164.4 218.5 L167.9 216.6 L171.3 214.7 L174.8 212.9 L178.3 211.0 L181.7 209.1 L185.2 207.3 L188.7 205.4 L192.1 203.5 L195.6 201.7 L199.1 199.8 L202.5 198.0 L206.0 196.2 L209.5 194.4 L212.9 192.6 L216.4 190.8 L219.9 189.0 L223.3 187.2 L226.8 185.5 L230.3 183.8 L233.7 182.1 L237.2 180.4 L240.7 178.8 L244.1 177.2 L247.6 175.6 L251.1 174.0 L254.5 172.5 L258.0 171.0 L261.5 169.5 L264.9 168.0 L268.4 166.6 L271.9 165.2 L275.3 163.9 L278.8 162.6 L282.3 161.3 L285.7 160.0 L289.2 158.8 L292.7 157.6 L296.1 156.5 L299.6 155.3 L303.1 154.3 L306.5 153.2 L310.0 152.2 L313.5 151.2 L316.9 150.3 L320.4 149.3 L323.9 148.4 L327.3 147.6 L330.8 146.8 L334.3 146.0 L337.7 145.2 L341.2 144.5 L344.7 143.8 L348.1 143.2 L351.6 142.5 L355.1 141.9 L358.5 141.4 L362.0 140.8 L365.5 140.3 L368.9 139.8 L372.4 139.3 L375.9 138.9 L379.3 138.5 L382.8 138.1 L386.3 137.8 L389.7 137.4 L393.2 137.1 L396.7 136.9 L400.1 136.6 L403.6 136.4 L407.1 136.1 L410.5 136.0 L414.0 135.8 L417.5 135.6 L420.9 135.5 L424.4 135.4 L427.9 135.3 L431.3 135.2 L434.8 135.1 L438.3 135.1 L441.7 135.0 L445.2 135.0 L448.7 135.0 L452.1 135.0 L455.6 135.0 L459.1 135.1 L462.5 135.1 L466.0 135.2 L469.5 135.2 L472.9 135.3 L476.4 135.4 L479.9 135.5 L483.3 135.6 L486.8 135.7 L490.3 135.8 L493.7 136.0 L497.2 136.1 L500.7 136.2 L504.1 136.4 L507.6 136.5 L511.1 136.7 L514.5 136.9 L518.0 137.0 L521.5 137.2 L524.9 137.4 L528.4 137.5 L531.9 137.7 L535.3 137.9 L538.8 138.1 L542.3 138.3 L545.7 138.4 L549.2 138.6 L552.7 138.8 L556.1 139.0 L559.6 139.2 L563.1 139.4 L566.5 139.6" fill="none" stroke="#D9534F" stroke-width="3.5"/>
+        <text x="330" y="36" font-size="15" fill="#009BA5" font-weight="700">TT102 · alarms, but is right</text>
+        <text x="330" y="190" font-size="15" fill="#D9534F" font-weight="700">TT101 · stepped down: the fault</text>
+        <text x="50" y="332" font-size="13" fill="#9a9a9a">heating valve KL101.V1, 0–100 % open</text>
+        <line class="axis" x1="50" y1="310" x2="570" y2="310"/>
+        <path d="M50.0 285.4 L53.5 285.4 L56.9 285.4 L60.4 285.4 L63.9 285.4 L67.3 285.3 L70.8 285.3 L74.3 285.2 L77.7 285.2 L81.2 285.2 L84.7 285.2 L88.1 285.1 L91.6 285.1 L95.1 285.1 L98.5 285.1 L102.0 285.0 L105.5 285.0 L108.9 284.9 L112.4 284.9 L115.9 284.9 L119.3 284.9 L122.8 284.8 L126.3 284.8 L129.7 284.7 L133.2 284.7 L136.7 284.6 L140.1 284.6 L143.6 284.6 L147.1 284.6 L150.5 284.5 L154.0 284.4 L157.5 260.0 L160.9 260.0 L164.4 260.0 L167.9 260.0 L171.3 260.0 L174.8 260.0 L178.3 260.0 L181.7 260.0 L185.2 260.0 L188.7 260.0 L192.1 260.0 L195.6 260.0 L199.1 260.0 L202.5 260.0 L206.0 260.1 L209.5 260.1 L212.9 260.2 L216.4 260.4 L219.9 260.5 L223.3 260.7 L226.8 260.9 L230.3 261.1 L233.7 261.2 L237.2 261.5 L240.7 261.7 L244.1 262.0 L247.6 262.2 L251.1 262.6 L254.5 262.9 L258.0 263.1 L261.5 263.4 L264.9 263.8 L268.4 264.1 L271.9 264.4 L275.3 264.8 L278.8 265.1 L282.3 265.6 L285.7 265.9 L289.2 266.2 L292.7 266.6 L296.1 267.0 L299.6 267.4 L303.1 267.8 L306.5 268.1 L310.0 268.5 L313.5 268.9 L316.9 269.2 L320.4 269.6 L323.9 269.9 L327.3 270.3 L330.8 270.7 L334.3 271.1 L337.7 271.4 L341.2 271.8 L344.7 272.1 L348.1 272.5 L351.6 272.9 L355.1 273.1 L358.5 273.5 L362.0 273.9 L365.5 274.2 L368.9 274.5 L372.4 274.8 L375.9 275.1 L379.3 275.4 L382.8 275.8 L386.3 276.0 L389.7 276.3 L393.2 276.6 L396.7 276.9 L400.1 277.1 L403.6 277.4 L407.1 277.6 L410.5 277.9 L414.0 278.1 L417.5 278.4 L420.9 278.6 L424.4 278.8 L427.9 279.0 L431.3 279.2 L434.8 279.4 L438.3 279.6 L441.7 279.8 L445.2 280.0 L448.7 280.2 L452.1 280.4 L455.6 280.4 L459.1 280.6 L462.5 280.8 L466.0 280.9 L469.5 281.1 L472.9 281.2 L476.4 281.4 L479.9 281.4 L483.3 281.6 L486.8 281.6 L490.3 281.8 L493.7 281.9 L497.2 281.9 L500.7 282.1 L504.1 282.1 L507.6 282.2 L511.1 282.3 L514.5 282.3 L518.0 282.4 L521.5 282.4 L524.9 282.5 L528.4 282.6 L531.9 282.6 L535.3 282.6 L538.8 282.6 L542.3 282.7 L545.7 282.8 L549.2 282.8 L552.7 282.8 L556.1 282.8 L559.6 282.8 L563.1 282.8 L566.5 282.8" fill="none" stroke="#666" stroke-width="2.5"/>
+      </svg>
+    </div>
+    <div>
+      <p class="small"><strong>An instrument steps; air does not.</strong> TT101 dropped in one sample, the heating valve opened fully, and the real temperature, which TT102 measures, rose slowly behind it.</p>
+      <div class="card risk fragment rise" style="padding:14px 18px"><h3 style="font-size:20px">gemma4: waits, then trusts the alarm</h3><p class="small" style="margin:0">Waited hour after hour, never asked for a trend, and named TT102, the device the alarm is called after. Same as the rule-based policy.</p></div>
+      <div class="card risk fragment rise" style="padding:14px 18px;margin-top:12px"><h3 style="font-size:20px">qwen3: looks, then guesses</h3><p class="small" style="margin:0">Pulled seven trends at t = 0, then named <em>exactly</em> TT101 / offset — hours before the fault existed. A prior from the prompt, not a diagnosis.</p></div>
+    </div>
+  </div>
+  <p class="foot fragment rise"><strong class="teal">The same wall as in part two:</strong> they act on a named cause; they do not name it from the physics.</p>
+  <aside class="notes">20:45. The trap, designed on purpose. The control probe reads 5 degrees low. The controller heats harder, the real temperature rises, and the check probe raises the alarm: the alarm carries the healthy probe's name. The trend tells you which one is wrong: TT101 stepped in one sample, and air cannot do that. gemma4 waited and blamed the alarm's device, like the rule-based script. qwen3 did look at trends, but at time zero, and then named exactly the right answer before the fault existed: that is the prompt talking, not the plant. On the stuck-valve task the observation showed command zero, position a hundred percent, and neither model compared the two. Same wall as the hardware work: the agents act on a named cause, they do not name it.</aside>
+</section>
+
+<!-- ============ 3.11 · The agent as a participant ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>The agent is a new IT/OT participant</h2>
+  <p class="sub">In the testbed the agent is a system in the DMZ like any other, with flows, dependencies and a write path.</p>
+  <div class="cols three" style="margin-top:20px">
+    <div class="card fragment rise">
+      <h3>Its flows</h3>
+      <ul class="small">
+        <li>Prompts with plant data to an LLM: on-prem GPU, or the cloud — then <strong>plant data leaves the site</strong>.</li>
+        <li>Manuals and work orders from a knowledge base; work orders to the CMMS.</li>
+        <li>Each flow is checked against the zones like any other.</li>
+      </ul>
+    </div>
+    <div class="card fragment rise">
+      <h3>Its failure modes</h3>
+      <ul class="small">
+        <li>Its view of the plant can be <strong>old</strong>: it is told which publishers are stale, and how old its newest data is.</li>
+        <li>The LLM host is down: after 30 s, <strong>no decision is taken</strong>.</li>
+        <li>Every decision costs the LLM's real response time, measured on the hardware.</li>
+      </ul>
+    </div>
+    <div class="card risk fragment rise">
+      <h3>Its attack surface</h3>
+      <ul class="small">
+        <li>A <strong>planted instruction</strong> in a work order: the verifier records whether the diagnosis followed it.</li>
+        <li><strong>Writes</strong> go agent → SCADA → PLC through one audited path, checked against the zones and logged.</li>
+        <li>A restart after a trip needs a <strong style="background:var(--yellow);padding:0 4px">supervisor's approval</strong>.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">22:00. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
+</section>
+
+<!-- ============ 3.12 · Built the same way ============ -->
+<section data-timing="45">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Built the same way: part two's method, in six days</h2>
+  <div class="stats" style="margin:26px 0 26px">
+    <div class="stat"><b class="count" data-to="6">0</b><span>days, from an empty repository to both plants</span></div>
+    <div class="stat"><b class="count" data-to="67">0</b><span>commits, written with a coding agent</span></div>
+    <div class="stat"><b class="count" data-to="20">0</b><span>pinned golden runs, compared byte for byte at every change</span></div>
+    <div class="stat"><b class="count" data-to="3">0</b><span>real protocols live: MQTT, Sparkplug B, OPC UA</span></div>
+  </div>
+  <div class="cols two">
+    <ul class="small">
+      <li><strong>Deterministic core</strong>: integer physics, named random streams, no wall clock. Any episode replays to the same state hash.</li>
+      <li><strong>Pinned references</strong>: state hashes, canonical recordings and agent trajectories stayed identical through a full architecture refactor.</li>
+    </ul>
+    <ul class="small">
+      <li><strong>Receipts</strong>: every agent episode is a replayable log with the model, seed, versions and reward explanation.</li>
+      <li><strong>The human named the process</strong>: sawmill stage order, what a kiln operator watches, what OTTO needs to see.</li>
+    </ul>
+  </div>
+  <aside class="notes">23:00. A meta point. This testbed was itself built with a coding agent, in six days, following the six rules from part two. Deterministic core; twenty golden runs compared byte for byte at every change, including a full refactor that stayed identical; every episode is a replayable receipt. And the human did the part the agent cannot: naming the process, the stage order, what matters to OTTO.</aside>
+</section>
+
+<!-- ============ 3.13 · Six rules for OT ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>The six rules, for agents in a plant</h2>
+  <div class="cols two pattern" style="margin-top:20px;row-gap:22px">
+    <div><p><span class="num">1</span><strong>Make what it sees explicit</strong></p><p class="small grey">The agent sees the information flow, not the plant. Tell it how old its data is and which sources are silent.</p></div>
+    <div><p><span class="num">2</span><strong>Make every decision replayable</strong></p><p class="small grey">Same inputs, same episode, same hash. An incident review needs the exact picture the agent had.</p></div>
+    <div><p><span class="num">3</span><strong>Score against the plant, not the agent</strong></p><p class="small grey">Truth comes from the process, never from the agent's own account of what it did.</p></div>
+    <div><p><span class="num">4</span><strong>Test on the proxy first</strong></p><p class="small grey">Break the testbed a thousand times before the agent sees a real line. Pin the results.</p></div>
+    <div><p><span class="num">5</span><strong>Audit every write</strong></p><p class="small grey">One path via SCADA, checked against the zones and logged. No side doors to the PLC.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human approves the restart</strong></p><p class="small grey">The agent diagnoses and proposes. The interlock and the approval stay human.</p></div>
+  </div>
+  <aside class="notes">23:45. Part two's rules, translated. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
+</section>
+
+<!-- ============ 3.14 · Next steps ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Next, with the OTTO partners</h2>
+  <div class="cols two" style="margin-top:24px">
+    <div class="card">
+      <h3>Bring</h3>
+      <ul class="small">
+        <li><strong>Your naming</strong>: how your signals are named today; we map them to a unified namespace.</li>
+        <li><strong>Your zone model</strong> and IT systems: MES, ERP, CMMS, identity, where AI would run.</li>
+        <li><strong>Your failures</strong>: the work orders nobody forgets. They become test scenarios.</li>
+        <li><strong>Your numbers</strong>: kiln schedules, energy, yields, to calibrate the plants.</li>
+      </ul>
+    </div>
+    <div class="card line">
+      <h3>We add</h3>
+      <ul class="small">
+        <li><strong>A zone design with rationale</strong>: target security levels per zone, and a redesigned "target architecture" beside "as found" and "firewall on".</li>
+        <li><strong>Real protocols</strong>: MQTT, Sparkplug B and OPC UA already run live; Modbus next.</li>
+        <li><strong>A real PLC in the loop</strong> (OpenPLC): hardware in the loop, again.</li>
+        <li><strong>Workshops</strong>: partners inject faults live and watch what the information flow shows.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">24:45. What we need from partners and what we bring. Bring your naming, your zones and IT systems, your worst failures and your numbers. We add a zone design with rationale and a target architecture, real protocols (the testbed already publishes to a real MQTT broker, Sparkplug B and an OPC UA server), a real PLC through OpenPLC, which brings the hardware back into the loop, and workshops where you break the plant yourselves.</aside>
+</section>
+
+<!-- ============ 3.15 · Conclusions ============ -->
+<section data-timing="60">
+  <h2>What to take home</h2>
+  <div class="cols three" style="margin-top:26px">
+    <div class="card fragment rise"><p><span class="num">1</span><strong>An agent is its tools and what they let it see</strong></p><p class="small grey">In a factory, what it sees is the information flow. Designing that flow is designing the agent.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>Green by accident exists in plants too</strong></p><p class="small grey">A drifting probe keeps the HMI on schedule while the charge cracks. Nothing alarms on physics; an agent that reads trends could.</p></div>
+    <div class="card fragment rise"><p><span class="num">3</span><strong>Naming the cause is still human work</strong></p><p class="small grey">Today's local models trust the alarm or guess before the evidence. Test them on a plant you can break, not on yours.</p></div>
+  </div>
+  <div class="quote human-box fragment rise" style="font-style:normal;display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:24px">
+    <strong>The human in the loop</strong>
+    <span>In the hardware work it was a cable and a button. <strong>In the factory it is the approval to restart</strong> — and that is the row nobody should automate first.</span>
+  </div>
+  <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:24px">The models are competent. <strong class="teal">Put the plant in the loop anyway.</strong></p>
+  <aside class="notes">25:45. Three things. An agent is its tools; in a factory its tools are the information flow, so designing that flow is designing the agent. Green by accident happens in plants: the drifting probe. And naming the cause is still human work; test agents on a plant you can break. The human in the loop: in the hardware work it was a cable and a button, and those are being automated. In a factory it is the approval to restart, and that is the one row nobody should automate first. The models are competent. Put the plant in the loop anyway.</aside>
+</section>
+
+<!-- ============ Thanks ============ -->
+<section data-timing="10">
+  <div class="cols two" style="grid-template-columns:1fr 1.1fr;align-items:center;margin-top:40px">
+    <div>
+      <h1 style="font-size:64px">Thanks for<br>listening</h1>
+      <p class="grey" style="font-size:22px;margin-top:26px">Joakim Eriksson, RISE</p>
+      <p class="small grey" style="line-height:1.6">OTTO — IT/OT and cybersecurity<br>Open Industrial Agent Testbed<br>Hardware in the agentic loop (Sept. 2026)<br>Questions, and your worst plant failures, welcome</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 560 400" width="560" height="400" role="img" aria-label="A drying kiln watched by a camera; an operator's approval button sits between the agent and the plant">
+        <defs><marker id="ah9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <line x1="20" y1="336" x2="540" y2="336" stroke="#bbb" stroke-width="2"/>
+        <!-- kiln -->
+        <rect x="250" y="176" width="270" height="160" rx="8" fill="#eceff1" stroke="#aeb6bb" stroke-width="2"/>
+        <path d="M250 176 L385 120 L520 176" fill="#dde3e6" stroke="#aeb6bb" stroke-width="2"/>
+        <g fill="#d4a86a"><rect x="282" y="230" width="60" height="10"/><rect x="282" y="250" width="60" height="10"/><rect x="282" y="270" width="60" height="10"/><rect x="282" y="290" width="60" height="10"/>
+          <rect x="356" y="230" width="60" height="10"/><rect x="356" y="250" width="60" height="10"/><rect x="356" y="270" width="60" height="10"/><rect x="356" y="290" width="60" height="10"/>
+          <rect x="430" y="230" width="60" height="10"/><rect x="430" y="250" width="60" height="10"/><rect x="430" y="270" width="60" height="10"/><rect x="430" y="290" width="60" height="10"/></g>
+        <!-- vapour -->
+        <g fill="none" stroke="#9aa3a8" stroke-width="2" stroke-linecap="round">
+          <path d="M470 150 q8 -12 0 -24 q-8 -12 0 -24"><animate attributeName="opacity" values="0;.8;0" dur="3s" repeatCount="indefinite"/></path>
+          <path d="M490 158 q8 -12 0 -24 q-8 -12 0 -24"><animate attributeName="opacity" values="0;.8;0" dur="3s" begin="1.2s" repeatCount="indefinite"/></path>
+        </g>
+        <!-- probe with a reading -->
+        <rect x="262" y="196" width="10" height="26" fill="#009BA5"/>
+        <text x="280" y="212" font-size="13" fill="#009BA5" font-family="ui-monospace,Menlo,monospace">MT101 56 %<animate attributeName="opacity" values="1;1;.3;1" dur="2s" repeatCount="indefinite"/></text>
+        <!-- agent node -->
+        <rect class="node si" x="30" y="60" width="150" height="54" rx="12"/>
+        <text x="105" y="93" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">Agent</text>
+        <!-- approval button, the human part -->
+        <rect x="68" y="196" width="74" height="46" rx="10" fill="#FFE500" stroke="#222" stroke-width="1.5"/>
+        <text x="105" y="224" text-anchor="middle" font-size="14" font-weight="700">approve</text>
+        <text x="105" y="262" text-anchor="middle" font-size="12" fill="#666" font-style="italic">the human's row</text>
+        <path class="arrow" style="marker-end:url(#ah9)" d="M105 114 L105 192"/>
+        <path class="arrow" style="marker-end:url(#ah9)" d="M142 219 L246 240"/>
+        <!-- data back up -->
+        <path d="M250 200 C 200 150, 200 90, 184 88" stroke="#009BA5" stroke-width="2" stroke-dasharray="5 5" fill="none" style="marker-end:url(#ah9)"/>
+        <text x="206" y="148" font-size="12" fill="#666" font-style="italic">what the UNS delivers</text>
+        <circle class="dot model" r="6"><animateMotion dur="3s" repeatCount="indefinite" path="M250 200 C 200 150, 200 90, 184 88"/></circle>
+        <text x="20" y="372" font-size="14" fill="#9a9a9a" font-style="italic">the plant, the information flow, the approval</text>
+      </svg>
+    </div>
+  </div>
+  <aside class="notes">26:45. Thank you. Questions — and I would love to hear your worst plant failures; they become test scenarios.</aside>
+</section>
+
+</div>
+</div>
+
+<script src="vendor/reveal.js"></script>
+<script src="vendor/notes.js"></script>
+<script>
+// Demo slides: the testbed viewer as the slide background. Locally the deck's demos/testbed is a symlink to the
+// testbed repository (not published), so the viewer and its recordings are always the current build.
+document.querySelectorAll('section[data-demo-src]').forEach(sec => {
+  sec.setAttribute('data-background-iframe', 'demos/testbed/' + sec.dataset.demoSrc);
+});
+
+Reveal.initialize({
+  width: 1280, height: 720, margin: 0.04,
+  center: false, hash: true, progress: true, controls: false,
+  slideNumber: 'c/t',
+  transition: 'fade', transitionSpeed: 'fast', backgroundTransition: 'none',
+  defaultTiming: 60,
+  totalTime: 1800,
+  preloadIframes: true,
+  plugins: [ RevealNotes ]
+});
+
+// Count-up stats when a slide becomes visible (respects reduced motion)
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countUp(section){
+  section.querySelectorAll('.count[data-to]').forEach(el => {
+    const to = +el.dataset.to;
+    const fmt = n => n >= 10000 ? n.toLocaleString('en').replace(/,/g, ' ') : String(n);
+    if (reduce) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), dur = 900;
+    (function tick(now){
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(Math.round(to * e));
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  });
+}
+Reveal.on('ready', e => countUp(e.currentSlide));
+Reveal.on('slidechanged', e => countUp(e.currentSlide));
+
+// Demo slides: the viewer takes keyboard focus once you click in it, so the deck would stop hearing the
+// arrow keys. Two ways back: the ‹ › buttons in the caption bar, and forwarding of the navigation keys
+// from inside the (same-origin) viewer page to the deck.
+document.querySelectorAll('.demo-nav button').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation();
+  b.dataset.go === 'next' ? Reveal.right() : Reveal.left();
+  window.focus();
+}));
+const NAV_KEYS = { ArrowRight: () => Reveal.right(), ArrowLeft: () => Reveal.left(),
+                   PageDown: () => Reveal.next(), PageUp: () => Reveal.prev(), Escape: () => Reveal.toggleOverview() };
+function hookDemoKeys(slide){
+  const bg = Reveal.getSlideBackground(slide), f = bg && bg.querySelector('iframe');
+  if (!f) return;
+  const attach = () => {
+    try {
+      const doc = f.contentDocument;
+      if (!doc || doc.__deckKeys) return;
+      doc.__deckKeys = true;
+      doc.addEventListener('keydown', e => {
+        const t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+        const go = NAV_KEYS[e.key];
+        if (!go || typing) return;
+        e.preventDefault();
+        go();
+        window.focus();
+      });
+    } catch (err) { /* cross-origin page: buttons still work */ }
+  };
+  attach();
+  f.addEventListener('load', attach);
+}
+Reveal.on('slidechanged', e => { if (e.currentSlide.classList.contains('demo-slide')) setTimeout(() => hookDemoKeys(e.currentSlide), 300); });
+Reveal.on('ready', e => { if (e.currentSlide.classList.contains('demo-slide')) setTimeout(() => hookDemoKeys(e.currentSlide), 300); });
+
+// 'D' reloads the demo on the current slide
+Reveal.addKeyBinding({ keyCode: 68, key: 'D', description: 'Reload demo' }, () => {
+  const slide = Reveal.getCurrentSlide();
+  const f = Reveal.getSlideBackground(slide)?.querySelector('iframe');
+  if (f) f.contentWindow.location.reload();
+});
+</script>
+</body>
+</html>
