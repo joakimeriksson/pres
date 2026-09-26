@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Agenter i fabriksloopen — Joakim Eriksson, RISE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="vendor/reset.css">
+<link rel="stylesheet" href="vendor/reveal.css">
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============ 1 · Titel ============ -->
+<section class="title" data-timing="20">
+  <div style="margin-top:96px;max-width:960px">
+    <h1>Agenter i<br>fabriksloopen</h1>
+    <p style="font-size:34px;color:var(--grey);margin:30px 0 40px">Vad en agent är, vad hårdvaran lärde oss,<br>och vad det betyder för en fabrik</p>
+    <p style="font-size:22px"><strong>1 · Vad en agent är</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>2 · Hårdvara i agentloopen</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>3 · OTTO-testbädden</strong></p>
+    <p class="small grey">Joakim Eriksson, RISE — OTTO, IT/OT och cybersäkerhet, 2026</p>
+  </div>
+  <aside class="notes">0:00. Tre delar. Först vad en agent faktiskt är, på fem minuter. Sedan vad jag lärde mig i somras när agenter fick arbeta i en loop med riktig hårdvara. Sedan vad det betyder för en fabrik: OTTO-testbädden, där en agent sköter ett simulerat sågverk och en virkestork, genom anläggningens egen IT/OT-arkitektur. Ungefär 27 minuter plus frågor.</aside>
+</section>
+
+<!-- ======================================================================= -->
+<!-- DEL 1 · VAD EN AGENT ÄR                                                 -->
+<!-- ======================================================================= -->
+<section class="divider" data-background-color="#009BA5" data-timing="10">
+  <div class="big">1</div>
+  <h1>Vad en agent är</h1>
+  <p>En språkmodell, en uppsättning verktyg och en loop. Fem minuter om vad som har hänt, och varför det spelar roll för automation.</p>
+  <div class="acts"><i class="on">1 · Agenter</i><i>2 · Hårdvara i loopen</i><i>3 · Fabriken</i></div>
+  <aside class="notes">0:20. Del ett: vad en agent är. Kort, för de intressanta frågorna kommer sedan.</aside>
+</section>
+
+<!-- ============ 1.1 · Ett år ============ -->
+<section data-timing="60">
+  <div class="act"><b>1</b> · agenter</div>
+  <h2>På ett år: från kodkomplettering till hela loopen</h2>
+  <p class="sub">Det modellen anförtros har vuxit ett steg i taget. Varje steg sluter en längre loop utan en människa i den.</p>
+  <div class="steps">
+    <div class="step s1 fragment rise"><b>Komplettering</b><strong>Nästa rad</strong>Föreslår kod medan du skriver. Du godkänner eller avvisar varje rad.</div>
+    <div class="step s2 fragment rise"><b>Assistent</b><strong>Nästa svar</strong>Chatt: förklarar, skriver utkast, granskar. Du kopierar resultatet och kör det själv.</div>
+    <div class="step s3 fragment rise"><b>Agent</b><strong>Nästa uppgift</strong>Läser koden, ändrar filer, kör testerna, läser felen, försöker igen. Du granskar ändringen.</div>
+    <div class="step s4 fragment rise"><b>Agent i forskningsloopen</b><strong>Hela projektet</strong>Bygger systemet, sätter upp experimenten, utvärderar dem och skriver ihop resultatet.</div>
+  </div>
+  <div class="quote foot fragment rise" style="font-style:normal"><strong>Det som automatiseras är inte verktygen, utan loopen runt verktygen.</strong> AI-skrivna artiklar har passerat peer review; nya benchmarks mäter hur väl agenter återskapar publicerad forskning.</div>
+  <aside class="notes">0:30. Trenden i en bild. Komplettering: modellen gissar nästa rad. Assistent: den svarar, och du gör jobbet. Agent: den får en uppgift och arbetar i en loop på egen hand, läser, ändrar, kör tester, läser fel. Och nu kör agenter hela forskningsloopen. Poängen är inte att modellen blev bättre på en sak, utan att varje steg tar bort en människa ur en längre loop.</aside>
+</section>
+
+<!-- ============ 1.2 · Anatomin ============ -->
+<section data-timing="75">
+  <div class="act"><b>1</b> · agenter</div>
+  <h2>En agent är en modell, verktyg och en loop</h2>
+  <div class="cols two" style="grid-template-columns:1.25fr 1fr;margin-top:16px;align-items:center">
+    <div>
+      <svg viewBox="0 0 640 460" width="640" height="460">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <circle cx="300" cy="230" r="150" fill="none" stroke="#E6F4F5" stroke-width="34"/>
+        <rect class="node si" x="220" y="195" width="160" height="70" rx="14"/>
+        <text x="300" y="228" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Modell</text>
+        <text x="300" y="252" text-anchor="middle" font-size="15" fill="#fff" opacity=".85">väljer nästa steg</text>
+        <rect class="node" x="225" y="40" width="150" height="54" rx="12"/>
+        <text x="300" y="74" text-anchor="middle" font-size="20" font-weight="700">Mål</text>
+        <rect class="node" x="455" y="203" width="150" height="54" rx="12"/>
+        <text x="530" y="236" text-anchor="middle" font-size="20" font-weight="700">Agera</text>
+        <rect class="node" x="225" y="366" width="150" height="54" rx="12"/>
+        <text x="300" y="400" text-anchor="middle" font-size="20" font-weight="700">Verktyg</text>
+        <rect class="node" x="-5" y="203" width="150" height="54" rx="12"/>
+        <text x="70" y="236" text-anchor="middle" font-size="20" font-weight="700">Observera</text>
+        <path class="arrow" d="M375 80 Q470 110 520 200"/>
+        <path class="arrow" d="M520 258 Q470 350 378 385"/>
+        <path class="arrow" d="M222 385 Q130 350 80 260"/>
+        <path class="arrow" d="M80 202 Q130 110 222 80"/>
+        <text x="495" y="122" font-size="15" fill="#666" font-style="italic">ett verktygsanrop</text>
+        <text x="455" y="352" font-size="15" fill="#666" font-style="italic">det körs</text>
+        <text x="30" y="352" font-size="15" fill="#666" font-style="italic">resultatet kommer tillbaka</text>
+        <text x="40" y="122" font-size="15" fill="#666" font-style="italic">klart? annars igen</text>
+        <circle class="dot model" r="8"><animateMotion dur="5s" repeatCount="indefinite" path="M375 80 Q470 110 520 200 M520 258 Q470 350 378 385 M222 385 Q130 350 80 260 M80 202 Q130 110 222 80"/></circle>
+      </svg>
+    </div>
+    <div>
+      <ul class="small">
+        <li class="fragment rise"><strong>Modellen</strong> rör aldrig världen. Den föreslår bara nästa verktygsanrop, som strukturerad text.</li>
+        <li class="fragment rise"><strong>Verktygen</strong> gör jobbet: läser en fil, kör ett test, frågar en historikdatabas, skapar en arbetsorder. Varje verktyg har ett schema; argumenten kontrolleras innan något körs.</li>
+        <li class="fragment rise"><strong>Loopen</strong> matar tillbaka varje resultat, tills målet är nått, budgeten slut eller agenten ger upp.</li>
+        <li class="fragment rise"><strong>MCP</strong>, Model Context Protocol, håller på att bli standardkontakten: vilket system som helst kan erbjuda sina verktyg till vilken agent som helst.</li>
+      </ul>
+      <div class="quote fragment rise" style="font-style:normal;font-size:20px"><strong>En agent är alltså precis så bra som det dess verktyg låter den se,</strong> och precis så farlig som det dess verktyg låter den göra.</div>
+    </div>
+  </div>
+  <aside class="notes">1:30. Anatomin, för den avmystifierar. Modellen förutsäger text: den föreslår ett verktygsanrop. Verktygen gör saker, och resultaten kommer tillbaka in i kontexten. Loopen upprepas. MCP är kontakten som låter vilket system som helst, en historikdatabas, ett underhållssystem, en PLC-gateway, erbjuda verktyg till vilken agent som helst. Två konsekvenser ramar in resten av föredraget: agenten ser bara det verktygen returnerar, och den kan bara göra det verktygen tillåter. Det är en arkitekturfråga, och i en fabrik är det en IT/OT-fråga.</aside>
+</section>
+
+<!-- ============ 1.3 · Agent och automation ============ -->
+<section data-timing="75">
+  <div class="act"><b>1</b> · agenter</div>
+  <h2>En agent är inte ett styrsystem</h2>
+  <p class="sub">Automation och agenter är bra på motsatta saker. Det avgör var en agent får sitta.</p>
+  <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:40px">
+    <div>
+      <table class="head">
+        <tr><th></th><th>Styrlogik (PLC)</th><th>Agent</th></tr>
+        <tr><td><strong>Beteende</strong></td><td>Deterministiskt, cykliskt</td><td>Sannolikhetsbaserat, per beslut</td></tr>
+        <tr><td><strong>Verifierad</strong></td><td>Testad, certifierad, låst</td><td>Utvärderad på stickprov</td></tr>
+        <tr><td><strong>Tid</strong></td><td>Millisekunder, garanterat</td><td>Sekunder, inte garanterat</td></tr>
+        <tr><td><strong>Det oförutsedda</strong></td><td>Stoppar, larmar</td><td>Resonerar, provar något</td></tr>
+        <tr><td><strong>Förklarar sig</strong></td><td>Nej</td><td>Ja, flytande, inte alltid rätt</td></tr>
+      </table>
+    </div>
+    <div>
+      <svg viewBox="0 0 520 340" width="520" height="340">
+        <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <g font-size="14" fill="#666">
+          <rect x="0" y="0" width="520" height="60" fill="#E6F4F5"/><text x="12" y="35">N3 · drift</text>
+          <rect x="0" y="64" width="520" height="60" fill="#f4f6f7"/><text x="12" y="99">N2 · övervakning</text>
+          <rect x="0" y="128" width="520" height="60" fill="#E6F4F5"/><text x="12" y="163">N1 · styrning</text>
+          <rect x="0" y="192" width="520" height="60" fill="#f4f6f7"/><text x="12" y="227">N0 · processen</text>
+        </g>
+        <rect class="node si" x="190" y="12" width="150" height="38" rx="10"/>
+        <text x="265" y="37" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Agent</text>
+        <rect class="node" x="190" y="76" width="150" height="38" rx="10"/>
+        <text x="265" y="101" text-anchor="middle" font-size="16" font-weight="700">SCADA</text>
+        <rect class="node" x="190" y="140" width="150" height="38" rx="10"/>
+        <text x="265" y="165" text-anchor="middle" font-size="16" font-weight="700">PLC + förreglingar</text>
+        <rect class="node" x="190" y="204" width="150" height="38" rx="10" style="stroke:#8a6a3b;fill:#f3ebe0"/>
+        <text x="265" y="229" text-anchor="middle" font-size="16" font-weight="700">sågar, tork</text>
+        <path class="arrow" style="marker-end:url(#ah3)" d="M265 50 L265 74"/>
+        <path class="arrow" style="marker-end:url(#ah3)" d="M265 114 L265 138"/>
+        <path class="arrow" style="marker-end:url(#ah3)" d="M265 178 L265 202"/>
+        <text x="275" y="67" font-size="12" fill="#666" font-style="italic">begär</text>
+        <path d="M340 31 C 400 31, 400 159, 342 159" stroke="#D9534F" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+        <text x="392" y="102" font-size="26" fill="#D9534F" font-weight="700">×</text>
+        <text x="412" y="100" font-size="13" fill="#D9534F">ingen direkt</text><text x="412" y="116" font-size="13" fill="#D9534F">väg</text>
+        <rect class="node hu" x="410" y="140" width="98" height="38" rx="10"/>
+        <text x="459" y="164" text-anchor="middle" font-size="14" font-weight="700">operatör</text>
+        <path d="M410 159 L342 159" stroke="#222" stroke-width="1.5" fill="none"/>
+        <text x="0" y="288" font-size="17" fill="#222"><tspan font-weight="700" fill="#009BA5">Ovanför styrloopen:</tspan> diagnos, planering,</text>
+        <text x="0" y="312" font-size="17" fill="#222">operatörsstöd. Förreglingarna stannar i PLC:n.</text>
+      </svg>
+    </div>
+  </div>
+  <div class="quote foot fragment rise" style="font-style:normal">Agentens styrka är det oförutsedda. Styrsystemets styrka är att inget är oförutsett. <strong>Sätt agenten där resonemang hjälper och ett långsamt, felaktigt svar kan fångas.</strong></div>
+  <aside class="notes">2:45. Nyckelbilden för en automationspublik. En PLC är deterministisk, verifierad och snabb; när något oväntat händer stoppar den och larmar. En agent är tvärtom: långsam, sannolikhetsbaserad, men den kan resonera om det oväntade. Så agenten hör inte hemma i styrloopen. Den hör hemma ovanför, där den ställer diagnos, planerar och ger råd, och där dess begäranden går via SCADA till en PLC som behåller sina förreglingar. Ingen direkt väg från agenten till PLC:n. Kom ihåg den bilden; OTTO-testbädden upprätthåller den.</aside>
+</section>
+
+<!-- ============ 1.4 · Vad en agent vet ============ -->
+<section data-timing="60">
+  <div class="act"><b>1</b> · agenter</div>
+  <h2>En agent vet det den kan observera, och inget annat</h2>
+  <div class="cols three" style="margin-top:30px">
+    <div class="card fragment rise"><p><span class="num">1</span><strong>Den ser det verktygen returnerar</strong></p><p class="small grey">Gamla data, saknade data och en givare som ljuger ser likadana ut för den, om inget talar om att datat är gammalt. Kommer ett värde aldrig, resonerar den vidare utan det.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>Dess kontroller delar dess blinda fläckar</strong></p><p class="small grey">När samma modell skriver svaret och testet kommer båda från samma bild av världen. Grönt är inte samma sak som rätt.</p></div>
+    <div class="card risk fragment rise"><p><span class="num" style="background:var(--coral)">3</span><strong>Instruktioner kan gömma sig i data</strong></p><p class="small grey">En arbetsorder där det står <em>"diagnostisera detta som ett stopp"</em> är data för oss, men kan vara en instruktion för modellen. Allt den läser är en ingång.</p></div>
+  </div>
+  <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:56px">Agenter är mycket bra på att sluta loopar de kan observera.<br><strong class="teal">Så vad observerar de?</strong></p>
+  <aside class="notes">4:00. Tre egenskaper som betyder mer än vilken modell man väljer. Den ser bara det verktygen returnerar: gammalt och fel ser ut som färskt och rätt. Dess egna kontroller delar dess blinda fläckar. Och all text den läser kan bära instruktioner: en arbetsorder, en manual, en webbsida. Bryggan till del två: agenter sluter loopar de kan observera. Frågan är vad de observerar. I somras fick jag lära mig det den hårda vägen, med hårdvara.</aside>
+</section>
+
+<!-- ======================================================================= -->
+<!-- DEL 2 · HÅRDVARA I AGENTLOOPEN                                          -->
+<!-- ======================================================================= -->
+<section class="divider" data-background-color="#009BA5" data-timing="10">
+  <div class="big">2</div>
+  <h1>Hårdvara i agentloopen</h1>
+  <p>Fyra hårdvaruprojekt byggda med kodagenter i somras. Väldigt olika projekt, ett mönster.</p>
+  <div class="acts"><i>1 · Agenter</i><i class="on">2 · Hårdvara i loopen</i><i>3 · Fabriken</i></div>
+  <aside class="notes">5:00. Del två, kortversionen av ett föredrag från september: fyra hårdvaruprojekt byggda med kodagenter.</aside>
+</section>
+
+<!-- ============ 2.1 · Problemet ============ -->
+<section data-timing="45">
+  <div class="act"><b>2</b> · hårdvara i loopen</div>
+  <h2>Loopen en kodagent sluter är dess egen</h2>
+  <div class="cols two" style="margin-top:34px">
+    <div>
+      <p>Kodagenter är extremt bra <strong>på att sluta loopar de kan observera.</strong></p>
+      <p>Lämnade åt sig själva är loopen de observerar <strong>deras egen modell av världen</strong>: koden de skrev, testerna de skrev, loggraderna de väntade sig.</p>
+      <p>Tester skrivna av samma modell som skrev koden <strong>delar dess blinda fläckar.</strong></p>
+      <p class="fragment rise teal" data-fragment-index="1"><strong>Hårdvaran delar inte modellens blinda fläckar.</strong></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 520 360" width="520" height="360">
+        <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <rect x="14" y="14" width="492" height="300" rx="10" fill="none" stroke="#bbb" stroke-dasharray="6 6"/>
+        <text x="260" y="342" text-anchor="middle" font-size="15" fill="#9a9a9a" font-style="italic">modellens värld — samma blinda fläckar överallt</text>
+        <rect class="node" x="170" y="40" width="180" height="56" rx="12"/>
+        <text x="260" y="75" text-anchor="middle" font-size="19" font-weight="700">Agent</text>
+        <rect class="node" x="40" y="220" width="180" height="56" rx="12"/>
+        <text x="130" y="255" text-anchor="middle" font-size="19" font-weight="700">Koden den skrev</text>
+        <rect class="node" x="300" y="220" width="180" height="56" rx="12"/>
+        <text x="390" y="255" text-anchor="middle" font-size="19" font-weight="700">Testerna den skrev</text>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M225 96 L150 220"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M220 248 L300 248"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M370 220 L295 96"/>
+        <text x="372" y="160" font-size="16" fill="#9a9a9a" font-style="italic">"allt grönt"</text>
+        <circle class="dot model" r="7"><animateMotion dur="4s" repeatCount="indefinite" path="M225 96 L150 220 L220 248 L300 248 L370 220 L295 96 Z"/></circle>
+      </svg>
+    </div>
+  </div>
+  <div class="quote foot fragment rise" data-fragment-index="1">Testsviter som är gröna av en slump är det felläge som skrämmer mig: testerna går igenom, modellen är nöjd, och ingen har rört ett kort.</div>
+  <aside class="notes">5:10. Påståendet från septemberföredraget. Kod, tester och förväntningar kommer alla från samma modell. Hårdvaran är det enda i rummet som inte delar de blinda fläckarna.</aside>
+</section>
+
+<!-- ============ 2.2 · Lösningen ============ -->
+<section data-timing="60">
+  <div class="act"><b>2</b> · hårdvara i loopen</div>
+  <h2>Sätt kretsen i loopen, och ge agenten ögon</h2>
+  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:14px">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
+           <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
+    <rect class="node" x="10" y="60" width="240" height="70" rx="14"/>
+    <text x="130" y="103" text-anchor="middle" font-size="22" font-weight="700">Agent</text>
+    <rect class="node" x="310" y="60" width="240" height="70" rx="14"/>
+    <text x="430" y="102" text-anchor="middle" font-size="20" font-weight="700">Kod och firmware</text>
+    <g class="fragment" data-fragment-index="1">
+      <rect class="node em" x="610" y="60" width="240" height="70" rx="14"/>
+      <text x="730" y="103" text-anchor="middle" font-size="22" font-weight="700">Emulator</text>
+    </g>
+    <g class="fragment" data-fragment-index="2">
+      <rect class="node si" x="910" y="60" width="230" height="70" rx="14"/>
+      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Riktigt kort</text>
+      <rect x="990" y="16" width="100" height="26" rx="13" fill="#FFE500"/>
+      <text x="1040" y="34" text-anchor="middle" font-size="14" font-weight="700">en människa</text>
+      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">håller i kortet</text>
+    </g>
+    <path class="arrow" style="marker-end:url(#ah2)" d="M250 95 L308 95"/>
+    <path class="arrow fragment" data-fragment-index="1" style="marker-end:url(#ah2)" d="M550 95 L608 95"/>
+    <path class="arrow fragment" data-fragment-index="2" style="marker-end:url(#ah2)" d="M850 95 L908 95"/>
+    <g class="fragment" data-fragment-index="3">
+      <path d="M908 80 L852 80" stroke="#666" stroke-width="1.6" fill="none" style="marker-end:url(#ahg)"/>
+      <text x="880" y="150" text-anchor="middle" font-size="15" fill="#666" font-style="italic">jämförs med varandra</text>
+    </g>
+    <g class="fragment" data-fragment-index="4">
+      <path class="arrow" style="marker-end:url(#ah2)" d="M1025 130 L1025 200 L130 200 L130 134"/>
+      <text x="580" y="232" text-anchor="middle" font-size="18"><tspan font-weight="700" fill="#009BA5">observation: </tspan><tspan fill="#666">vad kortet skriver ut · vad skärmen visar · instruktionsräknare · krets och emulator stegade sida vid sida · en lysdiod i taget</tspan></text>
+      <circle class="dot" r="8"><animateMotion dur="6s" repeatCount="indefinite" path="M130 95 L430 95 L730 95 L1025 95 L1025 200 L130 200 Z"/></circle>
+    </g>
+    <g class="fragment rise" data-fragment-index="5">
+      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Orakel</tspan><tspan fill="#666"> — det riktiga kortet har sista ordet om vad som är rätt</tspan></text>
+      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Kalibrator</tspan><tspan fill="#666"> — tider uppmätta på kortet blir emulatorns tider</tspan></text>
+      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — en snabb, repeterbar ersättare för kortet som agenten kan iterera i</tspan></text>
+    </g>
+  </svg>
+  <p class="foot grey small" style="font-style:italic">Tre roller för hårdvara i loopen. Kom ihåg dem: del tre återanvänder alla tre.</p>
+  <aside class="notes">5:55. Mönstret i en bild. Agenten skriver fortfarande koden, men det den observerar kommer nu från en emulator och från kisel, jämförda med varandra. Hårdvaran spelar tre roller: orakel, kalibrator, proxy. Del tre återanvänder exakt de tre rollerna, med en fabrik i stället för ett kort.</aside>
+</section>
+
+<!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
+<section data-timing="50">
+  <div class="act"><b>2</b> · hårdvara i loopen</div>
+  <div class="role"><i>agent</i><i>emulator</i><i class="on">kort = orakel</i><i class="human">människa: kabel + knapp</i></div>
+  <h2><span class="num">1</span>Contiki-NG 5.2: agenten körde hårdvarutesterna</h2>
+  <p class="sub">Ett operativsystem med öppen källkod för små trådlösa enheter · släppt 2026-08-13 · alla korttester körda av agenten</p>
+  <div class="stats" style="margin:18px 0 22px">
+    <div class="stat"><b class="count" data-to="458">0</b><span>commits</span></div>
+    <div class="stat"><b class="count" data-to="113">0</b><span>pull requests</span></div>
+    <div class="stat"><b class="count" data-to="16">0</b><span>kontroller som krävs före release</span></div>
+    <div class="stat"><b><i class="count" data-to="18">0</i> / 18</b><span>riktiga kort, varje rad grön</span></div>
+  </div>
+  <div class="cols two">
+    <ul class="small">
+      <li>Releaseteamet satte reglerna, som varje år: en releaseplan, en körbok och en checklista med riktiga kort. Ingen release förrän varje rad är grön.</li>
+      <li>När agenten läste CI-konfigurationen upptäckte den: <em>"CI har aldrig testat release-grenen."</em> Själva releasen blev det CI måste klara.</li>
+    </ul>
+    <ul class="small">
+      <li>Den byggde firmware, laddade in den på <strong>varje kort på checklistan</strong>, läste vad kortet skrev ut och fyllde i raden, med en rapport under varje.</li>
+      <li><strong>Människans jobb: sätta i kabeln, trycka på knappen.</strong></li>
+    </ul>
+  </div>
+  <div class="quote foot">Simuleringen bevisar logiken; kortet bevisar allt annat. Kortet är oraklet — och nu är det agenten som kör oraklet.</div>
+  <aside class="notes">6:55. Första exemplet, kortet som orakel. Teamet satte reglerna; agenten arbetade inom dem och körde alla korttester. Människan satte i kablar och tryckte på knappar. 18 av 18.</aside>
+</section>
+
+<!-- ============ 2.4 · Emulator och kisel ============ -->
+<section data-timing="60">
+  <div class="act"><b>2</b> · hårdvara i loopen</div>
+  <h2>Emulator och kisel håller varandra ärliga</h2>
+  <div class="cols two" style="margin-top:24px">
+    <div class="card fragment rise">
+      <h3><span class="num" style="width:34px;height:34px;font-size:17px">2</span>Cooja-NG: kretsen kalibrerar emulatorn</h3>
+      <ul class="small">
+        <li>Uppmätt på den riktiga kretsen: ett byte in i den säkra världen och tillbaka kostar <strong>58 klockcykler</strong>. Det talet blir emulatorns tid, aldrig tvärtom.</li>
+        <li>När emulatorn väl är betrodd blir den proxyn: <strong>~2 400× realtid</strong>, deterministisk, i CI.</li>
+        <li>Ett fyra år gammalt "instabilt" test blev <strong>"fallerar 14 av 15"</strong>: ett tal en agent kan arbeta med. Orsaken var oinitierade byte; lösningen en rad.</li>
+      </ul>
+    </div>
+    <div class="card fragment rise">
+      <h3><span class="num" style="width:34px;height:34px;font-size:17px">3</span>esp32sim: jämförd mot den riktiga kretsen</h3>
+      <ul class="small">
+        <li>Varje instruktion i tre riktiga firmware-avbilder mot standard-disassemblern: <strong>0 avvikelser</strong> på 1,2 miljoner.</li>
+        <li>Riktig krets och emulator stegade sida vid sida: <strong>gick aldrig isär</strong>.</li>
+        <li>Det bara kretsen kunde avslöja: ett register på fel adress fick en avbrottsrutin att anropa sig själv <strong class="coral">3 867 gånger</strong>. Kraschen låg 500 KB från orsaken.</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top:22px"><strong>Referensen kommer aldrig från modellen: <span class="teal">en disassembler, den riktiga kretsen, en bootlogg, en logikanalysator.</span></strong></p>
+  <aside class="notes">7:45. Två exempel till, snabbt. Cooja-NG: kretsen kalibrerar emulatorn; sedan är emulatorn en snabb proxy, och instabilt blir ett tal. esp32sim: verifierad mot saker agenten inte själv producerat. Kretsen hittade det inget inuti emulatorn kunde se. Den röda tråden: referensen kommer alltid utifrån modellen.</aside>
+</section>
+
+<!-- ============ 2.5 · Mönstret ============ -->
+<section data-timing="45">
+  <div class="act"><b>2</b> · hårdvara i loopen</div>
+  <h2>Mönstret: sex regler</h2>
+  <div class="cols two pattern" style="margin-top:22px;row-gap:26px">
+    <div><p><span class="num">1</span><strong>Gör loopen observerbar</strong></p><p class="small grey">Kan agenten inte se det, kan den inte laga det.</p></div>
+    <div><p><span class="num">2</span><strong>Gör den deterministisk</strong></p><p class="small grey">"Instabil" är inget arbetsärende. "14 av 15" är det.</p></div>
+    <div><p><span class="num">3</span><strong>Jämför mot verkligheten, inte mot dig själv</strong></p><p class="small grey">Referensen måste komma utifrån modellen.</p></div>
+    <div><p><span class="num">4</span><strong>Lås referensutdata, gå sedan fortare</strong></p><p class="small grey">Hastighet är säker bara när varje utdata förblir identiskt byte för byte.</p></div>
+    <div><p><span class="num">5</span><strong>Spara kvittona</strong></p><p class="small grey">Data, kontrollsummor och ett sätt att återskapa, för varje påstående.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>En människa håller i kortet och namnger orsaken</strong></p><p class="small grey">Agenten tillämpar lösningar; människan avgör vad "rätt" betyder.</p></div>
+  </div>
+  <p class="foot teal fragment rise" style="font-style:italic">Sex regler — ingen av dem handlar om modellen. Alla handlar om vad modellen får observera.</p>
+  <aside class="notes">8:45. De sex reglerna. Ingen handlar om modellen. De kommer tillbaka i slutet av del tre, översatta till en fabrik.</aside>
+</section>
+
+<!-- ============ 2.6 · Där agenterna stannade ============ -->
+<section data-timing="45">
+  <div class="act"><b>2</b> · hårdvara i loopen</div>
+  <h2>Där agenterna stannade</h2>
+  <div class="cols two" style="margin-top:26px">
+    <div>
+      <div class="quote fragment rise" style="margin-top:8px">"Agenten kunde tillämpa en lösning när vi väl namngett orsaken, men den kunde inte på ett tillförlitligt sätt namnge orsaken själv."<span class="who">— Cooja-NG-artikeln, SNCNW 2026 (i översättning)</span></div>
+      <div class="quote fragment rise">"…föreslog ofta en lokal nödlösning ('öka bufferten', 'behandla som ofarligt') när den rätta lösningen låg längre upp i anropskedjan."<span class="who">— Cooja-NG-artikeln, SNCNW 2026 (i översättning)</span></div>
+    </div>
+    <div class="fragment rise">
+      <h3>Det som fungerade</h3>
+      <p>En beständig <strong>fellogg</strong>: grundorsaker namngivna av en människa, inmatade i agentens kontext vid varje körning.</p>
+      <h3 style="margin-top:22px">Vad det betyder</h3>
+      <p><strong>Verifiering går att automatisera. Att namnge orsaken gör det inte, än.</strong> Kom ihåg den meningen; fabriksagenterna går in i samma vägg.</p>
+    </div>
+  </div>
+  <aside class="notes">9:30. Där de stannade. Agenter tillämpar lösningar när orsaken väl är namngiven; de namnger den inte tillförlitligt själva, och de tar till lokala nödlösningar. Håll fast vid det: i del tre går agenterna som sköter fabriken in i exakt den väggen.</aside>
+</section>
+
+<!-- ============ 2.7 · Vänd på det ============ -->
+<section data-timing="45">
+  <div class="act"><b>2 → 3</b> · vänd på det</div>
+  <h2>Vänd på det: agenten sköter fabriken</h2>
+  <p class="sub">Samma loop, samma tre roller. Agenten skriver inte längre kod till ett kort; den sköter en del av en fabrik.</p>
+  <table class="head" style="margin-top:6px">
+    <tr><th style="width:24%"></th><th>Hårdvara i loopen</th><th>Agent i fabriken</th></tr>
+    <tr><td><strong>Agenten</strong></td><td class="sim">skriver kod och firmware</td><td>ställer diagnos, planerar, begär åtgärder</td></tr>
+    <tr><td><strong>Proxy</strong></td><td class="sim">emulatorn: snabb, repeterbar</td><td><strong class="teal">testbädden</strong>: en deterministisk fabrik, 1 000× realtid</td></tr>
+    <tr><td><strong>Kalibrator</strong></td><td class="sim">klockcykler från kretsen</td><td>verkliga värden: energi per m³, flisutbyte, torkscheman</td></tr>
+    <tr><td><strong>Orakel</strong></td><td class="sim">det riktiga kortet</td><td>simulatorns dolda sanning — senare, den riktiga fabriken</td></tr>
+    <tr><td><strong>Det den observerar</strong></td><td class="sim">seriell utskrift, bilder, räknare</td><td>bara det fabrikens <strong>informationsflöde</strong> levererar</td></tr>
+    <tr><td><strong>Människan</strong></td><td class="sim">håller i kortet</td><td>godkänner omstarten</td></tr>
+  </table>
+  <aside class="notes">10:15. Bryggan. Vänd på riktningen: agenten sköter fabriken i stället för att skriva kod. Testbädden är emulatorn: en deterministisk fabrik, snabb, repeterbar. Verkliga fabriksvärden kalibrerar den. Dess dolda sanning är oraklet, och senare en riktig fabrik. Och det agenten observerar är det fabrikens informationsflöde levererar: där kommer IT/OT och cybersäkerhet in.</aside>
+</section>
+
+<!-- ======================================================================= -->
+<!-- DEL 3 · OTTO-TESTBÄDDEN                                                 -->
+<!-- ======================================================================= -->
+<section class="divider" data-background-color="#009BA5" data-timing="10">
+  <div class="big">3</div>
+  <h1>Agenter i fabriken</h1>
+  <p>OTTO-testbädden: ett sågverk och en virkestork man kan ha sönder med flit, sedda genom anläggningens egen IT/OT-arkitektur.</p>
+  <div class="acts"><i>1 · Agenter</i><i>2 · Hårdvara i loopen</i><i class="on">3 · Fabriken</i></div>
+  <aside class="notes">11:00. Del tre: OTTO.</aside>
+</section>
+
+<!-- ============ 3.1 · OTTO-frågan ============ -->
+<section data-timing="50">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>OTTO-frågan</h2>
+  <p class="sub">En AI-agent som sköter en del av en fabrik. Innan någon kopplar in en behöver fyra frågor svar.</p>
+  <div class="cols four" style="margin-top:26px">
+    <div class="card fragment rise"><h3>Var sitter den?</h3><p class="small">Vilken zon, vilken server, vilket nät. Egen GPU eller moln. Vad den är beroende av.</p><p class="xs grey">IT/OT-arkitektur</p></div>
+    <div class="card fragment rise"><h3>Vad ser den?</h3><p class="small">Vilka signaler, med vilka namn, hur färska. Vad som händer när datat slutar komma.</p><p class="xs grey">informationsflöde, UNS</p></div>
+    <div class="card fragment rise"><h3>Vad får den röra?</h3><p class="small">Vilka skrivningar, via vilken väg, loggade var. Vad brandväggen tillåter.</p><p class="xs grey">cybersäkerhet, zoner</p></div>
+    <div class="card human fragment rise"><h3>Vem svarar för den?</h3><p class="small">Vem godkänner en omstart. Hur ett beslut spelas upp och granskas i efterhand.</p><p class="xs grey">säkerhet, styrning</p></div>
+  </div>
+  <p class="fragment rise" style="margin-top:34px;font-size:26px">Inget av detta kan provas på en fabrik i drift. <strong class="teal">Så vi byggde en man kan ha sönder med flit.</strong></p>
+  <aside class="notes">11:10. OTTO-frågan i fyra delar: var agenten sitter, vad den ser, vad den får röra, vem som svarar för den. Arkitektur, informationsflöde, säkerhet, styrning. Man kan inte experimentera med något av det på ett sågverk i drift. Så vi byggde ett man kan ha sönder med flit.</aside>
+</section>
+
+<!-- ============ 3.2 · Testbädden ============ -->
+<section data-timing="70">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>En fabrik man kan ha sönder med flit</h2>
+  <div class="stats" style="margin:14px 0 18px;gap:40px">
+    <div class="stat"><b class="count" data-to="2">0</b><span>anläggningar: en såglinje och en virkestork</span></div>
+    <div class="stat"><b><i class="count" data-to="1700">0</i>×</b><span>realtid: ett skift på sekunder, en tredygnstorkning på under 2 s</span></div>
+    <div class="stat"><b>0</b><span>väggklocka eller dold slump: samma frö, samma tillståndshash</span></div>
+    <div class="stat"><b class="count" data-to="370">0</b><span>tester; varje fel har ett</span></div>
+  </div>
+  <div class="cols two" style="grid-template-columns:1.35fr 1fr;gap:28px">
+    <div>
+      <img class="shot" src="assets/line-sawline.png" alt="Testbäddens visare: såglinjen från barkmaskin till råsortering">
+      <p class="cap">Såglinjen i visaren: barkmaskin, stockmätning, delningssåg, klyvsåg, råsortering. Varje värde är det en givare rapporterar.</p>
+    </div>
+    <div>
+      <ul class="small">
+        <li><strong>Såglinjen</strong>: stockar barkas, mäts, sågas och sorteras på bredd, enligt Svenskt Träs "Från stock till planka". Flisen blir ungefär 33 % av stocken (källan: 31 %).</li>
+        <li><strong>Virkestorken</strong>: 60 m³ furu från 55 % till 18 % fuktkvot på 76 h och 16,7 MWh, ungefär 280 kWh per m³, i nivå med redovisade värden för furutorkar.</li>
+        <li><strong>Fel</strong>: stopp, friktion, fastnade givare, glidande givare, fastnade ventiler, kommunikationsbortfall — vart och ett med sin signatur.</li>
+        <li><strong>Python-kärnan är auktoriteten</strong>; allt annat bara observerar den.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">12:00. Testbädden. Två anläggningar, deterministiska byte för byte, ungefär 1 700 gånger realtid. Såglinjen följer den verkliga processen; torken är kalibrerad mot publicerade energivärden, ungefär 280 kWh per kubikmeter. Fel är förstklassiga: vart och ett har en signatur och ett test. Simulatorn är den enda sanningskällan; dashboards, protokoll och agenter observerar den bara. Det är proxyn och kalibratorn från del två.</aside>
+</section>
+
+<!-- ============ 3.3 · Två flöden ============ -->
+<section data-timing="70">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Två flöden: virket, och informationen om det</h2>
+  <svg viewBox="0 0 1150 330" width="1150" height="330" style="margin-top:6px">
+    <defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
+          <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8a6a3b"/></marker></defs>
+    <text x="0" y="300" font-size="15" fill="#8a6a3b" font-weight="700" letter-spacing="1.5">MATERIALFLÖDE</text>
+    <g font-size="16" font-weight="700" text-anchor="middle">
+      <rect x="0" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="65" y="266">Timmerplan</text>
+      <rect x="170" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="235" y="266">Barkmaskin</text>
+      <rect x="340" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="405" y="266">Sågar</text>
+      <rect x="510" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="575" y="266">Sortering</text>
+      <rect x="680" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="745" y="266">Tork</text>
+      <rect x="850" y="240" width="130" height="40" rx="8" fill="#f3ebe0" stroke="#8a6a3b"/><text x="915" y="266">Justering</text>
+    </g>
+    <g stroke="#8a6a3b" stroke-width="2.5" fill="none" style="marker-end:url(#ahb)">
+      <path d="M130 260 L168 260"/><path d="M300 260 L338 260"/><path d="M470 260 L508 260"/><path d="M640 260 L678 260"/><path d="M810 260 L848 260"/>
+    </g>
+    <text x="0" y="22" font-size="15" fill="#009BA5" font-weight="700" letter-spacing="1.5">INFORMATIONSFLÖDE</text>
+    <g font-size="15" font-weight="700" text-anchor="middle">
+      <rect class="node" x="170" y="150" width="130" height="38" rx="8"/><text x="235" y="175">Givare, I/O</text>
+      <rect class="node" x="340" y="150" width="130" height="38" rx="8"/><text x="405" y="175">PLC</text>
+      <rect class="node" x="510" y="150" width="130" height="38" rx="8"/><text x="575" y="175">SCADA</text>
+      <rect class="node si" x="680" y="95" width="150" height="44" rx="8"/><text x="755" y="122" fill="#fff">UNS-broker</text>
+      <rect class="node" x="880" y="36" width="120" height="34" rx="8"/><text x="940" y="58">Historik</text>
+      <rect class="node" x="880" y="78" width="120" height="34" rx="8"/><text x="940" y="100">MES</text>
+      <rect class="node" x="880" y="120" width="120" height="34" rx="8"/><text x="940" y="142">Dashboards</text>
+      <rect class="node si" x="1020" y="78" width="120" height="34" rx="8"/><text x="1080" y="100" fill="#fff">AI-agent</text>
+      <rect class="node" x="1020" y="120" width="120" height="34" rx="8"/><text x="1080" y="142">Moln</text>
+    </g>
+    <g class="arrow" style="marker-end:url(#ah5)">
+      <path d="M235 238 L235 190" stroke-dasharray="4 4"/><path d="M405 238 L405 190" stroke-dasharray="4 4"/><path d="M575 238 L575 190" stroke-dasharray="4 4"/><path d="M745 238 L745 141" stroke-dasharray="4 4"/>
+      <path d="M300 169 L338 169"/><path d="M470 169 L508 169"/><path d="M640 160 L678 128"/>
+      <path d="M830 110 L878 55"/><path d="M830 115 L878 95"/><path d="M830 122 L878 135"/>
+    </g>
+    <path d="M1000 95 L1018 95" stroke="#009BA5" stroke-width="2"/>
+    <g font-size="14" fill="#666" font-style="italic">
+      <text x="310" y="210">fältbuss, cykliskt 20 ms</text>
+      <text x="486" y="140">OPC UA, pollat</text>
+      <text x="540" y="84">MQTT, vid ändring</text>
+    </g>
+    <circle class="dot model" r="6"><animateMotion dur="4s" repeatCount="indefinite" path="M235 190 L235 169 L575 169 L680 128 L830 110 L1020 95"/></circle>
+  </svg>
+  <div class="cols two" style="grid-template-columns:1.6fr 1fr;gap:28px;margin-top:4px">
+    <div class="topic" style="font-size:15px"><span>otto-demo/sawmill-1/drying/kiln-1/chamber</span>/KL101/V1/position_fb</div>
+    <p class="small" style="margin:0">Varje signal får ett ISA-95-namn i ett <strong>unified namespace</strong>, en OPC UA-sökväg och en PLC-tagg, genererade från anläggningen.</p>
+  </div>
+  <p class="foot small"><strong class="teal">Agenten sitter i slutet av informationsflödet.</strong> Den ser aldrig virket — bara det som når fram, när det når fram.</p>
+  <aside class="notes">13:10. Två flöden. Virket rör sig från vänster till höger. Informationen rör sig nerifrån och upp: givare till PLC på fältbussen var 20:e millisekund, SCADA pollar PLC:n över OPC UA, UNS-brokern publicerar vid ändring över MQTT, och historikdatabas, MES, dashboards, moln och agent prenumererar. Varje signal har ett namn i det gemensamma namnrummet. Poängen: agenten sitter längst bort. Om en länk är nere, en publicerare tyst eller en brandväggsregel blockerar, är agentens bild av fabriken helt enkelt gammal. Låt mig visa.</aside>
+</section>
+
+<!-- ============ 3.4 · Live-demo: såglinjen ============ -->
+<section data-demo-src="viewer/index.html?src=runs/deck/sawline.jsonl&t=240&play=1" data-background-interactive class="demo-slide" data-timing="60">
+  <div class="demo-cap"><strong>Live:</strong> en inspelning av såglinjen i testbäddens visare. Överst: linjen som givarna rapporterar den. Nedanför: informationsflödet, meddelanden per länk, zoner. Till höger: namnrummet. <span class="grey">Tryck <span class="kbd">D</span> för att ladda om.</span></div>
+  <div class="demo-nav"><button data-go="prev" title="föregående bild (←)">‹</button><button data-go="next" title="nästa bild (→)">›</button></div>
+  <aside class="notes">14:20 (60 s). Visaren spelar ett inspelat skift. Peka på: stockar som rör sig, snitt som räknas, motorströmmar. Scrolla ner till informationsflödet: meddelanden per länk, zonerna som vågräta band, AI-agenten i DMZ. Klicka på en signal i namnrummet: topic, OPC UA-sökväg och PLC-tagg för samma värde. Visaren är på engelska. Strular demon har nästa bild samma bild.</aside>
+</section>
+
+<!-- ============ 3.5 · Zoner och kanaler ============ -->
+<section data-timing="80">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Där agenten bor: zoner och kanaler</h2>
+  <img class="shot" src="assets/flow-asfound.png" alt="Informationsflödet över Purdue-zonerna, som det ser ut i dag: flöden som bryter mot zonmodellen markerade med orange trianglar" style="margin-top:8px;width:1080px">
+  <div class="cols three" style="grid-template-columns:1fr 1fr 1fr 0.9fr;gap:22px;margin-top:14px;font-size:17px;line-height:1.3">
+    <div><strong class="teal">Zoner</strong> enligt IEC 62443 och Purdue-nivåerna, med en <strong>DMZ</strong> mellan anläggning och kontor.</div>
+    <div><strong class="teal">Kanaler</strong> (conduits) är de tillåtna vägarna: två zoner, en riktning, protokoll. Leverantören via en hoppserver.</div>
+    <div><strong class="teal">En policykontroll</strong> prövar varje flöde: en kanal direkt mellan zonerna, och inget passerar DMZ.</div>
+    <div class="stat bad" style="margin-top:-6px"><b class="count" data-to="6" style="font-size:44px">0</b><span>flöden bryter mot zonmodellen i dag (orange)</span></div>
+  </div>
+  <aside class="notes">15:20. Där agenten bor. Zonmodellen är IEC 62443:s zoner och kanaler på Purdue-nivåerna, med en DMZ mellan anläggningen och kontoret. Varje dataflöde, både anläggningssignaler och IT-anrop, prövas mot den. Som anläggningen ser ut i dag bryter sågverket mot den sex gånger: dashboards och leverantörens molntjänst läser rakt genom DMZ, affärssystemet och MES pratar tvärs över den, och agenten i DMZ anropar språkmodellen och kunskapsbasen nere på driftnivån. Och processdata lämnar anläggningen till leverantörens moln. Allt modellerat från försvararens sida: inga attacker, bara arkitektur. Skärmbilden är på engelska.</aside>
+</section>
+
+<!-- ============ 3.6 · Brandväggen på ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Slå på brandväggen — och se vad som slocknar</h2>
+  <img class="shot" src="assets/flow-segmented.png" alt="Samma flöden med brandväggen påslagen: sex flöden blockerade, dashboards och moln inaktuella, en leverantörssession via hoppservern" style="margin-top:8px;width:1080px">
+  <div class="cols four" style="gap:18px;margin-top:14px;font-size:17px;line-height:1.3">
+    <div class="fragment rise">Såglinjen <strong>går vidare</strong>: styrningen korsade aldrig en gräns den inte skulle.</div>
+    <div class="fragment rise">Dashboards, affärssystem och molnflöde <strong class="coral">blir inaktuella</strong>: deras flöden var överträdelserna.</div>
+    <div class="fragment rise"><strong class="coral">Agenten slocknar</strong>: dess språkmodell och kunskapsbas sitter på fel sida om DMZ.</div>
+    <div class="fragment rise">Leverantörens session via hoppservern <strong>tillåts och loggas</strong>.</div>
+  </div>
+  <p class="fragment rise" style="margin-top:12px;font-size:20px;margin-right:90px"><strong class="teal">Segmentering utan att göra om flödena slår ut affärssidan.</strong> Ta den diskussionen innan en agent läggs till.</p>
+  <aside class="notes">16:40. Nu upprätthåller vi zonmodellen, utan att göra om något. Linjen fortsätter såga. Allt som byggde på de otillåtna flödena slocknar: dashboards, affärssystemet, molnet, och agenten. Samtidigt fungerar leverantörens fjärrsession, eftersom den använder fjärråtkomstkanalerna rätt, och varje händelse finns i loggen. Lärdomen: agenten är en IT/OT-deltagare som alla andra system, och dess placering måste designas med zonerna, inte läggas till efteråt.</aside>
+</section>
+
+<!-- ============ 3.7 · Grönt av en slump, i en tork ============ -->
+<section data-timing="75">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Grönt av en slump, i en virkestork</h2>
+  <p class="sub">Torkens fuktgivare glider +1 %RF per timme. Styrningen håller det den tror är torkschemat.</p>
+  <div class="cols two" style="grid-template-columns:1.25fr 1fr;gap:28px">
+    <div>
+      <svg viewBox="0 0 600 370" width="600" height="370">
+        <g class="gridl"><line x1="50" y1="20" x2="570" y2="20"/><line x1="50" y1="77.5" x2="570" y2="77.5"/><line x1="50" y1="135" x2="570" y2="135"/><line x1="50" y1="192.5" x2="570" y2="192.5"/></g>
+        <line class="axis" x1="50" y1="250" x2="570" y2="250"/>
+        <g font-size="13" fill="#9a9a9a" text-anchor="end"><text x="44" y="24">100 %</text><text x="44" y="139">50 %</text><text x="44" y="254">0 %</text></g>
+        <g font-size="13" fill="#9a9a9a" text-anchor="middle"><text x="50" y="268">0 h</text><text x="217.7" y="268">20 h</text><text x="385.5" y="268">40 h</text><text x="553.2" y="268">60 h</text></g>
+        <path d="M50.0 54.5 L58.4 54.5 L66.8 54.5 L75.2 54.5 L83.5 54.5 L91.9 54.5 L100.3 54.5 L108.7 54.5 L117.1 54.5 L125.5 54.5 L125.5 70.6 L133.9 70.6 L142.3 70.6 L150.6 70.6 L159.0 70.6 L167.4 70.6 L175.8 70.6 L184.2 70.6 L192.6 70.6 L201.0 70.6 L209.4 70.6 L217.7 70.6 L226.1 70.6 L226.1 93.6 L234.5 93.6 L242.9 93.6 L251.3 93.6 L259.7 93.6 L268.1 93.6 L276.5 93.6 L284.8 93.6 L293.2 93.6 L301.6 93.6 L310.0 93.6 L318.4 93.6 L326.8 93.6 L326.8 121.2 L335.2 121.2 L343.5 121.2 L351.9 121.2 L360.3 121.2 L368.7 121.2 L377.1 121.2 L385.5 121.2 L393.9 121.2 L402.3 121.2 L410.6 121.2 L419.0 121.2 L427.4 121.2 L427.4 146.5 L435.8 146.5 L444.2 146.5 L452.6 146.5 L461.0 146.5 L469.4 146.5 L477.7 146.5 L486.1 146.5 L494.5 146.5 L502.9 146.5 L511.3 146.5 L519.7 146.5 L528.1 146.5 L536.5 146.5 L544.8 146.5 L553.2 146.5 L561.6 146.5" fill="none" stroke="#9a9a9a" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <path d="M50.0 66.0 L58.4 65.1 L66.8 56.8 L75.2 54.0 L83.5 53.3 L91.9 53.3 L100.3 53.1 L108.7 53.3 L117.1 53.3 L125.5 68.3 L133.9 68.5 L142.3 68.5 L150.6 68.3 L159.0 68.5 L167.4 68.5 L175.8 68.3 L184.2 68.5 L192.6 68.3 L201.0 68.5 L209.4 68.5 L217.7 68.3 L226.1 89.7 L234.5 89.7 L242.9 89.7 L251.3 89.7 L259.7 89.5 L268.1 89.5 L276.5 89.7 L284.8 89.5 L293.2 89.5 L301.6 89.5 L310.0 89.2 L318.4 89.2 L326.8 112.9 L335.2 112.7 L343.5 112.7 L351.9 112.2 L360.3 112.2 L368.7 112.0 L377.1 111.8 L385.5 111.3 L393.9 111.1 L402.3 110.8 L410.6 110.4 L419.0 110.2 L427.4 124.4 L435.8 123.3 L444.2 122.3 L452.6 121.2 L461.0 120.3 L469.4 119.1 L477.7 118.0 L486.1 116.6 L494.5 115.5 L502.9 114.1 L511.3 112.7 L519.7 111.1 L528.1 109.7 L536.5 108.1 L544.8 106.0 L553.2 103.9 L561.6 101.9" fill="none" stroke="#009BA5" stroke-width="3.5"/>
+        <path class="fragment" data-fragment-index="1" d="M50.0 66.0 L58.4 65.1 L66.8 56.8 L75.2 54.0 L83.5 53.3 L91.9 53.3 L100.3 53.1 L108.7 55.4 L117.1 57.7 L125.5 75.0 L133.9 77.5 L142.3 79.8 L150.6 81.9 L159.0 84.4 L167.4 86.7 L175.8 88.8 L184.2 91.3 L192.6 93.4 L201.0 95.9 L209.4 98.2 L217.7 100.3 L226.1 124.0 L234.5 126.3 L242.9 128.6 L251.3 130.9 L259.7 132.9 L268.1 135.2 L276.5 137.8 L284.8 139.8 L293.2 142.1 L301.6 144.4 L310.0 146.5 L318.4 148.8 L326.8 174.8 L335.2 176.9 L343.5 179.2 L351.9 181.0 L360.3 183.3 L368.7 185.4 L377.1 187.4 L385.5 189.3 L393.9 191.3 L402.3 193.4 L410.6 195.3 L419.0 197.3 L427.4 213.9 L435.8 215.0 L444.2 216.4 L452.6 217.6 L461.0 218.9 L469.4 220.1 L477.7 221.2 L486.1 222.2 L494.5 223.3 L502.9 224.2 L511.3 225.2 L519.7 225.8 L528.1 226.8 L536.5 227.5 L544.8 227.7 L553.2 227.9 L561.6 228.2" fill="none" stroke="#D9534F" stroke-width="3.5"/>
+        <text x="360" y="54" font-size="15" fill="#009BA5" font-weight="700">det operatörspanelen visar</text>
+        <text x="360" y="72" font-size="13" fill="#9a9a9a">torkschema (streckat)</text>
+        <text class="fragment" data-fragment-index="1" x="290" y="236" font-size="15" fill="#D9534F" font-weight="700">den verkliga luften</text>
+        <g class="fragment" data-fragment-index="2">
+          <text x="50" y="286" font-size="13" fill="#9a9a9a">torkspänning (sprickindex)</text>
+          <line class="axis" x1="50" y1="340" x2="570" y2="340"/>
+          <path d="M50.0 340.0 L50.0 340.0 L58.4 340.0 L66.8 340.0 L75.2 340.0 L83.5 340.0 L91.9 340.0 L100.3 340.0 L108.7 340.0 L117.1 340.0 L125.5 340.0 L133.9 340.0 L142.3 340.0 L150.6 340.0 L159.0 340.0 L167.4 340.0 L175.8 340.0 L184.2 340.0 L192.6 340.0 L201.0 340.0 L209.4 340.0 L217.7 340.0 L226.1 339.3 L234.5 338.7 L242.9 338.0 L251.3 337.3 L259.7 336.6 L268.1 335.9 L276.5 335.2 L284.8 334.4 L293.2 333.6 L301.6 332.8 L310.0 332.0 L318.4 331.1 L326.8 328.1 L335.2 325.1 L343.5 321.9 L351.9 318.7 L360.3 315.4 L368.7 311.9 L377.1 308.4 L385.5 304.8 L393.9 301.0 L402.3 297.1 L410.6 293.1 L419.0 291.0 L427.4 291.0 L435.8 291.0 L444.2 291.0 L452.6 291.0 L461.0 291.0 L469.4 291.0 L477.7 291.0 L486.1 291.0 L494.5 291.0 L502.9 291.0 L511.3 291.0 L519.7 291.0 L528.1 291.0 L536.5 291.0 L544.8 291.0 L553.2 291.0 L561.6 291.0 L561.6 340.0 Z" fill="#FBEBEA" stroke="#D9534F" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+    <div>
+      <div class="stats" style="flex-wrap:wrap;gap:22px 34px;margin:10px 0 14px">
+        <div class="stat"><b>0</b><span>larm, hela torkningen</span></div>
+        <div class="stat bad"><b>−14 h</b><span>"klar" i förtid: 62 h i stället för 76 h</span></div>
+        <div class="stat bad"><b>9 %</b><span>verklig luftfuktighet vid slutet, medan givaren visar 64 %</span></div>
+        <div class="stat bad"><b class="count" data-to="29379">0</b><span>sprickindex: virket spricker, upptäcks dagar senare vid justeringen</span></div>
+      </div>
+      <p class="small fragment rise" data-fragment-index="2"><strong>Varje värde på operatörspanelen följer schemat.</strong> Bara fysiken säger emot: spjället står öppet längre, värmen jobbar hårdare, virket torkar för fort.</p>
+    </div>
+  </div>
+  <aside class="notes">17:40. Torkens motsvarighet till grönt av en slump. Fuktgivaren glider uppåt en procent per timme. Styrningen vädrar för att hålla det den tror är schemats luftfuktighet, så den verkliga luften blir torrare och torrare: 9 procent vid slutet medan givaren visar 64. Operatörspanelen är grön hela tiden: noll larm, och satsen blir till och med klar 14 timmar i förtid. Men torkspänningen byggs upp från timme 21, och virket spricker. Det upptäcks dagar senare, vid justeringen. Bevisen fanns: spjället öppet mer än steget kräver, extra värme, snabb torkning. Inget larmar på fysik. Det här är precis den sortens fel en agent som läser trender skulle kunna fånga, om den tittade.</aside>
+</section>
+
+<!-- ============ 3.8 · Live-demo: torken ============ -->
+<section data-demo-src="viewer/index.html?src=runs/deck/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="40">
+  <div class="demo-cap"><strong>Live:</strong> samma torkning i visaren, timme 48. Varje givare bredvid sitt sanna värde; MT101 <span class="coral">avviker</span>. Den röda raden: dold sanning som ingen givare mäter. <span class="grey"><span class="kbd">D</span> laddar om.</span></div>
+  <div class="demo-nav"><button data-go="prev" title="föregående bild (←)">‹</button><button data-go="next" title="nästa bild (→)">›</button></div>
+  <aside class="notes">18:55 (40 s). Torkens processbild vid timme 48: MT101 visar 56 procent, den verkliga luften är 14. Nedanför den dolda sanningen: fuktgradient nästan 9, furu tål 3,5. Dra tillbaka till timme 20 för att visa var kurvorna skiljs åt. Agenten skulle aldrig se de sanna värdena; visaren visar dem eftersom vi är oraklet.</aside>
+</section>
+
+<!-- ============ 3.9 · Benchmark ============ -->
+<section data-timing="70">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Så: kan dagens agenter felsöka en fabrik?</h2>
+  <p class="sub">Diagnosuppgifter med ett dolt fel. Bedömningen görs mot simulatorns sanning, aldrig mot agentens egen redogörelse.</p>
+  <table class="head">
+    <tr><th>Policy</th><th class="c">Såglinje<br><span class="xs" style="font-weight:400">14 uppgiftstyper × 10 frön</span></th><th class="c">Tork<br><span class="xs" style="font-weight:400">3 uppgifter × 3 frön</span></th><th>Vad det är</th></tr>
+    <tr><td><strong>Orakel</strong></td><td class="c"><span class="bar" style="width:100px"></span>100 %</td><td class="c">9 / 9</td><td class="small grey">läser den dolda sanningen: visar att uppgifterna går att lösa</td></tr>
+    <tr><td><strong>Regelbaserad</strong></td><td class="c"><span class="bar" style="width:14px"></span>14 %</td><td class="c">3 / 9</td><td class="small grey">"skyll på enheten som larmet heter efter"</td></tr>
+    <tr><td><strong>gemma4</strong></td><td class="c"><span class="bar bad" style="width:10px"></span>10 %</td><td class="c coral"><strong>0 / 9</strong></td><td class="small grey">lokal språkmodell på en bärbar dator (Ollama)</td></tr>
+    <tr><td><strong>qwen3:14b</strong></td><td class="c"><span class="bar bad" style="width:9px"></span>9 %</td><td class="c coral"><strong>0 / 9</strong></td><td class="small grey">lokal språkmodell på en bärbar dator (Ollama)</td></tr>
+    <tr><td><strong>Slump</strong></td><td class="c">0 %</td><td class="c">0 / 9</td><td class="small grey">golvet</td></tr>
+  </table>
+  <p class="small" style="margin-top:14px">En diagnos som lämnas <strong>innan felet finns</strong> ger noll poäng — en tidig lärdom: första versionen av bedömningen lät en modell få poäng genom att gissa vid 30 s, före ett stopp vid 60 s.</p>
+  <aside class="notes">19:35. Mätningen. På såglinjen 14 uppgiftstyper med 10 frön som hållits utanför träningen; på torken tre uppgifter. Oraklet fuskar genom att läsa sanningen; det bevisar att varje uppgift går att lösa. Den regelbaserade policyn skyller på den enhet larmet heter efter. Två lokala språkmodeller, körda på en MacBook: ungefär en av tio på såglinjen, noll på torken. Observera tidsgränsen: ett svar innan felet finns är en gissning och ger inget. Den allra första versionen av belöningen läckte just så.</aside>
+</section>
+
+<!-- ============ 3.10 · Fällan ============ -->
+<section data-timing="75">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Larmet pekar ut den friska givaren</h2>
+  <p class="sub">Torkuppgift k02: styrgivaren TT101 börjar visa 5 °C för lågt. Kontrollgivaren TT102 larmar.</p>
+  <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:26px">
+    <div>
+      <svg viewBox="0 0 590 340" width="590" height="340">
+        <g class="gridl"><line x1="50" y1="20" x2="570" y2="20"/><line x1="50" y1="98.6" x2="570" y2="98.6"/><line x1="50" y1="177.1" x2="570" y2="177.1"/></g>
+        <line class="axis" x1="50" y1="240" x2="570" y2="240"/>
+        <g font-size="13" fill="#9a9a9a" text-anchor="end"><text x="44" y="24">68 °C</text><text x="44" y="102">63 °C</text><text x="44" y="181">58 °C</text></g>
+        <g font-size="13" fill="#9a9a9a" text-anchor="middle"><text x="50" y="256">−30 min</text><text x="154" y="256">felet</text><text x="327.3" y="256">+80 min</text><text x="535" y="256">+2 h</text></g>
+        <line x1="154" y1="20" x2="154" y2="240" stroke="#FFE500" stroke-width="3"/>
+        <path d="M50.0 140.6 L53.5 140.7 L56.9 141.0 L60.4 141.2 L63.9 141.3 L67.3 141.5 L70.8 141.7 L74.3 141.9 L77.7 142.1 L81.2 142.3 L84.7 142.4 L88.1 142.6 L91.6 142.8 L95.1 142.9 L98.5 143.1 L102.0 143.3 L105.5 143.4 L108.9 143.6 L112.4 143.7 L115.9 143.8 L119.3 144.0 L122.8 144.1 L126.3 144.2 L129.7 144.4 L133.2 144.5 L136.7 144.6 L140.1 144.7 L143.6 144.8 L147.1 144.9 L150.5 145.0 L154.0 145.1 L157.5 143.7 L160.9 141.8 L164.4 139.9 L167.9 138.0 L171.3 136.2 L174.8 134.3 L178.3 132.4 L181.7 130.6 L185.2 128.7 L188.7 126.8 L192.1 125.0 L195.6 123.1 L199.1 121.3 L202.5 119.4 L206.0 117.6 L209.5 115.8 L212.9 114.0 L216.4 112.2 L219.9 110.4 L223.3 108.7 L226.8 106.9 L230.3 105.2 L233.7 103.5 L237.2 101.9 L240.7 100.2 L244.1 98.6 L247.6 97.0 L251.1 95.4 L254.5 93.9 L258.0 92.4 L261.5 90.9 L264.9 89.5 L268.4 88.1 L271.9 86.7 L275.3 85.3 L278.8 84.0 L282.3 82.7 L285.7 81.5 L289.2 80.2 L292.7 79.0 L296.1 77.9 L299.6 76.8 L303.1 75.7 L306.5 74.6 L310.0 73.6 L313.5 72.6 L316.9 71.7 L320.4 70.8 L323.9 69.9 L327.3 69.0 L330.8 68.2 L334.3 67.4 L337.7 66.7 L341.2 65.9 L344.7 65.3 L348.1 64.6 L351.6 64.0 L355.1 63.4 L358.5 62.8 L362.0 62.2 L365.5 61.7 L368.9 61.2 L372.4 60.8 L375.9 60.4 L379.3 59.9 L382.8 59.6 L386.3 59.2 L389.7 58.9 L393.2 58.6 L396.7 58.3 L400.1 58.0 L403.6 57.8 L407.1 57.6 L410.5 57.4 L414.0 57.2 L417.5 57.1 L420.9 56.9 L424.4 56.8 L427.9 56.7 L431.3 56.6 L434.8 56.6 L438.3 56.5 L441.7 56.5 L445.2 56.4 L448.7 56.4 L452.1 56.4 L455.6 56.5 L459.1 56.5 L462.5 56.5 L466.0 56.6 L469.5 56.7 L472.9 56.7 L476.4 56.8 L479.9 56.9 L483.3 57.0 L486.8 57.1 L490.3 57.3 L493.7 57.4 L497.2 57.5 L500.7 57.7 L504.1 57.8 L507.6 58.0 L511.1 58.1 L514.5 58.3 L518.0 58.4 L521.5 58.6 L524.9 58.8 L528.4 59.0 L531.9 59.1 L535.3 59.3 L538.8 59.5 L542.3 59.7 L545.7 59.9 L549.2 60.1 L552.7 60.2 L556.1 60.4 L559.6 60.6 L563.1 60.8 L566.5 61.0" fill="none" stroke="#009BA5" stroke-width="3.5"/>
+        <path d="M50.0 140.6 L53.5 140.7 L56.9 141.0 L60.4 141.2 L63.9 141.3 L67.3 141.5 L70.8 141.7 L74.3 141.9 L77.7 142.1 L81.2 142.3 L84.7 142.4 L88.1 142.6 L91.6 142.8 L95.1 142.9 L98.5 143.1 L102.0 143.3 L105.5 143.4 L108.9 143.6 L112.4 143.7 L115.9 143.8 L119.3 144.0 L122.8 144.1 L126.3 144.2 L129.7 144.4 L133.2 144.5 L136.7 144.6 L140.1 144.7 L143.6 144.8 L147.1 144.9 L150.5 145.0 L154.0 145.1 L157.5 222.3 L160.9 220.4 L164.4 218.5 L167.9 216.6 L171.3 214.7 L174.8 212.9 L178.3 211.0 L181.7 209.1 L185.2 207.3 L188.7 205.4 L192.1 203.5 L195.6 201.7 L199.1 199.8 L202.5 198.0 L206.0 196.2 L209.5 194.4 L212.9 192.6 L216.4 190.8 L219.9 189.0 L223.3 187.2 L226.8 185.5 L230.3 183.8 L233.7 182.1 L237.2 180.4 L240.7 178.8 L244.1 177.2 L247.6 175.6 L251.1 174.0 L254.5 172.5 L258.0 171.0 L261.5 169.5 L264.9 168.0 L268.4 166.6 L271.9 165.2 L275.3 163.9 L278.8 162.6 L282.3 161.3 L285.7 160.0 L289.2 158.8 L292.7 157.6 L296.1 156.5 L299.6 155.3 L303.1 154.3 L306.5 153.2 L310.0 152.2 L313.5 151.2 L316.9 150.3 L320.4 149.3 L323.9 148.4 L327.3 147.6 L330.8 146.8 L334.3 146.0 L337.7 145.2 L341.2 144.5 L344.7 143.8 L348.1 143.2 L351.6 142.5 L355.1 141.9 L358.5 141.4 L362.0 140.8 L365.5 140.3 L368.9 139.8 L372.4 139.3 L375.9 138.9 L379.3 138.5 L382.8 138.1 L386.3 137.8 L389.7 137.4 L393.2 137.1 L396.7 136.9 L400.1 136.6 L403.6 136.4 L407.1 136.1 L410.5 136.0 L414.0 135.8 L417.5 135.6 L420.9 135.5 L424.4 135.4 L427.9 135.3 L431.3 135.2 L434.8 135.1 L438.3 135.1 L441.7 135.0 L445.2 135.0 L448.7 135.0 L452.1 135.0 L455.6 135.0 L459.1 135.1 L462.5 135.1 L466.0 135.2 L469.5 135.2 L472.9 135.3 L476.4 135.4 L479.9 135.5 L483.3 135.6 L486.8 135.7 L490.3 135.8 L493.7 136.0 L497.2 136.1 L500.7 136.2 L504.1 136.4 L507.6 136.5 L511.1 136.7 L514.5 136.9 L518.0 137.0 L521.5 137.2 L524.9 137.4 L528.4 137.5 L531.9 137.7 L535.3 137.9 L538.8 138.1 L542.3 138.3 L545.7 138.4 L549.2 138.6 L552.7 138.8 L556.1 139.0 L559.6 139.2 L563.1 139.4 L566.5 139.6" fill="none" stroke="#D9534F" stroke-width="3.5"/>
+        <text x="310" y="36" font-size="15" fill="#009BA5" font-weight="700">TT102 · larmar, men har rätt</text>
+        <text x="310" y="190" font-size="15" fill="#D9534F" font-weight="700">TT101 · hoppade ner: felet</text>
+        <line class="axis" x1="50" y1="310" x2="570" y2="310"/>
+        <path d="M50.0 285.4 L53.5 285.4 L56.9 285.4 L60.4 285.4 L63.9 285.4 L67.3 285.3 L70.8 285.3 L74.3 285.2 L77.7 285.2 L81.2 285.2 L84.7 285.2 L88.1 285.1 L91.6 285.1 L95.1 285.1 L98.5 285.1 L102.0 285.0 L105.5 285.0 L108.9 284.9 L112.4 284.9 L115.9 284.9 L119.3 284.9 L122.8 284.8 L126.3 284.8 L129.7 284.7 L133.2 284.7 L136.7 284.6 L140.1 284.6 L143.6 284.6 L147.1 284.6 L150.5 284.5 L154.0 284.4 L157.5 260.0 L160.9 260.0 L164.4 260.0 L167.9 260.0 L171.3 260.0 L174.8 260.0 L178.3 260.0 L181.7 260.0 L185.2 260.0 L188.7 260.0 L192.1 260.0 L195.6 260.0 L199.1 260.0 L202.5 260.0 L206.0 260.1 L209.5 260.1 L212.9 260.2 L216.4 260.4 L219.9 260.5 L223.3 260.7 L226.8 260.9 L230.3 261.1 L233.7 261.2 L237.2 261.5 L240.7 261.7 L244.1 262.0 L247.6 262.2 L251.1 262.6 L254.5 262.9 L258.0 263.1 L261.5 263.4 L264.9 263.8 L268.4 264.1 L271.9 264.4 L275.3 264.8 L278.8 265.1 L282.3 265.6 L285.7 265.9 L289.2 266.2 L292.7 266.6 L296.1 267.0 L299.6 267.4 L303.1 267.8 L306.5 268.1 L310.0 268.5 L313.5 268.9 L316.9 269.2 L320.4 269.6 L323.9 269.9 L327.3 270.3 L330.8 270.7 L334.3 271.1 L337.7 271.4 L341.2 271.8 L344.7 272.1 L348.1 272.5 L351.6 272.9 L355.1 273.1 L358.5 273.5 L362.0 273.9 L365.5 274.2 L368.9 274.5 L372.4 274.8 L375.9 275.1 L379.3 275.4 L382.8 275.8 L386.3 276.0 L389.7 276.3 L393.2 276.6 L396.7 276.9 L400.1 277.1 L403.6 277.4 L407.1 277.6 L410.5 277.9 L414.0 278.1 L417.5 278.4 L420.9 278.6 L424.4 278.8 L427.9 279.0 L431.3 279.2 L434.8 279.4 L438.3 279.6 L441.7 279.8 L445.2 280.0 L448.7 280.2 L452.1 280.4 L455.6 280.4 L459.1 280.6 L462.5 280.8 L466.0 280.9 L469.5 281.1 L472.9 281.2 L476.4 281.4 L479.9 281.4 L483.3 281.6 L486.8 281.6 L490.3 281.8 L493.7 281.9 L497.2 281.9 L500.7 282.1 L504.1 282.1 L507.6 282.2 L511.1 282.3 L514.5 282.3 L518.0 282.4 L521.5 282.4 L524.9 282.5 L528.4 282.6 L531.9 282.6 L535.3 282.6 L538.8 282.6 L542.3 282.7 L545.7 282.8 L549.2 282.8 L552.7 282.8 L556.1 282.8 L559.6 282.8 L563.1 282.8 L566.5 282.8" fill="none" stroke="#666" stroke-width="2.5"/>
+        <text x="50" y="332" font-size="13" fill="#9a9a9a">värmeventil KL101.V1, 0–100 % öppen</text>
+      </svg>
+    </div>
+    <div>
+      <p class="small"><strong>En givare kan hoppa; luft kan det inte.</strong> TT101 föll på ett enda mätvärde, värmeventilen öppnade helt, och den verkliga temperaturen, som TT102 mäter, steg sakta efter.</p>
+      <div class="card risk fragment rise" style="padding:14px 18px"><h3 style="font-size:20px">gemma4: väntar, litar sedan på larmet</h3><p class="small" style="margin:0">Väntade timme efter timme, bad aldrig om en trend, och pekade ut TT102, enheten larmet heter efter. Precis som den regelbaserade policyn.</p></div>
+      <div class="card risk fragment rise" style="padding:14px 18px;margin-top:12px"><h3 style="font-size:20px">qwen3: tittar, gissar sedan</h3><p class="small" style="margin:0">Hämtade sju trender vid t = 0 och pekade sedan ut <em>exakt</em> TT101 / offset — timmar innan felet fanns. Förkunskap ur prompten, inte en diagnos.</p></div>
+    </div>
+  </div>
+  <p class="foot fragment rise"><strong class="teal">Samma vägg som i del två:</strong> de agerar på en namngiven orsak; de namnger den inte utifrån fysiken.</p>
+  <aside class="notes">20:45. Fällan, konstruerad med flit. Styrgivaren visar 5 grader för lågt. Styrningen värmer hårdare, den verkliga temperaturen stiger, och kontrollgivaren larmar: larmet bär den friska givarens namn. Trenden avslöjar vilken som är fel: TT101 hoppade på ett enda mätvärde, och luft kan inte göra så. gemma4 väntade och skyllde på larmets enhet, som det regelbaserade skriptet. qwen3 tittade faktiskt på trender, men vid tid noll, och pekade sedan ut exakt rätt svar innan felet fanns: det är prompten som talar, inte fabriken. I uppgiften med den fastnade ventilen visade observationen kommando noll, läge hundra procent, och ingen av modellerna jämförde de två. Samma vägg som i hårdvaruarbetet: agenterna agerar på en namngiven orsak, de namnger den inte.</aside>
+</section>
+
+<!-- ============ 3.11 · Agenten som deltagare ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Agenten är en ny IT/OT-deltagare</h2>
+  <p class="sub">I testbädden är agenten ett system i DMZ som alla andra, med flöden, beroenden och en skrivväg.</p>
+  <div class="cols three" style="margin-top:20px">
+    <div class="card fragment rise">
+      <h3>Dess flöden</h3>
+      <ul class="small">
+        <li>Prompter med anläggningsdata till en språkmodell: egen GPU, eller molnet — då <strong>lämnar anläggningsdata sajten</strong>.</li>
+        <li>Manualer och arbetsordrar från en kunskapsbas; arbetsordrar till underhållssystemet.</li>
+        <li>Varje flöde prövas mot zonerna som alla andra.</li>
+      </ul>
+    </div>
+    <div class="card fragment rise">
+      <h3>Dess fellägen</h3>
+      <ul class="small">
+        <li>Dess bild av anläggningen kan vara <strong>gammal</strong>: den får veta vilka publicerare som tystnat, och hur gamla dess senaste data är.</li>
+        <li>Språkmodellens server är nere: efter 30 s <strong>fattas inget beslut</strong>.</li>
+        <li>Varje beslut kostar språkmodellens verkliga svarstid, uppmätt på hårdvaran.</li>
+      </ul>
+    </div>
+    <div class="card risk fragment rise">
+      <h3>Dess attackyta</h3>
+      <ul class="small">
+        <li>En <strong>planterad instruktion</strong> i en arbetsorder: bedömningen registrerar om diagnosen följde den.</li>
+        <li><strong>Skrivningar</strong> går agent → SCADA → PLC via en enda granskad väg, prövad mot zonerna och loggad.</li>
+        <li>En omstart efter ett stopp kräver <strong style="background:var(--yellow);padding:0 4px">skiftledarens godkännande</strong>.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">22:00. Agenten från säkerhetssidan. Den har flöden som vilket system som helst: prompter med anläggningsdata går till en språkmodell; ligger den i molnet lämnar anläggningsdata sajten, och policykontrollen flaggar det. Den har fellägen: gamla data, en död GPU-server, svarstid. Och den har en attackyta: text den läser kan bära instruktioner, så testbädden planterar en i en arbetsorder och registrerar om agenten följde den; skrivningar går via en enda granskad väg genom SCADA; och en omstart kräver en människas godkännande. Bara försvararens perspektiv.</aside>
+</section>
+
+<!-- ============ 3.12 · Byggd på samma sätt ============ -->
+<section data-timing="45">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Byggd på samma sätt: metoden från del två, på sex dagar</h2>
+  <div class="stats" style="margin:26px 0 26px">
+    <div class="stat"><b class="count" data-to="6">0</b><span>dagar, från ett tomt repo till båda anläggningarna</span></div>
+    <div class="stat"><b class="count" data-to="67">0</b><span>commits, skrivna med en kodagent</span></div>
+    <div class="stat"><b class="count" data-to="20">0</b><span>låsta referenskörningar, jämförda byte för byte vid varje ändring</span></div>
+    <div class="stat"><b class="count" data-to="3">0</b><span>riktiga protokoll live: MQTT, Sparkplug B, OPC UA</span></div>
+  </div>
+  <div class="cols two">
+    <ul class="small">
+      <li><strong>Deterministisk kärna</strong>: heltalsfysik, namngivna slumpströmmar, ingen väggklocka. Varje episod spelas upp till samma tillståndshash.</li>
+      <li><strong>Låsta referenser</strong>: tillståndshashar, inspelningar och agentförlopp förblev identiska genom en hel arkitekturomläggning.</li>
+    </ul>
+    <ul class="small">
+      <li><strong>Kvitton</strong>: varje agentepisod är en uppspelningsbar logg med modell, frö, versioner och förklaring av poängen.</li>
+      <li><strong>Människan namngav processen</strong>: sågverkets stegordning, vad en torkoperatör tittar på, vad OTTO behöver se.</li>
+    </ul>
+  </div>
+  <aside class="notes">23:00. En metapoäng. Testbädden byggdes själv med en kodagent, på sex dagar, enligt de sex reglerna från del två. Deterministisk kärna; tjugo referenskörningar jämförda byte för byte vid varje ändring, även en hel omläggning som förblev identisk; varje episod är ett uppspelningsbart kvitto. Och människan gjorde det agenten inte kan: namngav processen, stegordningen, vad som spelar roll för OTTO.</aside>
+</section>
+
+<!-- ============ 3.13 · Sex regler för OT ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>De sex reglerna, för agenter i en fabrik</h2>
+  <div class="cols two pattern" style="margin-top:20px;row-gap:22px">
+    <div><p><span class="num">1</span><strong>Gör det den ser explicit</strong></p><p class="small grey">Agenten ser informationsflödet, inte fabriken. Berätta hur gamla dess data är och vilka källor som tystnat.</p></div>
+    <div><p><span class="num">2</span><strong>Gör varje beslut uppspelningsbart</strong></p><p class="small grey">Samma indata, samma episod, samma hash. En incidentutredning behöver exakt den bild agenten hade.</p></div>
+    <div><p><span class="num">3</span><strong>Bedöm mot fabriken, inte mot agenten</strong></p><p class="small grey">Sanningen kommer från processen, aldrig från agentens egen redogörelse för vad den gjorde.</p></div>
+    <div><p><span class="num">4</span><strong>Testa på proxyn först</strong></p><p class="small grey">Ha sönder testbädden tusen gånger innan agenten ser en riktig linje. Lås resultaten.</p></div>
+    <div><p><span class="num">5</span><strong>Granska varje skrivning</strong></p><p class="small grey">En väg via SCADA, prövad mot zonerna och loggad. Inga bakdörrar till PLC:n.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>En människa godkänner omstarten</strong></p><p class="small grey">Agenten ställer diagnos och föreslår. Förreglingen och godkännandet förblir mänskliga.</p></div>
+  </div>
+  <aside class="notes">23:45. Reglerna från del två, översatta. Gör det den ser explicit, även hur gammalt det är. Gör beslut uppspelningsbara, för incidentutredningar. Bedöm mot processen, inte agentens berättelse. Testa på proxyn, tusen gånger. Granska varje skrivning via en enda väg. Och människan godkänner omstarten. Ingen av dem handlar om modellen; alla är arkitektur, och det är vad OTTO handlar om.</aside>
+</section>
+
+<!-- ============ 3.14 · Nästa steg ============ -->
+<section data-timing="60">
+  <div class="act"><b>3</b> · fabriken</div>
+  <h2>Nästa steg, med OTTO-parterna</h2>
+  <div class="cols two" style="margin-top:24px">
+    <div class="card">
+      <h3>Ni tar med</h3>
+      <ul class="small">
+        <li><strong>Er namngivning</strong>: hur era signaler heter i dag; vi mappar dem till ett gemensamt namnrum.</li>
+        <li><strong>Er zonmodell</strong> och era IT-system: MES, affärssystem, underhållssystem, identitet, var AI skulle köras.</li>
+        <li><strong>Era fel</strong>: arbetsordrarna ingen glömmer. De blir testscenarier.</li>
+        <li><strong>Era siffror</strong>: torkscheman, energi, utbyten, för att kalibrera anläggningarna.</li>
+      </ul>
+    </div>
+    <div class="card line">
+      <h3>Vi bidrar med</h3>
+      <ul class="small">
+        <li><strong>En zondesign med motivering</strong>: målnivåer för säkerhet per zon, och en omgjord "målarkitektur" bredvid "som i dag" och "brandvägg på".</li>
+        <li><strong>Riktiga protokoll</strong>: MQTT, Sparkplug B och OPC UA körs redan live; Modbus härnäst.</li>
+        <li><strong>En riktig PLC i loopen</strong> (OpenPLC): hårdvara i loopen, igen.</li>
+        <li><strong>Workshoppar</strong>: parterna lägger in fel live och ser vad informationsflödet visar.</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">24:45. Vad vi behöver från parterna och vad vi bidrar med. Ta med er namngivning, era zoner och IT-system, era värsta fel och era siffror. Vi bidrar med en zondesign med motivering och en målarkitektur, riktiga protokoll (testbädden publicerar redan till en riktig MQTT-broker, Sparkplug B och en OPC UA-server), en riktig PLC via OpenPLC, som tar tillbaka hårdvaran i loopen, och workshoppar där ni har sönder fabriken själva.</aside>
+</section>
+
+<!-- ============ 3.15 · Slutsatser ============ -->
+<section data-timing="60">
+  <h2>Att ta med sig hem</h2>
+  <div class="cols three" style="margin-top:26px">
+    <div class="card fragment rise"><p><span class="num">1</span><strong>En agent är sina verktyg och det de låter den se</strong></p><p class="small grey">I en fabrik är det den ser informationsflödet. Att designa det flödet är att designa agenten.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>Grönt av en slump finns i fabriker också</strong></p><p class="small grey">En glidande givare håller operatörspanelen på schemat medan virket spricker. Inget larmar på fysik; en agent som läser trender skulle kunna göra det.</p></div>
+    <div class="card fragment rise"><p><span class="num">3</span><strong>Att namnge orsaken är fortfarande människans jobb</strong></p><p class="small grey">Dagens lokala modeller litar på larmet eller gissar före bevisen. Testa dem på en fabrik man får ha sönder, inte på er egen.</p></div>
+  </div>
+  <div class="quote human-box fragment rise" style="font-style:normal;display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:24px">
+    <strong>Människan i loopen</strong>
+    <span>I hårdvaruarbetet var det en kabel och en knapp. <strong>I fabriken är det godkännandet av omstarten</strong> — och det är raden ingen bör automatisera först.</span>
+  </div>
+  <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:24px">Modellerna är kompetenta. <strong class="teal">Sätt fabriken i loopen ändå.</strong></p>
+  <aside class="notes">25:45. Tre saker. En agent är sina verktyg; i en fabrik är dess verktyg informationsflödet, så att designa flödet är att designa agenten. Grönt av en slump händer i fabriker: den glidande givaren. Och att namnge orsaken är fortfarande människans jobb; testa agenter på en fabrik man får ha sönder. Människan i loopen: i hårdvaruarbetet var det en kabel och en knapp, och de automatiseras nu. I en fabrik är det godkännandet av omstarten, och det är raden ingen bör automatisera först. Modellerna är kompetenta. Sätt fabriken i loopen ändå.</aside>
+</section>
+
+<!-- ============ Tack ============ -->
+<section data-timing="10">
+  <div class="cols two" style="grid-template-columns:1fr 1.1fr;align-items:center;margin-top:40px">
+    <div>
+      <h1 style="font-size:64px">Tack för att<br>ni lyssnade</h1>
+      <p class="grey" style="font-size:22px;margin-top:26px">Joakim Eriksson, RISE</p>
+      <p class="small grey" style="line-height:1.6">OTTO — IT/OT och cybersäkerhet<br>Open Industrial Agent Testbed<br>Hårdvara i agentloopen (sept. 2026)<br>Frågor, och era värsta driftfel, välkomna</p>
+    </div>
+    <div>
+      <svg viewBox="0 0 560 400" width="560" height="400" role="img" aria-label="En virkestork som övervakas; operatörens godkännandeknapp sitter mellan agenten och anläggningen">
+        <defs><marker id="ah9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <line x1="20" y1="336" x2="540" y2="336" stroke="#bbb" stroke-width="2"/>
+        <rect x="250" y="176" width="270" height="160" rx="8" fill="#eceff1" stroke="#aeb6bb" stroke-width="2"/>
+        <path d="M250 176 L385 120 L520 176" fill="#dde3e6" stroke="#aeb6bb" stroke-width="2"/>
+        <g fill="#d4a86a"><rect x="282" y="230" width="60" height="10"/><rect x="282" y="250" width="60" height="10"/><rect x="282" y="270" width="60" height="10"/><rect x="282" y="290" width="60" height="10"/>
+          <rect x="356" y="230" width="60" height="10"/><rect x="356" y="250" width="60" height="10"/><rect x="356" y="270" width="60" height="10"/><rect x="356" y="290" width="60" height="10"/>
+          <rect x="430" y="230" width="60" height="10"/><rect x="430" y="250" width="60" height="10"/><rect x="430" y="270" width="60" height="10"/><rect x="430" y="290" width="60" height="10"/></g>
+        <g fill="none" stroke="#9aa3a8" stroke-width="2" stroke-linecap="round">
+          <path d="M470 150 q8 -12 0 -24 q-8 -12 0 -24"><animate attributeName="opacity" values="0;.8;0" dur="3s" repeatCount="indefinite"/></path>
+          <path d="M490 158 q8 -12 0 -24 q-8 -12 0 -24"><animate attributeName="opacity" values="0;.8;0" dur="3s" begin="1.2s" repeatCount="indefinite"/></path>
+        </g>
+        <rect x="262" y="196" width="10" height="26" fill="#009BA5"/>
+        <text x="280" y="212" font-size="13" fill="#009BA5" font-family="ui-monospace,Menlo,monospace">MT101 56 %<animate attributeName="opacity" values="1;1;.3;1" dur="2s" repeatCount="indefinite"/></text>
+        <rect class="node si" x="30" y="60" width="150" height="54" rx="12"/>
+        <text x="105" y="93" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">Agent</text>
+        <rect x="62" y="196" width="86" height="46" rx="10" fill="#FFE500" stroke="#222" stroke-width="1.5"/>
+        <text x="105" y="224" text-anchor="middle" font-size="14" font-weight="700">godkänn</text>
+        <text x="105" y="262" text-anchor="middle" font-size="12" fill="#666" font-style="italic">människans rad</text>
+        <path class="arrow" style="marker-end:url(#ah9)" d="M105 114 L105 192"/>
+        <path class="arrow" style="marker-end:url(#ah9)" d="M148 219 L246 240"/>
+        <path d="M250 200 C 200 150, 200 90, 184 88" stroke="#009BA5" stroke-width="2" stroke-dasharray="5 5" fill="none" style="marker-end:url(#ah9)"/>
+        <text x="206" y="148" font-size="12" fill="#666" font-style="italic">det UNS levererar</text>
+        <circle class="dot model" r="6"><animateMotion dur="3s" repeatCount="indefinite" path="M250 200 C 200 150, 200 90, 184 88"/></circle>
+        <text x="20" y="372" font-size="14" fill="#9a9a9a" font-style="italic">fabriken, informationsflödet, godkännandet</text>
+      </svg>
+    </div>
+  </div>
+  <aside class="notes">26:45. Tack. Frågor — och jag vill gärna höra era värsta driftfel; de blir testscenarier.</aside>
+</section>
+
+</div>
+</div>
+
+<script src="vendor/reveal.js"></script>
+<script src="vendor/notes.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>
