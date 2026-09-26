@@ -547,16 +547,17 @@
   <div class="act"><b>3</b> · the factory</div>
   <h2>So: can today's agents diagnose a plant?</h2>
   <p class="sub">Diagnosis tasks with a hidden fault. The verifier scores against the simulator's truth, never against the agent's own account.</p>
-  <table class="head">
+  <table class="head" style="font-size:19px">
     <tr><th>Policy</th><th class="c">Sawline<br><span class="xs" style="font-weight:400">14 families × 10 seeds</span></th><th class="c">Kiln<br><span class="xs" style="font-weight:400">3 tasks × 3 seeds</span></th><th>What it is</th></tr>
     <tr><td><strong>Oracle</strong></td><td class="c"><span class="bar" style="width:100px"></span>100 %</td><td class="c">9 / 9</td><td class="small grey">reads the hidden truth: checks that the tasks can be solved</td></tr>
     <tr><td><strong>Rule-based</strong></td><td class="c"><span class="bar" style="width:14px"></span>14 %</td><td class="c">3 / 9</td><td class="small grey">"blame the device the alarm names"</td></tr>
+    <tr><td><strong>Claude Code</strong><br><span class="xs grey">Opus 5.5 · Sonnet 5 · Haiku 4.5</span></td><td class="c grey small">not run yet</td><td class="c teal"><strong>6 / 9</strong> each</td><td class="small grey">frontier models over MCP; a fresh session per episode, only the testbed's tools</td></tr>
     <tr><td><strong>gemma4</strong></td><td class="c"><span class="bar bad" style="width:10px"></span>10 %</td><td class="c coral"><strong>0 / 9</strong></td><td class="small grey">local LLM on a laptop (Ollama)</td></tr>
     <tr><td><strong>qwen3:14b</strong></td><td class="c"><span class="bar bad" style="width:9px"></span>9 %</td><td class="c coral"><strong>0 / 9</strong></td><td class="small grey">local LLM on a laptop (Ollama)</td></tr>
     <tr><td><strong>Random</strong></td><td class="c">0 %</td><td class="c">0 / 9</td><td class="small grey">floor</td></tr>
   </table>
-  <p class="small" style="margin-top:14px">A diagnosis submitted <strong>before the fault exists</strong> scores zero — an early lesson: the first version of the verifier let a model score by guessing at 30 s, before a jam at 60 s.</p>
-  <aside class="notes">19:35. The benchmark. On the sawline, 14 task families with 10 held-out seeds; on the kiln, three tasks. The oracle cheats by reading the truth; it proves every task is solvable. The rule-based policy blames whatever device the alarm names. Two local models, run on a MacBook: about one in ten on the sawline, zero on the kiln. Note the onset gate: an answer before the fault exists is a guess and scores nothing. The very first reward version leaked exactly that way.</aside>
+  <p class="small" style="margin-top:10px;margin-right:80px">A diagnosis submitted <strong>before the fault exists</strong> scores zero — an early lesson: the first version of the verifier let a model score by guessing at 30 s, before a jam at 60 s.</p>
+  <aside class="notes">19:35. The benchmark. On the sawline, 14 task families with 10 held-out seeds; on the kiln, three tasks. The oracle cheats by reading the truth; it proves every task is solvable. The rule-based policy blames whatever device the alarm names. Two local models, run on a MacBook: about one in ten on the sawline, zero on the kiln. And Claude through Claude Code, as a fresh session per episode that sees only the testbed's MCP tools: Opus 5.5, Sonnet 5 and Haiku 4.5 all six of nine on the kiln, a few dollars for the lot. Size did not matter; generation did. Note the onset gate: an answer before the fault exists is a guess and scores nothing. The very first reward version leaked exactly that way.</aside>
 </section>
 
 <!-- ============ 3.10 · The trap ============ -->
@@ -582,13 +583,33 @@
       </svg>
     </div>
     <div>
-      <p class="small"><strong>An instrument steps; air does not.</strong> TT101 dropped in one sample, the heating valve opened fully, and the real temperature, which TT102 measures, rose slowly behind it.</p>
-      <div class="card risk fragment rise" style="padding:14px 18px"><h3 style="font-size:20px">gemma4: waits, then trusts the alarm</h3><p class="small" style="margin:0">Waited hour after hour, never asked for a trend, and named TT102, the device the alarm is called after. Same as the rule-based policy.</p></div>
-      <div class="card risk fragment rise" style="padding:14px 18px;margin-top:12px"><h3 style="font-size:20px">qwen3: looks, then guesses</h3><p class="small" style="margin:0">Pulled seven trends at t = 0, then named <em>exactly</em> TT101 / offset — hours before the fault existed. A prior from the prompt, not a diagnosis.</p></div>
+      <p class="small" style="margin-bottom:8px"><strong>An instrument steps; air does not.</strong> TT101 dropped in one sample, the heating valve opened fully, and the real temperature, which TT102 measures, rose slowly behind it.</p>
+      <div class="card risk fragment rise" style="padding:14px 18px"><h3 style="font-size:20px">gemma4: waits, then trusts the alarm</h3><p class="small" style="margin:0">Waited, never asked for a trend, named TT102 — the alarm's device. Like the rule-based policy.</p></div>
+      <div class="card risk fragment rise" style="padding:14px 18px;margin-top:10px"><h3 style="font-size:20px">qwen3: looks, then guesses</h3><p class="small" style="margin:0">Seven trends at t = 0, then <em>exactly</em> TT101 / offset — hours before the fault existed.</p></div>
+      <div class="card fragment rise" style="padding:14px 18px;margin-top:10px"><h3 style="font-size:20px">Claude, all three sizes: reads the step</h3><p class="small" style="margin:0">Saw the step and the heating answer it: TT101 / offset, after the onset. 3 / 3 each.</p></div>
     </div>
   </div>
-  <p class="foot fragment rise"><strong class="teal">The same wall as in part two:</strong> they act on a named cause; they do not name it from the physics.</p>
-  <aside class="notes">20:45. The trap, designed on purpose. The control probe reads 5 degrees low. The controller heats harder, the real temperature rises, and the check probe raises the alarm: the alarm carries the healthy probe's name. The trend tells you which one is wrong: TT101 stepped in one sample, and air cannot do that. gemma4 waited and blamed the alarm's device, like the rule-based script. qwen3 did look at trends, but at time zero, and then named exactly the right answer before the fault existed: that is the prompt talking, not the plant. On the stuck-valve task the observation showed command zero, position a hundred percent, and neither model compared the two. Same wall as the hardware work: the agents act on a named cause, they do not name it.</aside>
+  <p class="foot fragment rise"><strong class="teal">The small models hit part two's wall;</strong> the frontier models get past it here — and hit it on the next slide.</p>
+  <aside class="notes">20:45. The trap, designed on purpose. The control probe reads 5 degrees low. The controller heats harder, the real temperature rises, and the check probe raises the alarm: the alarm carries the healthy probe's name. The trend tells you which one is wrong: TT101 stepped in one sample, and air cannot do that. gemma4 waited and blamed the alarm's device, like the rule-based script. qwen3 did look at trends, but at time zero, and then named exactly the right answer before the fault existed: that is the prompt talking, not the plant. On the stuck-valve task the observation showed command zero, position a hundred percent, and neither model compared the two. Same wall as the hardware work. Claude, all three sizes, did what the physics asks: saw the step, saw the heating answer, named TT101, after the onset, three of three. Same on the stuck valve: it compared command with position.</aside>
+</section>
+
+<!-- ============ 3.10b · The frontier ============ -->
+<section data-timing="55">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>The frontier: the fault that never alarms</h2>
+  <p class="sub">Kiln task k01, the drifting humidity probe from "green by accident". No alarm, the HMI on schedule. Nobody solved it.</p>
+  <table class="head" style="margin-top:4px">
+    <tr><th>Agent</th><th class="c">k01</th><th>What it answered</th></tr>
+    <tr><td><strong>Claude Opus 5.5</strong></td><td class="c coral"><strong>0 / 3</strong></td><td class="small">waited to the last hour; once the right probe, MT101, but "offset" instead of "drift"; twice the moisture probe</td></tr>
+    <tr><td><strong>Claude Sonnet 5</strong></td><td class="c coral"><strong>0 / 3</strong></td><td class="small">watched the whole run and never submitted a diagnosis</td></tr>
+    <tr><td><strong>Claude Haiku 4.5</strong></td><td class="c coral"><strong>0 / 3</strong></td><td class="small">an I/O node; MT101 "frozen"; nothing</td></tr>
+    <tr><td><strong>gemma4, qwen3:14b</strong></td><td class="c coral"><strong>0 / 3</strong></td><td class="small">waited without looking; or guessed before the fault existed</td></tr>
+  </table>
+  <div class="cols two" style="grid-template-columns:1.2fr 1fr;gap:28px;margin-top:16px">
+    <div class="quote" style="margin-top:0">"I read that creep as normal settling."<span class="who">— Claude Opus 5.5, after the episode, on the vent that kept opening</span></div>
+    <p class="small" style="margin:0"><strong>Signals with a signature are solved:</strong> a step, a command against a position. <strong class="teal">Physics without an alarm is not yet:</strong> it needs an expectation of what the vent <em>should</em> do — an instrument we have not given the agent.</p>
+  </div>
+  <aside class="notes">21:55. The frontier. k01 is the drifting humidity probe from the kiln slide. Every model failed it, including Opus 5.5. Opus came closest: once the right probe with the wrong fault type, and only in the last hour, after the wood had already cracked. Its own post-mortem: it read the creeping vent as the loop settling. The signal-shaped faults are solved; the physics-shaped one is not. The natural next experiment: give the agent an expectation, what the vent does in a normal charge at the same step. Whoever builds the eyes decides what gets fixed.</aside>
 </section>
 
 <!-- ============ 3.11 · The agent as a participant ============ -->
@@ -622,7 +643,7 @@
       </ul>
     </div>
   </div>
-  <aside class="notes">22:00. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
+  <aside class="notes">22:50. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
 </section>
 
 <!-- ============ 3.12 · Built the same way ============ -->
@@ -645,7 +666,7 @@
       <li><strong>The human named the process</strong>: sawmill stage order, what a kiln operator watches, what OTTO needs to see.</li>
     </ul>
   </div>
-  <aside class="notes">23:00. A meta point. This testbed was itself built with a coding agent, in six days, following the six rules from part two. Deterministic core; twenty golden runs compared byte for byte at every change, including a full refactor that stayed identical; every episode is a replayable receipt. And the human did the part the agent cannot: naming the process, the stage order, what matters to OTTO.</aside>
+  <aside class="notes">23:55. A meta point. This testbed was itself built with a coding agent, in six days, following the six rules from part two. Deterministic core; twenty golden runs compared byte for byte at every change, including a full refactor that stayed identical; every episode is a replayable receipt. And the human did the part the agent cannot: naming the process, the stage order, what matters to OTTO.</aside>
 </section>
 
 <!-- ============ 3.13 · Six rules for OT ============ -->
@@ -660,7 +681,7 @@
     <div><p><span class="num">5</span><strong>Audit every write</strong></p><p class="small grey">One path via SCADA, checked against the zones and logged. No side doors to the PLC.</p></div>
     <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human approves the restart</strong></p><p class="small grey">The agent diagnoses and proposes. The interlock and the approval stay human.</p></div>
   </div>
-  <aside class="notes">23:45. Part two's rules, translated. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
+  <aside class="notes">24:40. Part two's rules, translated. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
 </section>
 
 <!-- ============ 3.14 · Next steps ============ -->
@@ -687,7 +708,7 @@
       </ul>
     </div>
   </div>
-  <aside class="notes">24:45. What we need from partners and what we bring. Bring your naming, your zones and IT systems, your worst failures and your numbers. We add a zone design with rationale and a target architecture, real protocols (the testbed already publishes to a real MQTT broker, Sparkplug B and an OPC UA server), a real PLC through OpenPLC, which brings the hardware back into the loop, and workshops where you break the plant yourselves.</aside>
+  <aside class="notes">25:40. What we need from partners and what we bring. Bring your naming, your zones and IT systems, your worst failures and your numbers. We add a zone design with rationale and a target architecture, real protocols (the testbed already publishes to a real MQTT broker, Sparkplug B and an OPC UA server), a real PLC through OpenPLC, which brings the hardware back into the loop, and workshops where you break the plant yourselves.</aside>
 </section>
 
 <!-- ============ 3.15 · Conclusions ============ -->
@@ -696,14 +717,14 @@
   <div class="cols three" style="margin-top:26px">
     <div class="card fragment rise"><p><span class="num">1</span><strong>An agent is its tools and what they let it see</strong></p><p class="small grey">In a factory, what it sees is the information flow. Designing that flow is designing the agent.</p></div>
     <div class="card fragment rise"><p><span class="num">2</span><strong>Green by accident exists in plants too</strong></p><p class="small grey">A drifting probe keeps the HMI on schedule while the charge cracks. Nothing alarms on physics; an agent that reads trends could.</p></div>
-    <div class="card fragment rise"><p><span class="num">3</span><strong>Naming the cause is still human work</strong></p><p class="small grey">Today's local models trust the alarm or guess before the evidence. Test them on a plant you can break, not on yours.</p></div>
+    <div class="card fragment rise"><p><span class="num">3</span><strong>Naming the cause is still human work</strong></p><p class="small grey">Small local models trust the alarm or guess early. Frontier models read the signals — but not yet the physics behind a fault that never alarms. Test them on a plant you can break.</p></div>
   </div>
   <div class="quote human-box fragment rise" style="font-style:normal;display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:24px">
     <strong>The human in the loop</strong>
     <span>In the hardware work it was a cable and a button. <strong>In the factory it is the approval to restart</strong> — and that is the row nobody should automate first.</span>
   </div>
   <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:24px">The models are competent. <strong class="teal">Put the plant in the loop anyway.</strong></p>
-  <aside class="notes">25:45. Three things. An agent is its tools; in a factory its tools are the information flow, so designing that flow is designing the agent. Green by accident happens in plants: the drifting probe. And naming the cause is still human work; test agents on a plant you can break. The human in the loop: in the hardware work it was a cable and a button, and those are being automated. In a factory it is the approval to restart, and that is the one row nobody should automate first. The models are competent. Put the plant in the loop anyway.</aside>
+  <aside class="notes">26:40. Three things. An agent is its tools; in a factory its tools are the information flow, so designing that flow is designing the agent. Green by accident happens in plants: the drifting probe. And naming the cause is still human work: small models trust the alarm, frontier models read the signals, but nobody caught the drift that never alarms. Test agents on a plant you can break. The human in the loop: in the hardware work it was a cable and a button, and those are being automated. In a factory it is the approval to restart, and that is the one row nobody should automate first. The models are competent. Put the plant in the loop anyway.</aside>
 </section>
 
 <!-- ============ Thanks ============ -->
@@ -749,7 +770,7 @@
       </svg>
     </div>
   </div>
-  <aside class="notes">26:45. Thank you. Questions — and I would love to hear your worst plant failures; they become test scenarios.</aside>
+  <aside class="notes">27:40. Thank you. Questions — and I would love to hear your worst plant failures; they become test scenarios.</aside>
 </section>
 
 </div>

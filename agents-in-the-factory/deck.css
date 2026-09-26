@@ -90,7 +90,7 @@
 .reveal td{padding:10px 14px;vertical-align:middle;border:0}
 .reveal tr:nth-child(even) td{background:var(--teal-tint)}
 .reveal table.head th{background:var(--teal);color:#fff}
-.reveal td.c,.reveal th.c{text-align:center}
+.reveal td.c,.reveal th.c{text-align:center;white-space:nowrap}
 .reveal td .bar{display:inline-block;height:12px;background:var(--teal);vertical-align:middle;margin-right:8px;border-radius:2px}
 .reveal td .bar.bad{background:var(--coral)}
 .reveal .sim{color:var(--grey)}

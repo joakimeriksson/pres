@@ -42,7 +42,9 @@ after as a screenshot, so the deck still works as a handout.
 
 - Charts on "Green by accident, in a kiln" and "The alarm names the healthy probe": simulated with the testbed
   (`kiln_rh_drift_v1`, `k02_control_probe_offset_v1` seed 1234), drawn as inline SVG paths.
-- Benchmark table: `docs/benchmarks/2026-09-22.md` (sawline) and `runs/benchmark/kiln-2026-09-25` (kiln) in the testbed.
+- Benchmark table: `docs/benchmarks/2026-09-22.md` (sawline) and `runs/benchmark/kiln-2026-09-25` (kiln) in the testbed;
+  Claude rows and the frontier slide: `runs/claude-code/kiln-{opus,sonnet,haiku}` (Opus 5.5, Sonnet 5, Haiku 4.5 via
+  `scripts/bench_claude_code.py`, 2026-09-26).
 - Screenshots in `assets/`: the viewer at 2× on those recordings.
 
 ## The Swedish version
