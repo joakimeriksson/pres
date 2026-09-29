@@ -400,16 +400,16 @@
   </svg>
   <div class="cols two" style="grid-template-columns:1.6fr 1fr;gap:28px;margin-top:4px">
     <div class="topic" style="font-size:15px"><span>otto-demo/sawmill-1/drying/kiln-1/chamber</span>/KL101/V1/position_fb</div>
-    <p class="small" style="margin:0">Varje signal får ett namn i ett <strong>gemensamt namnrum (UNS)</strong> — samma namn i alla system, skapat utifrån anläggningen.</p>
+    <p class="small" style="margin:0">Varje signal får ett namn i en <strong>gemensam namnrymd (UNS)</strong> — samma namn i alla system, skapat utifrån anläggningen.</p>
   </div>
   <p class="foot small"><strong class="teal">Agenten sitter sist i informationsflödet.</strong> Den ser aldrig virket, vattnet eller värmen — bara det som når fram, när det når fram.</p>
-  <aside class="notes">10:55. Två flöden. Virket rör sig från vänster till höger. Informationen rör sig nerifrån och upp: givare till PLC på fältbussen var 20:e millisekund, SCADA pollar PLC:n över OPC UA, UNS-brokern publicerar vid ändring över MQTT, och historikdatabas, MES, dashboards, moln och agent prenumererar. Varje signal har ett namn i det gemensamma namnrummet. Poängen: agenten sitter längst bort. Om en länk är nere, en källa tyst eller en brandväggsregel blockerar, är agentens bild av anläggningen helt enkelt gammal. Låt mig visa.</aside>
+  <aside class="notes">10:55. Två flöden. Virket rör sig från vänster till höger. Informationen rör sig nerifrån och upp: givare till PLC på fältbussen var 20:e millisekund, SCADA pollar PLC:n över OPC UA, UNS-brokern publicerar vid ändring över MQTT, och historikdatabas, MES, dashboards, moln och agent prenumererar. Varje signal har ett namn i den gemensamma namnrymden. Poängen: agenten sitter längst bort. Om en länk är nere, en källa tyst eller en brandväggsregel blockerar, är agentens bild av anläggningen helt enkelt gammal. Låt mig visa.</aside>
 </section>
 <!-- ============ 3.4 · Live-demo: såglinjen ============ -->
 <section data-demo-src="viewer/index.html?src=runs/deck/sawline.jsonl&t=240&play=1" data-background-interactive class="demo-slide" data-timing="60">
-  <div class="demo-cap"><strong>Live:</strong> såglinjen i testbäddens visare. Överst: linjen som givarna ser den. Nedanför: informationsflödet och zonerna. Till höger: namnrummet. <span class="grey">Tryck <span class="kbd">D</span> för att ladda om.</span></div>
+  <div class="demo-cap"><strong>Live:</strong> såglinjen i testbäddens visare. Överst: linjen som givarna ser den. Nedanför: informationsflödet och zonerna. Till höger: namnrymden. <span class="grey">Tryck <span class="kbd">D</span> för att ladda om.</span></div>
   <div class="demo-nav"><button data-go="prev" title="föregående bild (←)">‹</button><button data-go="next" title="nästa bild (→)">›</button></div>
-  <aside class="notes">12:05 (60 s). Visaren spelar ett inspelat skift. Peka på: stockar som rör sig, snitt som räknas, motorströmmar. Scrolla ner till informationsflödet: meddelanden per länk, zonerna som vågräta band, AI-agenten i DMZ. Klicka på en signal i namnrummet: topic, OPC UA-sökväg och PLC-tagg för samma värde. Visaren är på engelska. Strular demon har nästa bild samma bild.</aside>
+  <aside class="notes">12:05 (60 s). Visaren spelar ett inspelat skift. Peka på: stockar som rör sig, snitt som räknas, motorströmmar. Scrolla ner till informationsflödet: meddelanden per länk, zonerna som vågräta band, AI-agenten i DMZ. Klicka på en signal i namnrymden: topic, OPC UA-sökväg och PLC-tagg för samma värde. Visaren är på engelska. Strular demon har nästa bild samma bild.</aside>
 </section>
 <!-- ============ zones, conduits, firewall ============ -->
 <section data-timing="85">
@@ -592,7 +592,7 @@
     <div class="card">
       <h3>Ni tar med</h3>
       <ul class="small">
-        <li><strong>Er namngivning</strong>: vad era signaler heter i dag — vi lägger in dem i ett gemensamt namnrum.</li>
+        <li><strong>Er namngivning</strong>: vad era signaler heter i dag — vi lägger in dem i en gemensam namnrymd.</li>
         <li><strong>Er zonmodell</strong> och era IT-system: MES, affärssystem, underhållssystem, inloggning, var AI skulle köras.</li>
         <li><strong>Era fel</strong>: arbetsordrarna ingen glömmer. De blir testfall.</li>
         <li><strong>Er process</strong>: en värmecentral, en pumpstation, en linje — med era scheman och energivärden.</li>
