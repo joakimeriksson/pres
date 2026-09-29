@@ -193,3 +193,7 @@ html,body,.reveal-viewport{background:radial-gradient(1400px 700px at 100% 0%,#e
 .reveal .progress{height:4px;color:var(--teal)}
 .reveal .slide-number{background:var(--deep);border-radius:6px;font-size:13px;padding:3px 8px}
 .reveal h1{font-weight:700;letter-spacing:-.03em}
+/* roomier text on slides with space to spare */
+.reveal section.roomy .small{font-size:21px;line-height:1.36}
+.reveal section.roomy .card{padding:24px 26px}
+.reveal section.roomy .pattern strong{font-size:24px}

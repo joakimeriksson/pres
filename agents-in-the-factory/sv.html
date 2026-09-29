@@ -50,29 +50,27 @@
   <h2>En agent = språkmodell + verktyg + loop</h2>
   <div class="cols two" style="grid-template-columns:1.25fr 1fr;margin-top:16px;align-items:center">
     <div>
-      <svg viewBox="0 0 640 460" width="640" height="460">
+      <svg viewBox="0 0 660 460" width="620" height="432">
         <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
-        <circle cx="300" cy="230" r="150" fill="none" stroke="#E6F4F5" stroke-width="34"/>
-        <rect class="node si" x="220" y="195" width="160" height="70" rx="14"/>
-        <text x="300" y="228" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Modell</text>
-        <text x="300" y="252" text-anchor="middle" font-size="15" fill="#fff" opacity=".85">väljer nästa steg</text>
-        <rect class="node" x="225" y="40" width="150" height="54" rx="12"/>
-        <text x="300" y="74" text-anchor="middle" font-size="20" font-weight="700">Mål</text>
-        <rect class="node" x="455" y="203" width="150" height="54" rx="12"/>
-        <text x="530" y="236" text-anchor="middle" font-size="20" font-weight="700">Gör</text>
-        <rect class="node" x="225" y="366" width="150" height="54" rx="12"/>
-        <text x="300" y="400" text-anchor="middle" font-size="20" font-weight="700">Verktyg</text>
-        <rect class="node" x="-5" y="203" width="150" height="54" rx="12"/>
-        <text x="70" y="236" text-anchor="middle" font-size="20" font-weight="700">Titta</text>
-        <path class="arrow" d="M375 80 Q470 110 520 200"/>
-        <path class="arrow" d="M520 258 Q470 350 378 385"/>
-        <path class="arrow" d="M222 385 Q130 350 80 260"/>
-        <path class="arrow" d="M80 202 Q130 110 222 80"/>
-        <text x="495" y="122" font-size="15" fill="#666" font-style="italic">väljer ett verktyg</text>
-        <text x="455" y="352" font-size="15" fill="#666" font-style="italic">det körs</text>
-        <text x="30" y="352" font-size="15" fill="#666" font-style="italic">resultatet kommer tillbaka</text>
-        <text x="40" y="122" font-size="15" fill="#666" font-style="italic">klart? annars igen</text>
-        <circle class="dot model" r="8"><animateMotion dur="5s" repeatCount="indefinite" path="M375 80 Q470 110 520 200 M520 258 Q470 350 378 385 M222 385 Q130 350 80 260 M80 202 Q130 110 222 80"/></circle>
+        <circle cx="330" cy="230" r="160" fill="none" stroke="#E6F4F5" stroke-width="26"/>
+        <circle r="8" fill="#00b8c2"><animateMotion dur="6s" repeatCount="indefinite" path="M330 70 A160 160 0 1 1 329.99 70"/></circle>
+        <path class="arrow" d="M405.1 88.7 A160 160 0 0 1 485.9 194.0"/>
+        <path class="arrow" d="M485.9 266.0 A160 160 0 0 1 410.0 368.6"/>
+        <path class="arrow" d="M250.0 368.6 A160 160 0 0 1 174.1 266.0"/>
+        <path class="arrow" d="M174.1 194.0 A160 160 0 0 1 250.0 91.4"/>
+        <rect class="node si" x="245" y="193" width="170" height="74" rx="14"/>
+        <text x="330" y="226" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">Modell</text>
+        <text x="330" y="251" text-anchor="middle" font-size="15" fill="#fff" opacity=".9">väljer nästa steg</text>
+        <rect class="node" x="255" y="44" width="150" height="52" rx="12"/><text x="330" y="77" text-anchor="middle" font-size="20" font-weight="700">Mål</text>
+        <rect class="node" x="415" y="204" width="150" height="52" rx="12"/><text x="490" y="237" text-anchor="middle" font-size="20" font-weight="700">Gör</text>
+        <rect class="node" x="255" y="364" width="150" height="52" rx="12"/><text x="330" y="397" text-anchor="middle" font-size="20" font-weight="700">Verktyg</text>
+        <rect class="node" x="95" y="204" width="150" height="52" rx="12"/><text x="170" y="237" text-anchor="middle" font-size="20" font-weight="700">Titta</text>
+        <g font-size="15" fill="#56666b" font-style="italic">
+          <text x="484" y="82">väljer ett verktyg</text>
+          <text x="484" y="388">det körs</text>
+          <text x="176" y="388" text-anchor="end">svaret kommer tillbaka</text>
+          <text x="176" y="82" text-anchor="end">klart? annars igen</text>
+        </g>
       </svg>
     </div>
     <div>
@@ -91,7 +89,7 @@
 <section data-timing="75">
   <div class="act"><b>1</b> · agenter</div>
   <h2>En agent är inte ett styrsystem</h2>
-  <p class="sub">Styrsystem och agenter är bra på motsatta saker. Det avgör var agenten får sitta.</p>
+  <p class="sub">Styrsystem och agenter är bra på motsatta saker. Det avgör var agenten får sitta — ovanför säkerhetsspärrarna (förreglingarna).</p>
   <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:40px">
     <div>
       <table class="head">
@@ -116,30 +114,30 @@
         <text x="265" y="37" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Agent</text>
         <rect class="node" x="190" y="76" width="150" height="38" rx="10"/>
         <text x="265" y="101" text-anchor="middle" font-size="16" font-weight="700">SCADA</text>
-        <rect class="node" x="190" y="140" width="150" height="38" rx="10"/>
-        <text x="265" y="165" text-anchor="middle" font-size="16" font-weight="700">PLC + förreglingar</text>
+        <rect class="node" x="160" y="140" width="210" height="38" rx="10"/>
+        <text x="265" y="165" text-anchor="middle" font-size="15" font-weight="700">PLC + säkerhetsspärrar</text>
         <rect class="node" x="190" y="204" width="150" height="38" rx="10" style="stroke:#8a6a3b;fill:#f3ebe0"/>
         <text x="265" y="229" text-anchor="middle" font-size="16" font-weight="700">sågar, tork</text>
         <path class="arrow" style="marker-end:url(#ah3)" d="M265 50 L265 74"/>
         <path class="arrow" style="marker-end:url(#ah3)" d="M265 114 L265 138"/>
         <path class="arrow" style="marker-end:url(#ah3)" d="M265 178 L265 202"/>
         <text x="275" y="67" font-size="12" fill="#666" font-style="italic">begär</text>
-        <path d="M340 31 C 400 31, 400 159, 342 159" stroke="#D9534F" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+        <path d="M340 31 C 395 31, 395 120, 372 148" stroke="#D9534F" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
         <text x="392" y="102" font-size="26" fill="#D9534F" font-weight="700">×</text>
         <text x="412" y="100" font-size="13" fill="#D9534F">ingen direkt</text><text x="412" y="116" font-size="13" fill="#D9534F">väg</text>
         <rect class="node hu" x="410" y="140" width="98" height="38" rx="10"/>
         <text x="459" y="164" text-anchor="middle" font-size="14" font-weight="700">operatör</text>
-        <path d="M410 159 L342 159" stroke="#222" stroke-width="1.5" fill="none"/>
+        <path d="M410 159 L372 159" stroke="#222" stroke-width="1.5" fill="none"/>
         <text x="0" y="288" font-size="17" fill="#222"><tspan font-weight="700" fill="#009BA5">Ovanför styrloopen:</tspan> diagnos, planering,</text>
-        <text x="0" y="312" font-size="17" fill="#222">operatörsstöd. Förreglingarna stannar i PLC:n.</text>
+        <text x="0" y="312" font-size="17" fill="#222">operatörsstöd. Säkerhetsspärrarna stannar i PLC:n.</text>
       </svg>
     </div>
   </div>
   <div class="quote foot fragment rise" style="font-style:normal">Agentens styrka är det oväntade. Styrsystemets styrka är att inget är oväntat. <strong>Sätt agenten där den kan tänka till — och där ett långsamt eller fel svar fångas upp.</strong></div>
-  <aside class="notes">1:45. Nyckelbilden för en automationspublik. En PLC är deterministisk, verifierad och snabb; när något oväntat händer stoppar den och larmar. En agent är tvärtom: långsam, sannolikhetsbaserad, men den kan resonera om det oväntade. Så agenten hör inte hemma i styrloopen. Den hör hemma ovanför, där den ställer diagnos, planerar och ger råd, och där dess begäranden går via SCADA till en PLC som behåller sina förreglingar. Ingen direkt väg från agenten till PLC:n. Kom ihåg den bilden; OTTO-testbädden upprätthåller den.</aside>
+  <aside class="notes">1:45. Nyckelbilden för en automationspublik. En PLC är deterministisk, verifierad och snabb; när något oväntat händer stoppar den och larmar. En agent är tvärtom: långsam, sannolikhetsbaserad, men den kan resonera om det oväntade. Så agenten hör inte hemma i styrloopen. Den hör hemma ovanför, där den ställer diagnos, planerar och ger råd, och där dess begäranden går via SCADA till en PLC som behåller sina säkerhetsspärrar, på fackspråk förreglingar. Ingen direkt väg från agenten till PLC:n. Kom ihåg den bilden; OTTO-testbädden upprätthåller den.</aside>
 </section>
 <!-- ============ 1.4 · Vad en agent vet ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>1</b> · agenter</div>
   <h2>En agent vet bara det den ser</h2>
   <div class="cols three" style="margin-top:30px">
@@ -164,7 +162,7 @@
 <section data-timing="60">
   <div class="act"><b>2</b> · hårdvara i loopen</div>
   <h2>Sätt kretsen i loopen — och ge agenten ögon</h2>
-  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:14px">
+  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:56px">
     <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
            <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
     <rect class="node" x="10" y="60" width="240" height="70" rx="14"/>
@@ -204,7 +202,7 @@
   <aside class="notes">4:10. Mönstret i en bild. Agenten skriver fortfarande koden, men det den observerar kommer nu från en emulator och från kisel, jämförda med varandra. Hårdvaran spelar tre roller: facit, kalibrering, ersättare. Del tre återanvänder exakt de tre rollerna, med en anläggning i stället för ett kort.</aside>
 </section>
 <!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
-<section data-timing="50">
+<section class="roomy" data-timing="50">
   <div class="act"><b>2</b> · hårdvara i loopen</div>
   <div class="role"><i>agent</i><i>emulator</i><i class="on">kort = facit</i><i class="human">människa: kabel + knapp</i></div>
   <h2><span class="num">1</span>Contiki-NG 5.2: agenten körde hårdvarutesterna</h2>
@@ -320,10 +318,10 @@
       <p class="cap">Såglinjen i testbäddens visare: från barkmaskin till råsortering. Varje värde är det en givare rapporterar.</p>
     </div>
     <div>
-      <ul class="small">
-        <li><strong>Såglinjen</strong>: stockar barkas, mäts, sågas och sorteras på bredd — som i Svenskt Träs "Från stock till planka". Flisen blir ungefär 33 % av stocken (källan: 31 %).</li>
-        <li><strong>Virkestorken</strong>: 60 m³ furu torkas från 55 % till 18 % fuktkvot på 76 timmar och 16,7 MWh — ungefär 280 kWh per m³, i nivå med verkliga furutorkar.</li>
-        <li><strong>Fel</strong>: stopp, friktion, givare som fastnar eller glider, ventiler som fastnar, kommunikation som bryts — vart och ett med sitt eget fingeravtryck.</li>
+      <ul class="small" style="margin-right:70px">
+        <li><strong>Såglinjen</strong>: stockar barkas, mäts, sågas och sorteras — som i Svenskt Träs "Från stock till planka".</li>
+        <li><strong>Virkestorken</strong>: 60 m³ furu, 76 timmar, 16,7 MWh — i nivå med verkliga torkar.</li>
+        <li><strong>Fel</strong>: stopp, givare som glider, ventiler som fastnar, kommunikation som bryts.</li>
         <li><strong>Varför ett sågverk?</strong> Materialflöde, energitung process, leverantörer och moln på ett ställe. Samma kärna kan bära en värmecentral.</li>
       </ul>
     </div>
@@ -368,7 +366,7 @@
     </g>
     <path d="M1000 95 L1018 95" stroke="#009BA5" stroke-width="2"/>
     <g font-size="14" fill="#666" font-style="italic">
-      <text x="310" y="210">fältbuss, var 20:e ms</text>
+      <text x="319" y="142" text-anchor="middle">fältbuss, var 20:e ms</text>
       <text x="486" y="140">OPC UA, hämtas</text>
       <text x="540" y="84">MQTT, vid ändring</text>
     </g>
@@ -509,7 +507,7 @@
   <aside class="notes">18:10. Gränsen. k01 är den glidande fuktgivaren från torkbilden. Alla modeller misslyckades, även Opus 5.5. Opus kom närmast: en gång rätt givare med fel feltyp, och först i sista timmen, när virket redan hade spruckit. Dess egen analys i efterhand: den läste det krypande spjället som att regleringen svängde in sig. Felen med en signatur är lösta; felet som bara syns i fysiken är det inte. Det naturliga nästa experimentet: ge agenten en förväntan, hur spjället beter sig i en normal torkning vid samma steg. Den som bygger ögonen avgör vad som blir lagat.</aside>
 </section>
 <!-- ============ 3.11 · Agenten som deltagare ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · anläggningen</div>
   <h2>Agenten är en ny IT/OT-deltagare</h2>
   <p class="sub">I testbädden är agenten ett system i DMZ som alla andra: med dataflöden, beroenden och en väg in till styrningen.</p>
@@ -542,7 +540,7 @@
   <aside class="notes">19:05. Agenten från säkerhetssidan. Den har flöden som vilket system som helst: prompter med anläggningsdata går till en språkmodell; ligger den i molnet lämnar anläggningsdata sajten, och policykontrollen flaggar det. Den har fellägen: gamla data, en död GPU-server, svarstid. Och den har en attackyta: text den läser kan bära instruktioner, så testbädden planterar en i en arbetsorder och registrerar om agenten följde den; skrivningar går via en enda granskad väg genom SCADA; och en omstart kräver en människas godkännande. Bara försvararens perspektiv.</aside>
 </section>
 <!-- ============ 3.13 · Sex regler för OT ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · anläggningen</div>
   <h2>Sex regler för agenter i en anläggning</h2>
   <div class="cols two pattern" style="margin-top:20px;row-gap:22px">
@@ -551,12 +549,12 @@
     <div><p><span class="num">3</span><strong>Rätta mot processen, inte mot agenten</strong></p><p class="small grey">Sanningen kommer från processen — aldrig från agentens egen berättelse.</p></div>
     <div><p><span class="num">4</span><strong>Öva på en kopia först</strong></p><p class="small grey">Ha sönder testbädden tusen gånger innan agenten får se en riktig anläggning.</p></div>
     <div><p><span class="num">5</span><strong>Logga varje ändring</strong></p><p class="small grey">En enda väg via SCADA, prövad mot zonerna och loggad. Inga bakvägar till styrsystemet.</p></div>
-    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>En människa godkänner omstarten</strong></p><p class="small grey">Agenten ställer diagnos och föreslår. Förreglingar och godkännande stannar hos människor.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>En människa godkänner omstarten</strong></p><p class="small grey">Agenten ställer diagnos och föreslår. Säkerhetsspärrar och godkännande stannar hos människor.</p></div>
   </div>
   <aside class="notes">20:05. Reglerna från hårdvaruarbetet, översatta till en anläggning. Gör det den ser explicit, även hur gammalt det är. Gör beslut uppspelningsbara, för incidentutredningar. Bedöm mot processen, inte agentens berättelse. Öva på kopian, tusen gånger. Granska varje skrivning via en enda väg. Och människan godkänner omstarten. Ingen av dem handlar om modellen; alla är arkitektur, och det är vad OTTO handlar om.</aside>
 </section>
 <!-- ============ 3.14 · Nästa steg ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · anläggningen</div>
   <h2>Nästa steg, med OTTO-parterna</h2>
   <div class="cols two" style="margin-top:24px">

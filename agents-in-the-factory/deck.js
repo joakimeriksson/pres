@@ -26,7 +26,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function countUp(section){
   section.querySelectorAll('.count[data-to]').forEach(el => {
     const to = +el.dataset.to;
-    const fmt = n => n >= 10000 ? n.toLocaleString('en').replace(/,/g, ' ') : String(n);
+    const fmt = n => n >= 1000 ? n.toLocaleString('en').replace(/,/g, ' ') : String(n);
     if (reduce) { el.textContent = fmt(to); return; }
     const t0 = performance.now(), dur = 900;
     (function tick(now){

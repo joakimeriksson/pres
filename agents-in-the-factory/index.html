@@ -50,30 +50,27 @@
   <h2>An agent is a model, tools and a loop</h2>
   <div class="cols two" style="grid-template-columns:1.25fr 1fr;margin-top:16px;align-items:center">
     <div>
-      <svg viewBox="0 0 640 460" width="640" height="460">
+      <svg viewBox="0 0 660 460" width="620" height="432">
         <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
-        <!-- the loop -->
-        <circle cx="300" cy="230" r="150" fill="none" stroke="#E6F4F5" stroke-width="34"/>
-        <rect class="node si" x="220" y="195" width="160" height="70" rx="14"/>
-        <text x="300" y="228" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Model</text>
-        <text x="300" y="252" text-anchor="middle" font-size="15" fill="#fff" opacity=".85">decides the next step</text>
-        <rect class="node" x="225" y="40" width="150" height="54" rx="12"/>
-        <text x="300" y="74" text-anchor="middle" font-size="20" font-weight="700">Goal</text>
-        <rect class="node" x="455" y="203" width="150" height="54" rx="12"/>
-        <text x="530" y="236" text-anchor="middle" font-size="20" font-weight="700">Act</text>
-        <rect class="node" x="225" y="366" width="150" height="54" rx="12"/>
-        <text x="300" y="400" text-anchor="middle" font-size="20" font-weight="700">Tools</text>
-        <rect class="node" x="-5" y="203" width="150" height="54" rx="12"/>
-        <text x="70" y="236" text-anchor="middle" font-size="20" font-weight="700">Observe</text>
-        <path class="arrow" d="M375 80 Q470 110 520 200"/>
-        <path class="arrow" d="M520 258 Q470 350 378 385"/>
-        <path class="arrow" d="M222 385 Q130 350 80 260"/>
-        <path class="arrow" d="M80 202 Q130 110 222 80"/>
-        <text x="505" y="122" font-size="15" fill="#666" font-style="italic">a tool call</text>
-        <text x="455" y="352" font-size="15" fill="#666" font-style="italic">it runs</text>
-        <text x="30" y="352" font-size="15" fill="#666" font-style="italic">its result comes back</text>
-        <text x="40" y="122" font-size="15" fill="#666" font-style="italic">done? if not, again</text>
-        <circle class="dot model" r="8"><animateMotion dur="5s" repeatCount="indefinite" path="M375 80 Q470 110 520 200 M520 258 Q470 350 378 385 M222 385 Q130 350 80 260 M80 202 Q130 110 222 80"/></circle>
+        <circle cx="330" cy="230" r="160" fill="none" stroke="#E6F4F5" stroke-width="26"/>
+        <circle r="8" fill="#00b8c2"><animateMotion dur="6s" repeatCount="indefinite" path="M330 70 A160 160 0 1 1 329.99 70"/></circle>
+        <path class="arrow" d="M405.1 88.7 A160 160 0 0 1 485.9 194.0"/>
+        <path class="arrow" d="M485.9 266.0 A160 160 0 0 1 410.0 368.6"/>
+        <path class="arrow" d="M250.0 368.6 A160 160 0 0 1 174.1 266.0"/>
+        <path class="arrow" d="M174.1 194.0 A160 160 0 0 1 250.0 91.4"/>
+        <rect class="node si" x="245" y="193" width="170" height="74" rx="14"/>
+        <text x="330" y="226" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">Model</text>
+        <text x="330" y="251" text-anchor="middle" font-size="15" fill="#fff" opacity=".9">decides the next step</text>
+        <rect class="node" x="255" y="44" width="150" height="52" rx="12"/><text x="330" y="77" text-anchor="middle" font-size="20" font-weight="700">Goal</text>
+        <rect class="node" x="415" y="204" width="150" height="52" rx="12"/><text x="490" y="237" text-anchor="middle" font-size="20" font-weight="700">Act</text>
+        <rect class="node" x="255" y="364" width="150" height="52" rx="12"/><text x="330" y="397" text-anchor="middle" font-size="20" font-weight="700">Tools</text>
+        <rect class="node" x="95" y="204" width="150" height="52" rx="12"/><text x="170" y="237" text-anchor="middle" font-size="20" font-weight="700">Observe</text>
+        <g font-size="15" fill="#56666b" font-style="italic">
+          <text x="484" y="82">picks a tool</text>
+          <text x="484" y="388">it runs</text>
+          <text x="176" y="388" text-anchor="end">the result comes back</text>
+          <text x="176" y="82" text-anchor="end">done? if not, again</text>
+        </g>
       </svg>
     </div>
     <div>
@@ -140,7 +137,7 @@
   <aside class="notes">1:45. The key slide for an automation audience. A PLC is deterministic, verified, fast; when something unexpected happens it stops and alarms. An agent is the opposite: slow, probabilistic, but it can reason about the unexpected. So the agent does not belong in the control loop. It belongs above it, where it diagnoses, plans and advises, and where its requests go through SCADA to a PLC that keeps its interlocks. No direct path from the agent to the PLC. Remember that picture; the OTTO testbed enforces it.</aside>
 </section>
 <!-- ============ 1.4 · What an agent knows ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>1</b> · agents</div>
   <h2>An agent knows what it can observe, and nothing else</h2>
   <div class="cols three" style="margin-top:30px">
@@ -165,7 +162,7 @@
 <section data-timing="60">
   <div class="act"><b>2</b> · hardware in the loop</div>
   <h2>Put the chip in the loop, and give the agent eyes</h2>
-  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:14px">
+  <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:56px">
     <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
            <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
     <rect class="node" x="10" y="60" width="240" height="70" rx="14"/>
@@ -205,7 +202,7 @@
   <aside class="notes">4:10. The pattern in one picture. The agent still writes the code, but what it observes now comes from an emulator and from silicon, compared with each other. Hardware plays three roles: oracle, calibrator, proxy. Part three reuses exactly these three roles, with a plant instead of a board.</aside>
 </section>
 <!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
-<section data-timing="50">
+<section class="roomy" data-timing="50">
   <div class="act"><b>2</b> · hardware in the loop</div>
   <div class="role"><i>agent</i><i>emulator</i><i class="on">board = oracle</i><i class="human">human: cable + button</i></div>
   <h2><span class="num">1</span>Contiki-NG 5.2: the agent ran the hardware tests</h2>
@@ -321,10 +318,10 @@
       <p class="cap">The sawline in the viewer: debarker, log scanner, breakdown saw, resaw, green sorter. Every value is what an instrument reports.</p>
     </div>
     <div>
-      <ul class="small">
-        <li><strong>Sawline</strong>: logs debarked, scanned, sawn and sorted by width, following Swedish Wood's "from log to plank". Chips come out at about 33 % of the log (source: 31 %).</li>
-        <li><strong>Drying kiln</strong>: 60 m³ of pine from 55 % to 18 % moisture in 76 h on 16.7 MWh, about 280 kWh per m³, in the range reported for pine kilns.</li>
-        <li><strong>Faults</strong>: jams, friction, stuck sensors, drifting probes, stuck valves, comm loss — each with a signature.</li>
+      <ul class="small" style="margin-right:70px">
+        <li><strong>Sawline</strong>: logs debarked, scanned, sawn and sorted, following Swedish Wood's "from log to plank".</li>
+        <li><strong>Drying kiln</strong>: 60 m³ of pine, 76 hours, 16.7 MWh — in line with real kilns.</li>
+        <li><strong>Faults</strong>: jams, drifting probes, stuck valves, comm loss.</li>
         <li><strong>Why a sawmill?</strong> A material flow, an energy-heavy process, suppliers and cloud in one place. The same core can carry a heating substation.</li>
       </ul>
     </div>
@@ -371,7 +368,7 @@
     </g>
     <path d="M1000 95 L1018 95" stroke="#009BA5" stroke-width="2"/>
     <g font-size="14" fill="#666" font-style="italic">
-      <text x="320" y="210">fieldbus, cyclic 20 ms</text>
+      <text x="319" y="142" text-anchor="middle">fieldbus, cyclic 20 ms</text>
       <text x="486" y="140">OPC UA, polled</text>
       <text x="560" y="84">MQTT, on change</text>
     </g>
@@ -514,7 +511,7 @@
   <aside class="notes">18:10. The frontier. k01 is the drifting humidity probe from the kiln slide. Every model failed it, including Opus 5.5. Opus came closest: once the right probe with the wrong fault type, and only in the last hour, after the wood had already cracked. Its own post-mortem: it read the creeping vent as the loop settling. The signal-shaped faults are solved; the physics-shaped one is not. The natural next experiment: give the agent an expectation, what the vent does in a normal charge at the same step. Whoever builds the eyes decides what gets fixed.</aside>
 </section>
 <!-- ============ 3.11 · The agent as a participant ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · the plant</div>
   <h2>The agent is a new IT/OT participant</h2>
   <p class="sub">In the testbed the agent is a system in the DMZ like any other, with flows, dependencies and a write path.</p>
@@ -547,7 +544,7 @@
   <aside class="notes">19:05. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
 </section>
 <!-- ============ 3.13 · Six rules for OT ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · the plant</div>
   <h2>Six rules for agents in a plant</h2>
   <div class="cols two pattern" style="margin-top:20px;row-gap:22px">
@@ -561,7 +558,7 @@
   <aside class="notes">20:05. The rules from the hardware work, translated to a plant. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
 </section>
 <!-- ============ 3.14 · Next steps ============ -->
-<section data-timing="60">
+<section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · the plant</div>
   <h2>Next, with the OTTO partners</h2>
   <div class="cols two" style="margin-top:24px">
