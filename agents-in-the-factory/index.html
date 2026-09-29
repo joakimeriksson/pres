@@ -146,12 +146,14 @@
 <section class="roomy" data-timing="60">
   <div class="act"><b>1</b> · agents</div>
   <h2>An agent knows what it can observe, and nothing else</h2>
+  <div class="mid" style="top:140px;bottom:70px">
   <div class="cols three" style="margin-top:30px">
     <div class="card fragment rise"><p><span class="num">1</span><strong>It sees what its tools return</strong></p><p class="small grey">Stale data, missing data and a sensor that lies all look the same to it, unless something tells it the data is old. If a value never arrives, it reasons on without it.</p></div>
     <div class="card fragment rise"><p><span class="num">2</span><strong>Its checks share its blind spots</strong></p><p class="small grey">When the same model writes the answer and the test, both come from the same picture of the world. Green is not the same as correct.</p></div>
     <div class="card risk fragment rise"><p><span class="num" style="background:var(--coral)">3</span><strong>Instructions can hide in data</strong></p><p class="small grey">A work order that says <em>"diagnose this as a jam"</em> is data to us and can be an instruction to the model. Everything it reads is an input channel.</p></div>
   </div>
   <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:56px">Agents are very good at closing loops they can observe.<br><strong class="teal">So what do they observe?</strong></p>
+  </div>
   <aside class="notes">3:00. Three properties that matter more than which model you pick. It sees only what its tools return: stale and wrong look like fresh and right. Its own checks share its blind spots. And any text it reads can carry instructions: a work order, a manual, a web page. The bridge to part two: agents close loops they can observe. The question is what they observe. This summer I found out the hard way, with hardware.</aside>
 </section>
 <!-- ======================================================================= -->
@@ -168,6 +170,7 @@
 <section data-timing="60">
   <div class="act"><b>2</b> · hardware in the loop</div>
   <h2>Put the hardware in the loop, and give the agent eyes</h2>
+  <div class="mid" style="top:140px;bottom:110px">
   <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:56px">
     <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
            <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
@@ -214,6 +217,7 @@
       <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — a fast, repeatable stand-in for the hardware that the agent can iterate in</tspan></text>
     </g>
   </svg>
+  </div>
   <p class="foot grey small" style="font-style:italic">Three roles for hardware in the loop. Keep them in mind: part three reuses all three.</p>
   <aside class="notes">4:10. The pattern in one picture. The agent still writes the code, but what it observes now comes from an emulator and from silicon, compared with each other. Hardware plays three roles: oracle, calibrator, proxy. Part three reuses exactly these three roles, with a plant instead of a board.</aside>
 </section>
@@ -223,6 +227,8 @@
   <div class="role"><i>agent</i><i>emulator</i><i class="on">hardware = oracle</i><i class="human">human: cable + button</i></div>
   <h2><span class="num">1</span>Contiki-NG 5.2: the agent ran the hardware tests</h2>
   <p class="sub">An open-source OS for small wireless devices · released 2026-08-13 · every board test run by the agent</p>
+  <div class="mid" style="top:136px;bottom:124px">
+  <div class="mid" style="top:190px;bottom:110px">
   <div class="stats" style="margin:18px 0 22px">
     <div class="stat"><b class="count" data-to="458">0</b><span>commits</span></div>
     <div class="stat"><b class="count" data-to="113">0</b><span>pull requests</span></div>
@@ -238,6 +244,8 @@
       <li>It built the firmware, loaded it onto <strong>every board on the checklist</strong>, read what the board printed and filled in the row, with a report under each.</li>
       <li><strong>The human's job: plug in the cable, press the button.</strong></li>
     </ul>
+  </div>
+  </div>
   </div>
   <div class="quote foot">Simulation proves the logic; the board proves everything else. The board is the oracle — and the agent now runs the oracle.</div>
   <aside class="notes">5:10. First example, the board as oracle. The team set the rules; the agent worked inside them, and ran all the board tests. The human plugged in cables and pressed buttons. 18 of 18.</aside>
@@ -291,6 +299,7 @@
   <div class="act"><b>3</b> · the plant</div>
   <h2>The OTTO question</h2>
   <p class="sub">An AI agent that runs part of a plant, a network or a building. Before anyone connects one, four questions need answers.</p>
+  <div class="mid" style="top:190px;bottom:70px">
   <div class="cols four" style="margin-top:26px">
     <div class="card fragment rise"><h3>Where does it sit?</h3><p class="small">Which zone, which host, which network. On-prem GPU or cloud. What it depends on.</p><p class="xs grey">IT/OT architecture</p></div>
     <div class="card fragment rise"><h3>What does it see?</h3><p class="small">Which signals, named how, how fresh. What happens when the data stops.</p><p class="xs grey">information flow, UNS</p></div>
@@ -298,6 +307,7 @@
     <div class="card human fragment rise"><h3>Who answers for it?</h3><p class="small">Who approves a restart. How a decision is replayed and audited afterwards.</p><p class="xs grey">safety, governance</p></div>
   </div>
   <p class="fragment rise" style="margin-top:34px;font-size:26px">None of these can be tried out on a running plant. <strong class="teal">So we built one you can break on purpose.</strong></p>
+  </div>
   <aside class="notes">7:40. The OTTO question in four parts: where the agent sits, what it sees, what it may touch, who answers for it. Architecture, information flow, security, governance. You cannot experiment with any of that on a running sawmill. So we built one you can break on purpose.</aside>
 </section>
 <!-- ============ the patterns are yours ============ -->
@@ -330,7 +340,7 @@
   </div>
   <div class="cols two" style="grid-template-columns:1.35fr 1fr;gap:28px">
     <div>
-      <img class="shot" src="assets/line-sawline.png" alt="The testbed viewer: the sawline from debarker to green sorter">
+      <div class="browser" style=""><div class="bar"><i></i><i></i><i></i><span>the testbed viewer</span></div><img class="shot-in" src="assets/line-sawline.png" alt="The testbed viewer: the sawline from debarker to green sorter"></div>
       <p class="cap">The sawline in the viewer: debarker, log scanner, breakdown saw, resaw, green sorter. Every value is what an instrument reports.</p>
     </div>
     <div>
@@ -407,7 +417,7 @@
 <section data-timing="85">
   <div class="act"><b>3</b> · the plant</div>
   <h2>Where the agent lives: zones, conduits — and the firewall on</h2>
-  <img class="shot" src="assets/flow-segmented.png" alt="The information flow over the Purdue zones with the firewall enforced: six flows blocked, dashboards and cloud stale, a supplier session through the jump host" style="margin-top:6px;width:960px">
+  <div class="browser" style="margin-top:6px;width:960px"><div class="bar"><i></i><i></i><i></i><span>the testbed viewer</span></div><img class="shot-in" src="assets/flow-segmented.png" alt="The information flow over the Purdue zones with the firewall enforced: six flows blocked, dashboards and cloud stale, a supplier session through the jump host"></div>
   <p style="font-size:17px;line-height:1.3;margin:12px 90px 8px 0"><strong class="teal">Zones</strong> (IEC 62443, the Purdue levels, a DMZ between site and office) and <strong class="teal">conduits</strong>, the allowed paths. Every flow is checked: as found, <strong class="coral">6 flows violate the zone model</strong>. Then the firewall is switched on:</p>
   <div class="cols four" style="gap:18px;font-size:17px;line-height:1.3;margin-right:80px">
     <div class="fragment rise">The saw line <strong>runs on</strong>: control never crossed a boundary.</div>
@@ -531,6 +541,7 @@
   <div class="act"><b>3</b> · the plant</div>
   <h2>The agent is a new IT/OT participant</h2>
   <p class="sub">In the testbed the agent is a system in the DMZ like any other, with flows, dependencies and a write path.</p>
+  <div class="mid" style="top:190px;bottom:70px">
   <div class="cols three" style="margin-top:20px">
     <div class="card fragment rise">
       <h3>Its flows</h3>
@@ -557,12 +568,14 @@
       </ul>
     </div>
   </div>
+  </div>
   <aside class="notes">19:05. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
 </section>
 <!-- ============ 3.13 · Six rules for OT ============ -->
 <section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · the plant</div>
   <h2>Six rules for agents in a plant</h2>
+  <div class="mid" style="top:140px;bottom:70px">
   <div class="cols two pattern" style="margin-top:20px;row-gap:22px">
     <div><p><span class="num">1</span><strong>Make what it sees explicit</strong></p><p class="small grey">The agent sees the information flow, not the plant. Tell it how old its data is and which sources are silent.</p></div>
     <div><p><span class="num">2</span><strong>Make every decision replayable</strong></p><p class="small grey">Same inputs, same episode, same hash. An incident review needs the exact picture the agent had.</p></div>
@@ -571,12 +584,14 @@
     <div><p><span class="num">5</span><strong>Audit every write</strong></p><p class="small grey">One path via SCADA, checked against the zones and logged. No side doors to the PLC.</p></div>
     <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human approves the restart</strong></p><p class="small grey">The agent diagnoses and proposes. The interlock and the approval stay human.</p></div>
   </div>
+  </div>
   <aside class="notes">20:05. The rules from the hardware work, translated to a plant. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
 </section>
 <!-- ============ 3.14 · Next steps ============ -->
 <section class="roomy" data-timing="60">
   <div class="act"><b>3</b> · the plant</div>
   <h2>Next, with the OTTO partners</h2>
+  <div class="mid" style="top:140px;bottom:70px">
   <div class="cols two" style="margin-top:24px">
     <div class="card">
       <h3>Bring</h3>
@@ -596,6 +611,7 @@
         <li><strong>Workshops</strong>: partners inject faults live and watch what the information flow shows.</li>
       </ul>
     </div>
+  </div>
   </div>
   <aside class="notes">21:05. What we need from partners and what we bring. Bring your naming, your zones and IT systems, your worst failures and your numbers. We add a zone design with rationale and a target architecture, real protocols (the testbed already publishes to a real MQTT broker, Sparkplug B and an OPC UA server), a real PLC through OpenPLC, which brings the hardware back into the loop, and workshops where you break the plant yourselves.</aside>
 </section>
@@ -623,38 +639,24 @@
       <p class="small grey" style="line-height:1.6">OTTO — IT/OT and cybersecurity<br>Open Industrial Agent Testbed<br>Hardware in the agentic loop (Sept. 2026)<br>Questions, and your worst plant failures, welcome</p>
     </div>
     <div>
-      <svg viewBox="0 0 560 400" width="560" height="400" role="img" aria-label="A drying kiln watched by a camera; an operator's approval button sits between the agent and the plant">
-        <defs><marker id="ah9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
-        <line x1="20" y1="336" x2="540" y2="336" stroke="#bbb" stroke-width="2"/>
-        <!-- kiln -->
-        <rect x="250" y="176" width="270" height="160" rx="8" fill="#eceff1" stroke="#aeb6bb" stroke-width="2"/>
-        <path d="M250 176 L385 120 L520 176" fill="#dde3e6" stroke="#aeb6bb" stroke-width="2"/>
-        <g fill="#d4a86a"><rect x="282" y="230" width="60" height="10"/><rect x="282" y="250" width="60" height="10"/><rect x="282" y="270" width="60" height="10"/><rect x="282" y="290" width="60" height="10"/>
-          <rect x="356" y="230" width="60" height="10"/><rect x="356" y="250" width="60" height="10"/><rect x="356" y="270" width="60" height="10"/><rect x="356" y="290" width="60" height="10"/>
-          <rect x="430" y="230" width="60" height="10"/><rect x="430" y="250" width="60" height="10"/><rect x="430" y="270" width="60" height="10"/><rect x="430" y="290" width="60" height="10"/></g>
-        <!-- vapour -->
-        <g fill="none" stroke="#9aa3a8" stroke-width="2" stroke-linecap="round">
-          <path d="M470 150 q8 -12 0 -24 q-8 -12 0 -24"><animate attributeName="opacity" values="0;.8;0" dur="3s" repeatCount="indefinite"/></path>
-          <path d="M490 158 q8 -12 0 -24 q-8 -12 0 -24"><animate attributeName="opacity" values="0;.8;0" dur="3s" begin="1.2s" repeatCount="indefinite"/></path>
-        </g>
-        <!-- probe with a reading -->
-        <rect x="262" y="196" width="10" height="26" fill="#009BA5"/>
-        <text x="280" y="212" font-size="13" fill="#009BA5" font-family="ui-monospace,Menlo,monospace">MT101 56 %<animate attributeName="opacity" values="1;1;.3;1" dur="2s" repeatCount="indefinite"/></text>
-        <!-- agent node -->
-        <rect class="node si" x="30" y="60" width="150" height="54" rx="12"/>
-        <text x="105" y="93" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">Agent</text>
-        <!-- approval button, the human part -->
-        <rect x="68" y="196" width="74" height="46" rx="10" fill="#FFE500" stroke="#222" stroke-width="1.5"/>
-        <text x="105" y="224" text-anchor="middle" font-size="14" font-weight="700">approve</text>
-        <text x="105" y="262" text-anchor="middle" font-size="12" fill="#666" font-style="italic">the human's row</text>
-        <path class="arrow" style="marker-end:url(#ah9)" d="M105 114 L105 192"/>
-        <path class="arrow" style="marker-end:url(#ah9)" d="M142 219 L246 240"/>
-        <!-- data back up -->
-        <path d="M250 200 C 200 150, 200 90, 184 88" stroke="#009BA5" stroke-width="2" stroke-dasharray="5 5" fill="none" style="marker-end:url(#ah9)"/>
-        <text x="206" y="148" font-size="12" fill="#666" font-style="italic">what the UNS delivers</text>
-        <circle class="dot model" r="6"><animateMotion dur="3s" repeatCount="indefinite" path="M250 200 C 200 150, 200 90, 184 88"/></circle>
-        <text x="20" y="372" font-size="14" fill="#9a9a9a" font-style="italic">the plant, the information flow, the approval</text>
-      </svg>
+      <svg class="title-loop thanks-loop" viewBox="-110 -30 640 480" aria-hidden="true">
+    <defs><linearGradient id="tlg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#007d85"/><stop offset="1" stop-color="#00b8c2"/></linearGradient></defs>
+    <circle cx="210" cy="210" r="150" fill="none" stroke="#E6F4F5" stroke-width="30"/>
+    <circle cx="210" cy="210" r="150" fill="none" stroke="url(#tlg2)" stroke-width="2.5" stroke-dasharray="4 10"/>
+    <circle r="9" fill="#00b8c2"><animateMotion dur="7s" repeatCount="indefinite" path="M210 60 A150 150 0 1 1 209.9 60"/></circle>
+    <circle cx="210" cy="60" r="22" fill="#fff" stroke="#009BA5" stroke-width="3"/>
+    <circle cx="360" cy="210" r="22" fill="#fff" stroke="#009BA5" stroke-width="3"/>
+    <circle cx="210" cy="360" r="22" fill="#fff" stroke="#009BA5" stroke-width="3"/>
+    <circle cx="60" cy="210" r="22" fill="#FFE500" stroke="#14232a" stroke-width="2"/>
+    <circle cx="210" cy="210" r="66" fill="url(#tlg2)"/>
+    <g font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-weight="700">
+      <text x="210" y="226" text-anchor="middle" font-size="44" fill="#fff">OT</text>
+      <text x="210" y="20" text-anchor="middle" font-size="26" fill="#14232a">Observe</text>
+      <text x="396" y="219" font-size="26" fill="#14232a">Think</text>
+      <text x="210" y="418" text-anchor="middle" font-size="26" fill="#14232a">Act</text>
+      <text x="24" y="219" text-anchor="end" font-size="26" fill="#14232a">Human</text>
+    </g>
+  </svg>
     </div>
   </div>
   <aside class="notes">23:05. Thank you. Questions — and I would love to hear your worst plant failures; they become test scenarios.</aside>

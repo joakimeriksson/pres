@@ -197,3 +197,16 @@ html,body,.reveal-viewport{background:radial-gradient(1400px 700px at 100% 0%,#e
 .reveal section.roomy .small{font-size:21px;line-height:1.36}
 .reveal section.roomy .card{padding:24px 26px}
 .reveal section.roomy .pattern strong{font-size:24px}
+/* ---- design pass 2: framed screenshots, centred bodies, one diagram language ---- */
+.reveal .browser{border-radius:12px;overflow:hidden;border:1px solid #cfdcdf;box-shadow:0 18px 44px rgba(6,51,58,.18);background:#fff}
+.reveal .browser .bar{height:26px;background:linear-gradient(#20343a,#16282d);display:flex;align-items:center;gap:7px;padding:0 12px}
+.reveal .browser .bar i{width:10px;height:10px;border-radius:50%;background:#ff5f57}
+.reveal .browser .bar i:nth-child(2){background:#febc2e}
+.reveal .browser .bar i:nth-child(3){background:#28c840}
+.reveal .browser .bar span{margin-left:10px;font-size:12px;color:#9fbcc0;letter-spacing:.02em}
+.reveal .browser .shot-in{display:block;width:100%;margin:0}
+.reveal .mid{position:absolute;left:64px;right:64px;display:flex;flex-direction:column;justify-content:center}
+.reveal .mid > *{flex:none}
+.reveal .node{filter:drop-shadow(0 4px 10px rgba(6,51,58,.12))}
+.reveal .node.si{filter:drop-shadow(0 6px 14px rgba(0,125,133,.28))}
+.reveal .thanks-loop{position:static;width:460px;height:345px;display:block}
