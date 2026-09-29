@@ -95,7 +95,7 @@
 <section data-timing="75">
   <div class="act"><b>1</b> · agenter</div>
   <h2>En agent är inte ett styrsystem</h2>
-  <p class="sub">Styrsystem och agenter är bra på motsatta saker. Det avgör var agenten får sitta — ovanför säkerhetsspärrarna (förreglingarna).</p>
+  <p class="sub">Styrsystem och agenter är bra på motsatta saker. Agenten hör hemma ovanför säkerhetsspärrarna.</p>
   <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:40px">
     <div>
       <table class="head">
@@ -135,7 +135,7 @@
         <text x="459" y="164" text-anchor="middle" font-size="14" font-weight="700">operatör</text>
         <path d="M410 159 L372 159" stroke="#222" stroke-width="1.5" fill="none"/>
         <text x="0" y="288" font-size="17" fill="#222"><tspan font-weight="700" fill="#009BA5">Ovanför styrloopen:</tspan> diagnos, planering,</text>
-        <text x="0" y="312" font-size="17" fill="#222">operatörsstöd. Säkerhetsspärrarna stannar i PLC:n.</text>
+        <text x="0" y="312" font-size="17" fill="#222">operatörsstöd. Säkerhetsspärrarna (förreglingarna) stannar i PLC:n.</text>
       </svg>
     </div>
   </div>
@@ -298,7 +298,7 @@
 <section data-timing="50">
   <div class="act"><b>3</b> · anläggningen</div>
   <h2>OTTO-frågan</h2>
-  <p class="sub">En AI-agent som sköter en del av en anläggning, ett nät eller en fastighet. Innan någon kopplar in en behöver fyra frågor svar.</p>
+  <p class="sub">En AI-agent ska sköta en del av anläggningen. Först behöver fyra frågor svar.</p>
   <div class="mid" style="top:190px;bottom:70px">
   <div class="cols four" style="margin-top:26px">
     <div class="card fragment rise"><h3>Var sitter den?</h3><p class="small">Vilken zon, vilken server, vilket nät. Egen AI-server eller moln. Vad den är beroende av.</p><p class="xs grey">IT/OT-arkitektur</p></div>
@@ -306,9 +306,9 @@
     <div class="card fragment rise"><h3>Vad får den röra?</h3><p class="small">Vad den får ändra, via vilken väg, loggat var. Vad brandväggen släpper igenom.</p><p class="xs grey">cybersäkerhet, zoner</p></div>
     <div class="card human fragment rise"><h3>Vem svarar för den?</h3><p class="small">Vem godkänner en omstart. Hur ett beslut spelas upp och granskas i efterhand.</p><p class="xs grey">säkerhet, styrning</p></div>
   </div>
-  <p class="fragment rise" style="margin-top:34px;font-size:26px">Inget av detta kan provas på en anläggning i drift. <strong class="teal">Så vi byggde en som man får ha sönder med flit.</strong></p>
+  <p class="fragment rise" style="margin-top:34px;font-size:26px">Inget av detta går att prova i en anläggning i drift.<br><strong class="teal">Därför byggde vi en som får gå sönder.</strong></p>
   </div>
-  <aside class="notes">7:40. OTTO-frågan i fyra delar: var agenten sitter, vad den ser, vad den får röra, vem som svarar för den. Arkitektur, informationsflöde, säkerhet, styrning. Man kan inte experimentera med något av det på ett sågverk i drift. Så vi byggde ett man kan ha sönder med flit.</aside>
+  <aside class="notes">7:40. OTTO-frågan i fyra delar: var agenten sitter, vad den ser, vad den får röra, vem som svarar för den. Arkitektur, informationsflöde, säkerhet, styrning. Man kan inte experimentera med något av det på ett sågverk i drift. Därför byggde vi ett som får gå sönder.</aside>
 </section>
 <!-- ============ the patterns are yours ============ -->
 <section data-timing="75">
@@ -331,7 +331,7 @@
 <!-- ============ 3.2 · Testbädden ============ -->
 <section data-timing="70">
   <div class="act"><b>3</b> · anläggningen</div>
-  <h2>En anläggning man kan ha sönder med flit</h2>
+  <h2>En anläggning som får gå sönder</h2>
   <div class="stats" style="margin:14px 0 18px;gap:40px">
     <div class="stat"><b class="count" data-to="2">0</b><span>anläggningar: en såglinje och en virkestork</span></div>
     <div class="stat"><b><i class="count" data-to="1700">0</i>×</b><span>snabbare än verkligheten: ett skift på sekunder, tre dygns torkning på under 2 s</span></div>
@@ -617,14 +617,14 @@
   <div class="cols three" style="margin-top:26px">
     <div class="card fragment rise"><p><span class="num">1</span><strong>En agent är aldrig bättre än sin information</strong></p><p class="small grey">I en anläggning kommer den från informationsflödet. Att designa flödet är att designa agenten.</p></div>
     <div class="card fragment rise"><p><span class="num">2</span><strong>Grönt av en slump finns överallt</strong></p><p class="small grey">En givare som glider håller panelen på schemat medan virket spricker — eller energin rinner iväg. Inget larmar på fysik.</p></div>
-    <div class="card fragment rise"><p><span class="num">3</span><strong>Att hitta orsaken är fortfarande människans jobb</strong></p><p class="small grey">Små lokala modeller litar på larmet eller gissar för tidigt. De starkaste läser signalerna — men inte än fysiken bakom ett fel som aldrig larmar. Testa på en anläggning man får ha sönder.</p></div>
+    <div class="card fragment rise"><p><span class="num">3</span><strong>Att hitta orsaken är fortfarande människans jobb</strong></p><p class="small grey">Små lokala modeller litar på larmet eller gissar för tidigt. De starkaste läser signalerna — men inte än fysiken bakom ett fel som aldrig larmar. Testa på en anläggning som får gå sönder.</p></div>
   </div>
   <div class="quote human-box fragment rise" style="font-style:normal;display:grid;grid-template-columns:170px 1fr;gap:20px;align-items:center;margin-top:24px">
     <strong>Människan i loopen</strong>
     <span>I hårdvaruarbetet var det en kabel och en knapp. <strong>I anläggningen är det godkännandet av omstarten</strong> — och det steget bör vi vara sist med att automatisera.</span>
   </div>
   <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:24px">Modellerna är duktiga. <strong class="teal">Sätt anläggningen i loopen ändå.</strong></p>
-  <aside class="notes">22:05. Tre saker. En agent är aldrig bättre än sin information; i en anläggning kommer den från informationsflödet, så att designa flödet är att designa agenten. Grönt av en slump händer i anläggningar: den glidande givaren. Och att hitta orsaken är fortfarande människans jobb: små modeller litar på larmet, de starkaste modellerna läser signalerna, men ingen fångade glidningen som aldrig larmar. Testa agenter på en anläggning man får ha sönder. Människan i loopen: i hårdvaruarbetet var det en kabel och en knapp, och de automatiseras nu. I en anläggning är det godkännandet av omstarten, och det steget bör vi vara sist med att automatisera. Modellerna är duktiga. Sätt anläggningen i loopen ändå.</aside>
+  <aside class="notes">22:05. Tre saker. En agent är aldrig bättre än sin information; i en anläggning kommer den från informationsflödet, så att designa flödet är att designa agenten. Grönt av en slump händer i anläggningar: den glidande givaren. Och att hitta orsaken är fortfarande människans jobb: små modeller litar på larmet, de starkaste modellerna läser signalerna, men ingen fångade glidningen som aldrig larmar. Testa agenter på en anläggning som får gå sönder. Människan i loopen: i hårdvaruarbetet var det en kabel och en knapp, och de automatiseras nu. I en anläggning är det godkännandet av omstarten, och det steget bör vi vara sist med att automatisera. Modellerna är duktiga. Sätt anläggningen i loopen ändå.</aside>
 </section>
 <!-- ============ Tack ============ -->
 <section data-timing="10">
