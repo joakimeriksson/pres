@@ -132,3 +132,64 @@
 .reveal .topic span{color:var(--teal);font-weight:700}
 @media (prefers-reduced-motion:reduce){ .reveal .fragment.rise{transition:none} .reveal svg animateMotion{display:none} }
 @media print{ .reveal .slides section::after{display:block} .reveal .slides section.divider::after{display:none} }
+
+/* =====================================================================
+   Design pass (2026-09): deeper dividers, cards with depth, rounded
+   tables, gradient numbers. Same RISE teal; yellow still means "human".
+   ===================================================================== */
+:root{
+  --ink:#14232a;
+  --deep:#06333a;
+  --teal-2:#00b8c2;
+  --line:#dfe9eb;
+  --shadow:0 10px 30px rgba(6,51,58,.10);
+}
+html,body,.reveal-viewport{background:radial-gradient(1400px 700px at 100% 0%,#eaf6f7 0%,#ffffff 55%)}
+.reveal{color:var(--ink)}
+.reveal h2{letter-spacing:-.022em}
+.reveal h2::after{content:"";display:block;width:52px;height:4px;border-radius:2px;margin-top:9px;
+  background:linear-gradient(90deg,var(--teal),var(--teal-2))}
+/* act chip: a pill with the act number */
+.reveal .act{top:18px;padding:3px 12px 3px 4px;border-radius:999px;background:var(--teal-tint);
+  color:var(--teal-dark);font-weight:700;font-size:12.5px;letter-spacing:.1em}
+.reveal .act b{display:inline-block;color:#fff;background:var(--teal);border-radius:999px;padding:0 8px;margin-right:6px}
+/* numbers and badges */
+.reveal .num{background:linear-gradient(135deg,var(--teal-dark),var(--teal-2));box-shadow:0 4px 12px rgba(0,155,165,.35)}
+.reveal .stat b{background:linear-gradient(135deg,var(--teal-dark),var(--teal-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.reveal .stat.bad b{background:linear-gradient(135deg,#a92d28,var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
+.reveal .stat span{color:#56666b}
+/* cards with depth; the top edge carries the colour */
+.reveal .card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:12px;box-shadow:var(--shadow)}
+.reveal .card.risk{background:#fff;border-top-color:var(--coral)}
+.reveal .card.human{background:#fffdf2;border-top-color:var(--yellow)}
+.reveal .card.line{background:#fff;border:1px solid var(--line);border-top:4px solid var(--teal-2)}
+.reveal .quote{border-radius:10px;border-left:5px solid var(--teal);background:linear-gradient(90deg,var(--teal-tint),#f5fbfb)}
+.reveal .quote.human-box{border-left-color:var(--yellow);background:linear-gradient(90deg,#fff6bf,#fffcea)}
+/* tables: rounded, a deep header */
+.reveal table{border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:#fff}
+.reveal table.head th{background:linear-gradient(90deg,var(--deep),var(--teal-dark));color:#fff}
+.reveal tr:nth-child(even) td{background:#f2f9f9}
+.reveal td .bar{background:linear-gradient(90deg,var(--teal-dark),var(--teal-2));height:10px;border-radius:5px}
+.reveal td .bar.bad{background:linear-gradient(90deg,#a92d28,var(--coral))}
+/* screenshots */
+.reveal .shot{border-radius:12px;border:1px solid var(--line);box-shadow:0 14px 40px rgba(6,51,58,.16)}
+/* dividers: deep gradient (set per slide), outlined numeral, rings */
+.reveal .slides section.divider h1{font-size:82px;font-weight:700;letter-spacing:-.03em}
+.reveal .divider .big{font-size:360px;font-weight:800;opacity:1;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.38);top:110px;right:90px;line-height:1}
+.reveal .slides section.divider::before{content:"";position:absolute;right:30px;top:70px;width:560px;height:560px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.16);box-shadow:0 0 0 60px rgba(255,255,255,.035),0 0 0 120px rgba(255,255,255,.025)}
+.reveal .divider .acts i{border-color:rgba(255,255,255,.4)}
+.reveal .divider .acts i.on{color:var(--deep)}
+/* title slide */
+.reveal .slides section.title h1{font-size:88px;font-weight:700;letter-spacing:-.035em;line-height:.98}
+.reveal .grad{background:linear-gradient(135deg,var(--teal-dark),var(--teal-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.reveal .title-loop{position:absolute;right:60px;bottom:44px;width:330px;height:330px}
+/* demo caption: dark glass */
+.reveal .demo-cap{background:rgba(6,40,46,.9);color:#fff;border-top:3px solid var(--teal-2);backdrop-filter:blur(6px)}
+.reveal .demo-cap .grey{color:#a9c9cc}
+.reveal .demo-cap .kbd{background:rgba(255,255,255,.16);color:#fff}
+.reveal .demo-cap .coral{color:#ff8a85}
+/* chrome */
+.reveal .progress{height:4px;color:var(--teal)}
+.reveal .slide-number{background:var(--deep);border-radius:6px;font-size:13px;padding:3px 8px}
+.reveal h1{font-weight:700;letter-spacing:-.03em}
