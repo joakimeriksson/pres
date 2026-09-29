@@ -2,7 +2,7 @@
 
 reveal.js 5, no build step, same design as `../agentic-hw` (the hardware-in-the-loop talk, which is part two here).
 Two languages, same slides: `index.html` (English) and `sv.html` (svenska, for Swedish industry); both use the
-shared `deck.css` and `deck.js`, so a layout change applies to both. About 27 minutes plus questions, in three parts: what an agent is, hardware in the
+shared `deck.css` and `deck.js`, so a layout change applies to both. About 23 minutes of planned slide time (26 slides) plus questions, for a 30-minute slot, in three parts: what an agent is, hardware in the
 agentic loop, and the OTTO testbed (IT/OT, zones, a kiln fault that never alarms, LLM benchmark results).
 
 ## Run
@@ -53,3 +53,12 @@ after as a screenshot, so the deck still works as a handout.
 automation terms (virkestork, fuktgivare, styrgivare/kontrollgivare, förreglingar, zoner och kanaler, justering).
 The screenshots and the live viewer stay in English; the notes on those slides say so. The two quotes from the
 Cooja-NG paper are marked as translations. Keep the two files in step when a slide changes.
+
+## Structure and backup
+
+26 slides in the talk (23 minutes planned, paced for a calm delivery), then a grey "Backup" divider and six
+uncounted backup slides for questions: "In a year", "The loop is its own", "Emulator and silicon", the
+hardware-loop "six rules", the kiln demo and "Built the same way". The slide counter counts the talk only
+(backup slides show "+"); the speaker-note timestamps are the cumulative plan. Written for a broad OT
+audience (energy and grids, water and waste, property and heating, IoT, forestry, process industry): the
+slide "The sawmill is the example — the patterns are yours" maps each testbed fault to their plants.

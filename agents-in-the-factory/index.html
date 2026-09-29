@@ -20,9 +20,8 @@
     <p style="font-size:22px"><strong>1 · What an agent is</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>2 · Hardware in the agentic loop</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>3 · The OTTO testbed</strong></p>
     <p class="small grey">Joakim Eriksson, RISE — OTTO, IT/OT and cybersecurity, 2026</p>
   </div>
-  <aside class="notes">0:00. Three parts. First what an agent actually is, in five minutes. Then what I learned this summer putting agents in a loop with real hardware. Then what that means for a factory: the OTTO testbed, where an agent operates a simulated sawmill and a drying kiln, through the plant's own IT/OT architecture. About 27 minutes plus questions.</aside>
+  <aside class="notes">0:00. 0:00. Three parts. First what an agent actually is, in five minutes. Then what I learned this summer putting agents in a loop with real hardware. Then what that means for a factory: the OTTO testbed, where an agent operates a simulated sawmill and a drying kiln, through the plant's own IT/OT architecture. About 27 minutes plus questions.</aside>
 </section>
-
 <!-- ======================================================================= -->
 <!-- ACT 1 · WHAT AN AGENT IS                                                -->
 <!-- ======================================================================= -->
@@ -31,24 +30,8 @@
   <h1>What an agent is</h1>
   <p>A language model, a set of tools and a loop. Five minutes on what changed, and why it matters for automation.</p>
   <div class="acts"><i class="on">1 · Agents</i><i>2 · Hardware in the loop</i><i>3 · The factory</i></div>
-  <aside class="notes">0:20. Part one: what an agent is. Short, because the interesting questions come later.</aside>
+  <aside class="notes">0:20. 0:20. Part one: what an agent is. Short, because the interesting questions come later.</aside>
 </section>
-
-<!-- ============ 1.1 · One year ============ -->
-<section data-timing="60">
-  <div class="act"><b>1</b> · agents</div>
-  <h2>In a year: from autocomplete to the whole loop</h2>
-  <p class="sub">What the model is trusted to do has grown one step at a time. Each step closes a longer loop without a human in it.</p>
-  <div class="steps">
-    <div class="step s1 fragment rise"><b>Completion</b><strong>The next line</strong>Suggests code as you type. You accept or reject every line.</div>
-    <div class="step s2 fragment rise"><b>Assistant</b><strong>The next answer</strong>Chat: explains, drafts, reviews. You copy the result and run it yourself.</div>
-    <div class="step s3 fragment rise"><b>Agent</b><strong>The next task</strong>Reads the code, edits files, runs the tests, reads the errors, tries again. You review the change.</div>
-    <div class="step s4 fragment rise"><b>Agent in the research loop</b><strong>The whole project</strong>Builds the system, sets up the experiments, evaluates them and writes up the result.</div>
-  </div>
-  <div class="quote foot fragment rise" style="font-style:normal"><strong>What gets automated is not a tool, it is the loop around the tools.</strong> AI-written papers have passed peer review; new benchmarks measure how well agents reproduce published research.</div>
-  <aside class="notes">0:30. The trend in one picture. Completion: the model guesses the next line. Assistant: it answers, and you do the work. Agent: it gets a task and works in a loop on its own, reading, editing, running tests, reading errors. And now agents run the whole research loop. The point is not that the model got smarter at one thing; it is that each step removes a human from a longer loop.</aside>
-</section>
-
 <!-- ============ 1.2 · The anatomy ============ -->
 <section data-timing="75">
   <div class="act"><b>1</b> · agents</div>
@@ -91,9 +74,8 @@
       <div class="quote fragment rise" style="font-style:normal;font-size:20px"><strong>So an agent is exactly as good as what its tools let it see,</strong> and exactly as dangerous as what its tools let it do.</div>
     </div>
   </div>
-  <aside class="notes">1:30. The anatomy, because it demystifies. The model is a text predictor: it proposes a tool call. The tools do things, and their results come back into the context. The loop repeats. MCP is the plug that lets any system, a historian, a CMMS, a PLC gateway, offer tools to any agent. Two consequences frame the rest of the talk: the agent sees only what its tools return, and it can only do what its tools allow. That is an architecture question, and in a factory that is an IT/OT question.</aside>
+  <aside class="notes">0:30. The anatomy, because it demystifies. The model is a text predictor: it proposes a tool call. The tools do things, and their results come back into the context. The loop repeats. MCP is the plug that lets any system, a historian, a CMMS, a PLC gateway, offer tools to any agent. Two consequences frame the rest of the talk: the agent sees only what its tools return, and it can only do what its tools allow. That is an architecture question, and in a factory that is an IT/OT question.</aside>
 </section>
-
 <!-- ============ 1.3 · Agents vs automation ============ -->
 <section data-timing="75">
   <div class="act"><b>1</b> · agents</div>
@@ -143,9 +125,8 @@
     </div>
   </div>
   <div class="quote foot fragment rise" style="font-style:normal">The agent's strength is the unforeseen. The PLC's strength is that nothing is unforeseen. <strong>Put the agent where reasoning helps and a slow, wrong answer can be caught.</strong></div>
-  <aside class="notes">2:45. The key slide for an automation audience. A PLC is deterministic, verified, fast; when something unexpected happens it stops and alarms. An agent is the opposite: slow, probabilistic, but it can reason about the unexpected. So the agent does not belong in the control loop. It belongs above it, where it diagnoses, plans and advises, and where its requests go through SCADA to a PLC that keeps its interlocks. No direct path from the agent to the PLC. Remember that picture; the OTTO testbed enforces it.</aside>
+  <aside class="notes">1:45. The key slide for an automation audience. A PLC is deterministic, verified, fast; when something unexpected happens it stops and alarms. An agent is the opposite: slow, probabilistic, but it can reason about the unexpected. So the agent does not belong in the control loop. It belongs above it, where it diagnoses, plans and advises, and where its requests go through SCADA to a PLC that keeps its interlocks. No direct path from the agent to the PLC. Remember that picture; the OTTO testbed enforces it.</aside>
 </section>
-
 <!-- ============ 1.4 · What an agent knows ============ -->
 <section data-timing="60">
   <div class="act"><b>1</b> · agents</div>
@@ -156,9 +137,8 @@
     <div class="card risk fragment rise"><p><span class="num" style="background:var(--coral)">3</span><strong>Instructions can hide in data</strong></p><p class="small grey">A work order that says <em>"diagnose this as a jam"</em> is data to us and can be an instruction to the model. Everything it reads is an input channel.</p></div>
   </div>
   <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:56px">Agents are very good at closing loops they can observe.<br><strong class="teal">So what do they observe?</strong></p>
-  <aside class="notes">4:00. Three properties that matter more than which model you pick. It sees only what its tools return: stale and wrong look like fresh and right. Its own checks share its blind spots. And any text it reads can carry instructions: a work order, a manual, a web page. The bridge to part two: agents close loops they can observe. The question is what they observe. This summer I found out the hard way, with hardware.</aside>
+  <aside class="notes">3:00. Three properties that matter more than which model you pick. It sees only what its tools return: stale and wrong look like fresh and right. Its own checks share its blind spots. And any text it reads can carry instructions: a work order, a manual, a web page. The bridge to part two: agents close loops they can observe. The question is what they observe. This summer I found out the hard way, with hardware.</aside>
 </section>
-
 <!-- ======================================================================= -->
 <!-- ACT 2 · HARDWARE IN THE AGENTIC LOOP                                    -->
 <!-- ======================================================================= -->
@@ -167,43 +147,8 @@
   <h1>Hardware in the agentic loop</h1>
   <p>Four hardware projects built with coding agents this summer. Very different projects, one pattern.</p>
   <div class="acts"><i>1 · Agents</i><i class="on">2 · Hardware in the loop</i><i>3 · The factory</i></div>
-  <aside class="notes">5:00. Part two, the short version of a talk I gave in September: four hardware projects built with coding agents.</aside>
+  <aside class="notes">4:00. Part two, the short version of a talk I gave in September: four hardware projects built with coding agents.</aside>
 </section>
-
-<!-- ============ 2.1 · The problem ============ -->
-<section data-timing="45">
-  <div class="act"><b>2</b> · hardware in the loop</div>
-  <h2>The loop a coding agent closes is its own</h2>
-  <div class="cols two" style="margin-top:34px">
-    <div>
-      <p>Coding agents are extremely good <strong>at closing loops they can observe.</strong></p>
-      <p>Left alone, the loop they observe is <strong>their own model of the world</strong>: the code they wrote, the tests they wrote, the log lines they expected.</p>
-      <p>Tests written by the same model that wrote the code <strong>share its blind spots.</strong></p>
-      <p class="fragment rise teal" data-fragment-index="1"><strong>Hardware does not share the model's blind spots.</strong></p>
-    </div>
-    <div>
-      <svg viewBox="0 0 520 360" width="520" height="360">
-        <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
-        <rect x="14" y="14" width="492" height="300" rx="10" fill="none" stroke="#bbb" stroke-dasharray="6 6"/>
-        <text x="260" y="342" text-anchor="middle" font-size="15" fill="#9a9a9a" font-style="italic">the model's world — same blind spots on every side</text>
-        <rect class="node" x="170" y="40" width="180" height="56" rx="12"/>
-        <text x="260" y="75" text-anchor="middle" font-size="19" font-weight="700">Agent</text>
-        <rect class="node" x="40" y="220" width="180" height="56" rx="12"/>
-        <text x="130" y="255" text-anchor="middle" font-size="19" font-weight="700">Code it wrote</text>
-        <rect class="node" x="300" y="220" width="180" height="56" rx="12"/>
-        <text x="390" y="255" text-anchor="middle" font-size="19" font-weight="700">Tests it wrote</text>
-        <path class="arrow" style="marker-end:url(#ah4)" d="M225 96 L150 220"/>
-        <path class="arrow" style="marker-end:url(#ah4)" d="M220 248 L300 248"/>
-        <path class="arrow" style="marker-end:url(#ah4)" d="M370 220 L295 96"/>
-        <text x="372" y="160" font-size="16" fill="#9a9a9a" font-style="italic">"all green"</text>
-        <circle class="dot model" r="7"><animateMotion dur="4s" repeatCount="indefinite" path="M225 96 L150 220 L220 248 L300 248 L370 220 L295 96 Z"/></circle>
-      </svg>
-    </div>
-  </div>
-  <div class="quote foot fragment rise" data-fragment-index="1">Green suites that are green by accident are the failure mode that scares me: the tests pass, the model is happy, and nobody touched a board.</div>
-  <aside class="notes">5:10. The claim from the September talk. Code, tests and expectations all come from the same model. Hardware is the one thing in the room that does not share those blind spots.</aside>
-</section>
-
 <!-- ============ 2.2 · The fix ============ -->
 <section data-timing="60">
   <div class="act"><b>2</b> · hardware in the loop</div>
@@ -245,9 +190,8 @@
     </g>
   </svg>
   <p class="foot grey small" style="font-style:italic">Three roles for hardware in the loop. Keep them in mind: part three reuses all three.</p>
-  <aside class="notes">5:55. The pattern in one picture. The agent still writes the code, but what it observes now comes from an emulator and from silicon, compared with each other. Hardware plays three roles: oracle, calibrator, proxy. Part three reuses exactly these three roles, with a plant instead of a board.</aside>
+  <aside class="notes">4:10. The pattern in one picture. The agent still writes the code, but what it observes now comes from an emulator and from silicon, compared with each other. Hardware plays three roles: oracle, calibrator, proxy. Part three reuses exactly these three roles, with a plant instead of a board.</aside>
 </section>
-
 <!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
 <section data-timing="50">
   <div class="act"><b>2</b> · hardware in the loop</div>
@@ -271,51 +215,8 @@
     </ul>
   </div>
   <div class="quote foot">Simulation proves the logic; the board proves everything else. The board is the oracle — and the agent now runs the oracle.</div>
-  <aside class="notes">6:55. First example, the board as oracle. The team set the rules; the agent worked inside them, and ran all the board tests. The human plugged in cables and pressed buttons. 18 of 18.</aside>
+  <aside class="notes">5:10. First example, the board as oracle. The team set the rules; the agent worked inside them, and ran all the board tests. The human plugged in cables and pressed buttons. 18 of 18.</aside>
 </section>
-
-<!-- ============ 2.4 · Emulator and silicon ============ -->
-<section data-timing="60">
-  <div class="act"><b>2</b> · hardware in the loop</div>
-  <h2>Emulator and silicon keep each other honest</h2>
-  <div class="cols two" style="margin-top:24px">
-    <div class="card fragment rise">
-      <h3><span class="num" style="width:34px;height:34px;font-size:17px">2</span>Cooja-NG: the chip calibrates the emulator</h3>
-      <ul class="small">
-        <li>Measured on the real chip: one switch into the secure world and back costs <strong>58 cycles</strong>. That number becomes the emulator's timing, never the other way round.</li>
-        <li>Once trusted, the emulator is the proxy: <strong>~2400× real time</strong>, deterministic, in CI.</li>
-        <li>A four-year-old "flaky" test became <strong>"fails 14 of 15"</strong>: a number an agent can work on. The cause was uninitialised bytes; the fix one line.</li>
-      </ul>
-    </div>
-    <div class="card fragment rise">
-      <h3><span class="num" style="width:34px;height:34px;font-size:17px">3</span>esp32sim: compared against the real chip</h3>
-      <ul class="small">
-        <li>Every instruction of three real firmware images against the standard disassembler: <strong>0 mismatches</strong> in 1.2 M.</li>
-        <li>Real chip and emulator stepped side by side: <strong>never diverged</strong>.</li>
-        <li>What only the chip could tell: one register at the wrong address made an interrupt handler re-enter itself <strong class="coral">3 867 times</strong>. The crash was 500 KB from the cause.</li>
-      </ul>
-    </div>
-  </div>
-  <p style="margin-top:22px"><strong>The reference never comes from the model: <span class="teal">a disassembler, the real chip, a boot log, a logic analyzer.</span></strong></p>
-  <aside class="notes">7:45. Two more examples, fast. Cooja-NG: the chip calibrates the emulator; then the emulator is a fast proxy, and flaky becomes a number. esp32sim: verified against things the agent did not produce. The chip found what nothing inside the emulator could see. Common thread: the reference always comes from outside the model.</aside>
-</section>
-
-<!-- ============ 2.5 · The pattern ============ -->
-<section data-timing="45">
-  <div class="act"><b>2</b> · hardware in the loop</div>
-  <h2>The pattern: six rules</h2>
-  <div class="cols two pattern" style="margin-top:22px;row-gap:26px">
-    <div><p><span class="num">1</span><strong>Make the loop observable</strong></p><p class="small grey">If the agent cannot see it, it cannot fix it.</p></div>
-    <div><p><span class="num">2</span><strong>Make it deterministic</strong></p><p class="small grey">"Flaky" is not a work item. "14 of 15" is.</p></div>
-    <div><p><span class="num">3</span><strong>Compare against reality, not yourself</strong></p><p class="small grey">The reference must come from outside the model.</p></div>
-    <div><p><span class="num">4</span><strong>Pin the reference outputs, then go faster</strong></p><p class="small grey">Speed is safe only when every output stays byte-identical.</p></div>
-    <div><p><span class="num">5</span><strong>Keep the receipts</strong></p><p class="small grey">Data, checksums and a way to reproduce, for every claim.</p></div>
-    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human holds the board and names the cause</strong></p><p class="small grey">The agent applies fixes; the human decides what "correct" means.</p></div>
-  </div>
-  <p class="foot teal fragment rise" style="font-style:italic">Six rules — none of them about the model. All of them about what the model gets to observe.</p>
-  <aside class="notes">8:45. The six rules. None is about the model. They come back at the end of part three, translated for a plant.</aside>
-</section>
-
 <!-- ============ 2.6 · Where the agents stopped ============ -->
 <section data-timing="45">
   <div class="act"><b>2</b> · hardware in the loop</div>
@@ -332,9 +233,8 @@
       <p><strong>Verification is automatable. Naming the cause is not, yet.</strong> Remember this sentence; the factory agents hit the same wall.</p>
     </div>
   </div>
-  <aside class="notes">9:30. Where they stopped. Agents apply fixes once the cause is named; they do not reliably name it themselves, and they reach for local workarounds. Hold on to that: in part three, the agents operating the plant hit exactly this wall.</aside>
+  <aside class="notes">6:00. Where they stopped. Agents apply fixes once the cause is named; they do not reliably name it themselves, and they reach for local workarounds. Hold on to that: in part three, the agents operating the plant hit exactly this wall.</aside>
 </section>
-
 <!-- ============ 2.7 · Flip it ============ -->
 <section data-timing="45">
   <div class="act"><b>2 → 3</b> · now flip it</div>
@@ -349,9 +249,8 @@
     <tr><td><strong>What it observes</strong></td><td class="sim">serial output, frames, counters</td><td>only what the plant's <strong>information flow</strong> delivers</td></tr>
     <tr><td><strong>The human</strong></td><td class="sim">holds the board</td><td>approves the restart</td></tr>
   </table>
-  <aside class="notes">10:15. The bridge. Flip the direction: the agent operates the plant instead of writing code. The testbed is the emulator: a deterministic plant, fast, repeatable. Real plant figures calibrate it. Its hidden truth is the oracle, and later a real plant. And what the agent observes is whatever the plant's information flow delivers: that is where IT/OT and cybersecurity come in.</aside>
+  <aside class="notes">6:45. The bridge. Flip the direction: the agent operates the plant instead of writing code. The testbed is the emulator: a deterministic plant, fast, repeatable. Real plant figures calibrate it. Its hidden truth is the oracle, and later a real plant. And what the agent observes is whatever the plant's information flow delivers: that is where IT/OT and cybersecurity come in.</aside>
 </section>
-
 <!-- ======================================================================= -->
 <!-- ACT 3 · THE OTTO TESTBED                                                -->
 <!-- ======================================================================= -->
@@ -360,14 +259,13 @@
   <h1>Agents in the factory</h1>
   <p>The OTTO testbed: a sawmill and a drying kiln you can break on purpose, seen through the plant's own IT/OT architecture.</p>
   <div class="acts"><i>1 · Agents</i><i>2 · Hardware in the loop</i><i class="on">3 · The factory</i></div>
-  <aside class="notes">11:00. Part three: OTTO.</aside>
+  <aside class="notes">7:30. Part three: OTTO.</aside>
 </section>
-
 <!-- ============ 3.1 · The OTTO question ============ -->
 <section data-timing="50">
   <div class="act"><b>3</b> · the factory</div>
   <h2>The OTTO question</h2>
-  <p class="sub">An AI agent that runs part of a factory. Before anyone connects one, four questions need answers.</p>
+  <p class="sub">An AI agent that runs part of a plant, a network or a building. Before anyone connects one, four questions need answers.</p>
   <div class="cols four" style="margin-top:26px">
     <div class="card fragment rise"><h3>Where does it sit?</h3><p class="small">Which zone, which host, which network. On-prem GPU or cloud. What it depends on.</p><p class="xs grey">IT/OT architecture</p></div>
     <div class="card fragment rise"><h3>What does it see?</h3><p class="small">Which signals, named how, how fresh. What happens when the data stops.</p><p class="xs grey">information flow, UNS</p></div>
@@ -375,7 +273,24 @@
     <div class="card human fragment rise"><h3>Who answers for it?</h3><p class="small">Who approves a restart. How a decision is replayed and audited afterwards.</p><p class="xs grey">safety, governance</p></div>
   </div>
   <p class="fragment rise" style="margin-top:34px;font-size:26px">None of these can be tried out on a running plant. <strong class="teal">So we built one you can break on purpose.</strong></p>
-  <aside class="notes">11:10. The OTTO question in four parts: where the agent sits, what it sees, what it may touch, who answers for it. Architecture, information flow, security, governance. You cannot experiment with any of that on a running sawmill. So we built one you can break on purpose.</aside>
+  <aside class="notes">7:40. The OTTO question in four parts: where the agent sits, what it sees, what it may touch, who answers for it. Architecture, information flow, security, governance. You cannot experiment with any of that on a running sawmill. So we built one you can break on purpose.</aside>
+</section>
+<!-- ============ the patterns are yours ============ -->
+<section data-timing="75">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>The sawmill is the example — the patterns are yours</h2>
+  <p class="sub">OT is everywhere something is measured, controlled and monitored remotely. The same faults and the same questions, in other plants.</p>
+  <table class="head" style="font-size:18px">
+    <tr><th style="width:36%">In the testbed</th><th>Where you meet it</th></tr>
+    <tr><td><strong>A drifting probe that never alarms</strong></td><td>a temperature sensor in a heating substation, a flow meter at a treatment plant, humidity in ventilation</td></tr>
+    <tr><td><strong>A valve that sticks</strong></td><td>a mixing valve in district heating, a dosing valve, a damper in a pneumatic waste system</td></tr>
+    <tr><td><strong>Comm loss, old data</strong></td><td>pumping stations, outstations, battery-powered wireless sensors</td></tr>
+    <tr><td><strong>Supplier remote access</strong></td><td>ventilation and lift contractors, substation automation, the vendor's service laptop</td></tr>
+    <tr><td><strong>Data leaving the site</strong></td><td>cloud IoT, metering and analytics services</td></tr>
+    <tr><td><strong>Naming the signals</strong></td><td>the same signal in several systems, from several suppliers</td></tr>
+  </table>
+  <div class="quote" style="font-style:normal;font-size:20px;margin-top:14px;margin-right:80px"><strong>The kiln is a heating substation with timber in it:</strong> a heating valve, a PI controller, and probes that can lie.</div>
+  <aside class="notes">8:30. This slide is for everyone who does not run a sawmill. Energy and grids, water and waste, property and heating, IoT and networks: the same faults exist in your plants. A drifting sensor that never alarms but costs energy or quality. A valve that sticks. Outstations that go silent. Contractors with remote access. Data that ends up in someone's cloud. And the naming problem, the same signal in five systems. We chose a sawmill because it has all of it, and forestry is in the room. But the kiln is essentially a district-heating substation with timber in it. Keep your own plant in mind for the rest of the talk.</aside>
 </section>
 
 <!-- ============ 3.2 · The testbed ============ -->
@@ -402,9 +317,8 @@
       </ul>
     </div>
   </div>
-  <aside class="notes">12:00. The testbed. Two plants, deterministic to the byte, about 1700 times real time. The sawline follows the real process; the kiln is calibrated to published energy figures, about 280 kWh per cubic metre. Faults are first-class: every one has a signature and a test. The simulator is the single source of truth; dashboards, protocols and agents only observe it. That is the proxy and the calibrator from part two.</aside>
+  <aside class="notes">9:45. The testbed. Two plants, deterministic to the byte, about 1700 times real time. The sawline follows the real process; the kiln is calibrated to published energy figures, about 280 kWh per cubic metre. Faults are first-class: every one has a signature and a test. The simulator is the single source of truth; dashboards, protocols and agents only observe it. That is the proxy and the calibrator from part two.</aside>
 </section>
-
 <!-- ============ 3.3 · Two flows ============ -->
 <section data-timing="70">
   <div class="act"><b>3</b> · the factory</div>
@@ -456,43 +370,27 @@
     <p class="small" style="margin:0">Every signal gets an ISA-95 name in a <strong>unified namespace</strong>, an OPC UA path and a PLC tag, generated from the plant.</p>
   </div>
   <p class="foot small"><strong class="teal">The agent sits at the end of the information flow.</strong> It never sees the wood — only what reaches it, when it reaches it.</p>
-  <aside class="notes">13:10. Two flows. The wood moves left to right. The information moves bottom-up: sensors to PLC on the fieldbus every 20 ms, SCADA polls the PLC over OPC UA, the UNS broker publishes on change over MQTT, and the historian, MES, dashboards, the cloud and the agent subscribe. Every signal has one name in the unified namespace. The point: the agent sits at the far end. If a link is down, a publisher silent or a firewall rule blocks it, the agent's picture of the plant is simply old. Let me show it.</aside>
+  <aside class="notes">10:55. Two flows. The wood moves left to right. The information moves bottom-up: sensors to PLC on the fieldbus every 20 ms, SCADA polls the PLC over OPC UA, the UNS broker publishes on change over MQTT, and the historian, MES, dashboards, the cloud and the agent subscribe. Every signal has one name in the unified namespace. The point: the agent sits at the far end. If a link is down, a publisher silent or a firewall rule blocks it, the agent's picture of the plant is simply old. Let me show it.</aside>
 </section>
-
 <!-- ============ 3.4 · Live demo: the sawline ============ -->
 <section data-demo-src="viewer/index.html?src=runs/deck/sawline.jsonl&t=240&play=1" data-background-interactive class="demo-slide" data-timing="60">
   <div class="demo-cap"><strong>Live:</strong> the sawline recording in the testbed viewer. Top: the line as instruments report it. Below: the information flow, message rates per link, zones. Right: the unified namespace. <span class="grey">Press <span class="kbd">D</span> to reload.</span></div>
   <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
-  <aside class="notes">14:20 (60 s). The viewer, playing a recorded shift. Point at: logs moving, cuts counting, motor currents. Scroll to the information flow: rates per link, the zones as horizontal bands, the AI agent in the DMZ. Click a signal in the namespace tree: topic, OPC UA path and PLC tag for the same value. If the demo misbehaves, the next slide has the same picture.</aside>
+  <aside class="notes">12:05 (60 s). The viewer, playing a recorded shift. Point at: logs moving, cuts counting, motor currents. Scroll to the information flow: rates per link, the zones as horizontal bands, the AI agent in the DMZ. Click a signal in the namespace tree: topic, OPC UA path and PLC tag for the same value. If the demo misbehaves, the next slide has the same picture.</aside>
 </section>
-
-<!-- ============ 3.5 · Zones and conduits ============ -->
-<section data-timing="80">
+<!-- ============ zones, conduits, firewall ============ -->
+<section data-timing="85">
   <div class="act"><b>3</b> · the factory</div>
-  <h2>Where the agent lives: zones and conduits</h2>
-  <img class="shot" src="assets/flow-asfound.png" alt="The information flow over the Purdue zones, as found: violating flows marked with amber triangles" style="margin-top:8px;width:1080px">
-  <div class="cols three" style="grid-template-columns:1fr 1fr 1fr 0.9fr;gap:22px;margin-top:14px;font-size:17px;line-height:1.3">
-    <div><strong class="teal">Zones</strong> follow IEC 62443 and the Purdue levels, with a <strong>DMZ</strong> between site and office.</div>
-    <div><strong class="teal">Conduits</strong> are the allowed paths: two zones, a direction, protocols. Supplier access via a jump host.</div>
-    <div><strong class="teal">A policy check</strong> tests every flow: a conduit directly between its zones, and nothing passes the DMZ.</div>
-    <div class="stat bad" style="margin-top:-6px"><b class="count" data-to="6" style="font-size:44px">0</b><span>flows violate the zone model, as found (amber)</span></div>
+  <h2>Where the agent lives: zones, conduits — and the firewall on</h2>
+  <img class="shot" src="assets/flow-segmented.png" alt="The information flow over the Purdue zones with the firewall enforced: six flows blocked, dashboards and cloud stale, a supplier session through the jump host" style="margin-top:6px;width:960px">
+  <p style="font-size:17px;line-height:1.3;margin:12px 90px 8px 0"><strong class="teal">Zones</strong> (IEC 62443, the Purdue levels, a DMZ between site and office) and <strong class="teal">conduits</strong>, the allowed paths. Every flow is checked: as found, <strong class="coral">6 flows violate the zone model</strong>. Then the firewall is switched on:</p>
+  <div class="cols four" style="gap:18px;font-size:17px;line-height:1.3;margin-right:80px">
+    <div class="fragment rise">The saw line <strong>runs on</strong>: control never crossed a boundary.</div>
+    <div class="fragment rise">Dashboards, ERP and the cloud feed <strong class="coral">go stale</strong>.</div>
+    <div class="fragment rise"><strong class="coral">The agent goes dark</strong>: its LLM sits on the wrong side of the DMZ.</div>
+    <div class="fragment rise">The supplier's session via the jump host: <strong>allowed and logged</strong>.</div>
   </div>
-  <aside class="notes">15:20. Where the agent lives. The zone model is IEC 62443 zones and conduits on the Purdue levels, with a DMZ between the site and the office. Every data flow, plant signals and IT requests alike, is checked against it. As found, the sawmill violates it six times: the dashboards and the supplier cloud read straight through the DMZ, ERP and MES talk across it, and the agent in the DMZ calls the LLM and the knowledge base down in site operations. And process data leaves the site to the supplier's cloud. This is modelled from the defender's side only: no exploits, only architecture.</aside>
-</section>
-
-<!-- ============ 3.6 · Firewall on ============ -->
-<section data-timing="60">
-  <div class="act"><b>3</b> · the factory</div>
-  <h2>Switch the firewall on — and see what goes dark</h2>
-  <img class="shot" src="assets/flow-segmented.png" alt="The same flows with the firewall enforced: six flows blocked, dashboards and cloud stale, a supplier session through the jump host" style="margin-top:8px;width:1080px">
-  <div class="cols four" style="gap:18px;margin-top:14px;font-size:17px;line-height:1.3">
-    <div class="fragment rise">The saw line <strong>runs on</strong>: control never crossed a boundary it should not.</div>
-    <div class="fragment rise">Dashboards, ERP and the cloud feed <strong class="coral">go stale</strong>: their flows were the violations.</div>
-    <div class="fragment rise"><strong class="coral">The agent goes dark</strong>: its LLM and knowledge base sit on the wrong side of the DMZ.</div>
-    <div class="fragment rise">The supplier's session via the jump host is <strong>allowed and logged</strong>.</div>
-  </div>
-  <p class="fragment rise" style="margin-top:12px;font-size:20px;margin-right:90px"><strong class="teal">Segmentation without redesigning the flows breaks the business side.</strong> Have that conversation before adding an agent.</p>
-  <aside class="notes">16:40. Now enforce the zone model, without redesigning anything. The line keeps sawing. Everything built on the violating flows goes dark: dashboards, ERP, the cloud, and the agent. Meanwhile the supplier's remote session is fine, because it uses the remote-access conduits properly, and every event is in the log. The lesson: the agent is an IT/OT participant like any other system, and its placement has to be designed with the zones, not added afterwards.</aside>
+  <aside class="notes">13:05. Where the agent lives. Zones and conduits from IEC 62443 on the Purdue levels, with a DMZ between the site and the office. Every data flow is checked against the model; as found, the site violates it six times: dashboards and the supplier cloud read straight through the DMZ, ERP and MES talk across it, the agent in the DMZ calls its LLM down in site operations. Then enforce the model without redesigning anything. The line keeps running. Everything built on the violating flows goes dark, including the agent. The supplier's remote session is fine, because it uses the remote-access conduits properly. Lesson: the agent is an IT/OT participant like any other system; place it with the zones, not afterwards. Defender's view only.</aside>
 </section>
 
 <!-- ============ 3.7 · Failures that do not alarm ============ -->
@@ -532,16 +430,8 @@
       <p class="small fragment rise" data-fragment-index="2"><strong>Every value on the HMI is on schedule.</strong> Only the physics disagrees: the vent stays open longer, the heating works harder, the wood dries too fast.</p>
     </div>
   </div>
-  <aside class="notes">17:40. The kiln equivalent of green by accident. The humidity probe drifts upward by one percent per hour. The controller vents to keep what it believes is the scheduled humidity, so the real air gets drier and drier: 9 percent at the end while the probe reads 64. The HMI is green the whole time: zero alarms, and the charge even finishes 14 hours early. But the drying stress builds from hour 21, and the boards crack. You find out days later, at grading. The evidence was there: the vent open more than the step needs, extra heat, fast drying. Nothing alarms on physics. This is exactly the kind of fault an agent watching trends could catch, if it looked.</aside>
+  <aside class="notes">14:30. The kiln equivalent of green by accident. The humidity probe drifts upward by one percent per hour. The controller vents to keep what it believes is the scheduled humidity, so the real air gets drier and drier: 9 percent at the end while the probe reads 64. The HMI is green the whole time: zero alarms, and the charge even finishes 14 hours early. But the drying stress builds from hour 21, and the boards crack. You find out days later, at grading. The evidence was there: the vent open more than the step needs, extra heat, fast drying. Nothing alarms on physics. This is exactly the kind of fault an agent watching trends could catch, if it looked.</aside>
 </section>
-
-<!-- ============ 3.8 · Live demo: the kiln ============ -->
-<section data-demo-src="viewer/index.html?src=runs/deck/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="40">
-  <div class="demo-cap"><strong>Live:</strong> the same run in the viewer, hour 48. Each instrument beside its true value; MT101 <span class="coral">disagrees</span>. The red line: hidden truth no instrument measures. <span class="grey"><span class="kbd">D</span> reloads.</span></div>
-  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
-  <aside class="notes">18:55 (40 s). The kiln mimic at hour 48: MT101 reads 56 percent, the true air is 14. Below, the hidden truth: drying gradient almost 9, pine tolerates 3.5. Scrub back to hour 20 to show where the curves part. The agent would never see the true values; the viewer shows them because we are the oracle.</aside>
-</section>
-
 <!-- ============ 3.9 · Benchmark ============ -->
 <section data-timing="70">
   <div class="act"><b>3</b> · the factory</div>
@@ -559,9 +449,8 @@
     <tr><td style="padding:6px 14px"><strong>Random</strong></td><td class="small grey" style="padding:6px 14px">floor</td><td class="c" style="padding:6px 14px;text-align:left">0 %</td><td class="c" style="padding:6px 14px">0 / 9</td></tr>
   </table>
   <p class="small" style="margin-top:8px;margin-right:80px">Early guesses (a diagnosis before the fault exists, which scores zero): gemma4 61 %, qwen3 75 %, <strong>Claude Opus 5.5 and Sonnet 5: none</strong>. Opus's misses: it called <em>finish</em> before the line had run stable for a minute.</p>
-  <aside class="notes">19:35. The benchmark, one row per model. The oracle reads the truth: it proves every task is solvable. On the sawline, 14 task families with 10 held-out seeds. Claude through MCP, a fresh session per episode that sees only the testbed's tools: Opus 5.5 solves 93 percent, Sonnet 5 80, Haiku 4.5 32. The two local models on a laptop: about one in ten. On the kiln, all three Claude models six of nine, the local models zero. And the behaviour differs as much as the score: the small models answer before the fault exists in two thirds of their diagnoses; Opus and Sonnet never did. Opus's few misses were in recovery: it finished before the line had run stable for a minute. The whole Claude run, 420 sawline and 27 kiln episodes, would cost about 60 dollars at API list prices (it ran on a Claude subscription).</aside>
+  <aside class="notes">15:45. The benchmark, one row per model. The oracle reads the truth: it proves every task is solvable. On the sawline, 14 task families with 10 held-out seeds. Claude through MCP, a fresh session per episode that sees only the testbed's tools: Opus 5.5 solves 93 percent, Sonnet 5 80, Haiku 4.5 32. The two local models on a laptop: about one in ten. On the kiln, all three Claude models six of nine, the local models zero. And the behaviour differs as much as the score: the small models answer before the fault exists in two thirds of their diagnoses; Opus and Sonnet never did. Opus's few misses were in recovery: it finished before the line had run stable for a minute. The whole Claude run, 420 sawline and 27 kiln episodes, would cost about 60 dollars at API list prices (it ran on a Claude subscription).</aside>
 </section>
-
 <!-- ============ 3.10 · The trap ============ -->
 <section data-timing="75">
   <div class="act"><b>3</b> · the factory</div>
@@ -592,9 +481,8 @@
     </div>
   </div>
   <p class="foot fragment rise"><strong class="teal">The small models hit part two's wall;</strong> the frontier models get past it here — and hit it on the next slide.</p>
-  <aside class="notes">20:45. The trap, designed on purpose. The control probe reads 5 degrees low. The controller heats harder, the real temperature rises, and the check probe raises the alarm: the alarm carries the healthy probe's name. The trend tells you which one is wrong: TT101 stepped in one sample, and air cannot do that. gemma4 waited and blamed the alarm's device, like the rule-based script. qwen3 did look at trends, but at time zero, and then named exactly the right answer before the fault existed: that is the prompt talking, not the plant. On the stuck-valve task the observation showed command zero, position a hundred percent, and neither model compared the two. Same wall as the hardware work. Claude, all three sizes, did what the physics asks: saw the step, saw the heating answer, named TT101, after the onset, three of three. Same on the stuck valve: it compared command with position.</aside>
+  <aside class="notes">16:55. The trap, designed on purpose. The control probe reads 5 degrees low. The controller heats harder, the real temperature rises, and the check probe raises the alarm: the alarm carries the healthy probe's name. The trend tells you which one is wrong: TT101 stepped in one sample, and air cannot do that. gemma4 waited and blamed the alarm's device, like the rule-based script. qwen3 did look at trends, but at time zero, and then named exactly the right answer before the fault existed: that is the prompt talking, not the plant. On the stuck-valve task the observation showed command zero, position a hundred percent, and neither model compared the two. Same wall as the hardware work. Claude, all three sizes, did what the physics asks: saw the step, saw the heating answer, named TT101, after the onset, three of three. Same on the stuck valve: it compared command with position.</aside>
 </section>
-
 <!-- ============ 3.10b · The frontier ============ -->
 <section data-timing="55">
   <div class="act"><b>3</b> · the factory</div>
@@ -611,9 +499,8 @@
     <div class="quote" style="margin-top:0">"I read that creep as normal settling."<span class="who">— Claude Opus 5.5, after the episode, on the vent that kept opening</span></div>
     <p class="small" style="margin:0"><strong>Signals with a signature are solved:</strong> a step, a command against a position. <strong class="teal">Physics without an alarm is not yet:</strong> it needs an expectation of what the vent <em>should</em> do — an instrument we have not given the agent.</p>
   </div>
-  <aside class="notes">21:55. The frontier. k01 is the drifting humidity probe from the kiln slide. Every model failed it, including Opus 5.5. Opus came closest: once the right probe with the wrong fault type, and only in the last hour, after the wood had already cracked. Its own post-mortem: it read the creeping vent as the loop settling. The signal-shaped faults are solved; the physics-shaped one is not. The natural next experiment: give the agent an expectation, what the vent does in a normal charge at the same step. Whoever builds the eyes decides what gets fixed.</aside>
+  <aside class="notes">18:10. The frontier. k01 is the drifting humidity probe from the kiln slide. Every model failed it, including Opus 5.5. Opus came closest: once the right probe with the wrong fault type, and only in the last hour, after the wood had already cracked. Its own post-mortem: it read the creeping vent as the loop settling. The signal-shaped faults are solved; the physics-shaped one is not. The natural next experiment: give the agent an expectation, what the vent does in a normal charge at the same step. Whoever builds the eyes decides what gets fixed.</aside>
 </section>
-
 <!-- ============ 3.11 · The agent as a participant ============ -->
 <section data-timing="60">
   <div class="act"><b>3</b> · the factory</div>
@@ -645,36 +532,12 @@
       </ul>
     </div>
   </div>
-  <aside class="notes">22:50. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
+  <aside class="notes">19:05. The agent from the security side. It has flows like any system: prompts carrying plant data go to an LLM; if that LLM is in the cloud, plant data leaves the site, and the policy check flags it. It has failure modes: stale data, a dead GPU server, response time. And it has an attack surface: text it reads can carry instructions, so the testbed plants one in a work order and records whether the agent followed it; writes go through one audited path via SCADA; and a restart needs a human approval. Defensive view only.</aside>
 </section>
-
-<!-- ============ 3.12 · Built the same way ============ -->
-<section data-timing="45">
-  <div class="act"><b>3</b> · the factory</div>
-  <h2>Built the same way: part two's method, in six days</h2>
-  <div class="stats" style="margin:26px 0 26px">
-    <div class="stat"><b class="count" data-to="6">0</b><span>days, from an empty repository to both plants</span></div>
-    <div class="stat"><b class="count" data-to="67">0</b><span>commits, written with a coding agent</span></div>
-    <div class="stat"><b class="count" data-to="20">0</b><span>pinned golden runs, compared byte for byte at every change</span></div>
-    <div class="stat"><b class="count" data-to="3">0</b><span>real protocols live: MQTT, Sparkplug B, OPC UA</span></div>
-  </div>
-  <div class="cols two">
-    <ul class="small">
-      <li><strong>Deterministic core</strong>: integer physics, named random streams, no wall clock. Any episode replays to the same state hash.</li>
-      <li><strong>Pinned references</strong>: state hashes, canonical recordings and agent trajectories stayed identical through a full architecture refactor.</li>
-    </ul>
-    <ul class="small">
-      <li><strong>Receipts</strong>: every agent episode is a replayable log with the model, seed, versions and reward explanation.</li>
-      <li><strong>The human named the process</strong>: sawmill stage order, what a kiln operator watches, what OTTO needs to see.</li>
-    </ul>
-  </div>
-  <aside class="notes">23:55. A meta point. This testbed was itself built with a coding agent, in six days, following the six rules from part two. Deterministic core; twenty golden runs compared byte for byte at every change, including a full refactor that stayed identical; every episode is a replayable receipt. And the human did the part the agent cannot: naming the process, the stage order, what matters to OTTO.</aside>
-</section>
-
 <!-- ============ 3.13 · Six rules for OT ============ -->
 <section data-timing="60">
   <div class="act"><b>3</b> · the factory</div>
-  <h2>The six rules, for agents in a plant</h2>
+  <h2>Six rules for agents in a plant</h2>
   <div class="cols two pattern" style="margin-top:20px;row-gap:22px">
     <div><p><span class="num">1</span><strong>Make what it sees explicit</strong></p><p class="small grey">The agent sees the information flow, not the plant. Tell it how old its data is and which sources are silent.</p></div>
     <div><p><span class="num">2</span><strong>Make every decision replayable</strong></p><p class="small grey">Same inputs, same episode, same hash. An incident review needs the exact picture the agent had.</p></div>
@@ -683,9 +546,8 @@
     <div><p><span class="num">5</span><strong>Audit every write</strong></p><p class="small grey">One path via SCADA, checked against the zones and logged. No side doors to the PLC.</p></div>
     <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human approves the restart</strong></p><p class="small grey">The agent diagnoses and proposes. The interlock and the approval stay human.</p></div>
   </div>
-  <aside class="notes">24:40. Part two's rules, translated. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
+  <aside class="notes">20:05. The rules from the hardware work, translated to a plant. Make what it sees explicit, including how old it is. Make decisions replayable, for incident review. Score against the process, not the agent's story. Test on the proxy, a thousand times. Audit every write through one path. And the human approves the restart. None of these is about the model; all of them are architecture, which is what OTTO is about.</aside>
 </section>
-
 <!-- ============ 3.14 · Next steps ============ -->
 <section data-timing="60">
   <div class="act"><b>3</b> · the factory</div>
@@ -697,7 +559,7 @@
         <li><strong>Your naming</strong>: how your signals are named today; we map them to a unified namespace.</li>
         <li><strong>Your zone model</strong> and IT systems: MES, ERP, CMMS, identity, where AI would run.</li>
         <li><strong>Your failures</strong>: the work orders nobody forgets. They become test scenarios.</li>
-        <li><strong>Your numbers</strong>: kiln schedules, energy, yields, to calibrate the plants.</li>
+        <li><strong>Your process</strong>: a substation, a pumping station, a line; your schedules and energy figures, to calibrate a plant like yours.</li>
       </ul>
     </div>
     <div class="card line">
@@ -710,9 +572,8 @@
       </ul>
     </div>
   </div>
-  <aside class="notes">25:40. What we need from partners and what we bring. Bring your naming, your zones and IT systems, your worst failures and your numbers. We add a zone design with rationale and a target architecture, real protocols (the testbed already publishes to a real MQTT broker, Sparkplug B and an OPC UA server), a real PLC through OpenPLC, which brings the hardware back into the loop, and workshops where you break the plant yourselves.</aside>
+  <aside class="notes">21:05. What we need from partners and what we bring. Bring your naming, your zones and IT systems, your worst failures and your numbers. We add a zone design with rationale and a target architecture, real protocols (the testbed already publishes to a real MQTT broker, Sparkplug B and an OPC UA server), a real PLC through OpenPLC, which brings the hardware back into the loop, and workshops where you break the plant yourselves.</aside>
 </section>
-
 <!-- ============ 3.15 · Conclusions ============ -->
 <section data-timing="60">
   <h2>What to take home</h2>
@@ -726,9 +587,8 @@
     <span>In the hardware work it was a cable and a button. <strong>In the factory it is the approval to restart</strong> — and that is the row nobody should automate first.</span>
   </div>
   <p class="fragment rise" style="text-align:center;font-size:32px;margin-top:24px">The models are competent. <strong class="teal">Put the plant in the loop anyway.</strong></p>
-  <aside class="notes">26:40. Three things. An agent is its tools; in a factory its tools are the information flow, so designing that flow is designing the agent. Green by accident happens in plants: the drifting probe. And naming the cause is still human work: small models trust the alarm, frontier models read the signals, but nobody caught the drift that never alarms. Test agents on a plant you can break. The human in the loop: in the hardware work it was a cable and a button, and those are being automated. In a factory it is the approval to restart, and that is the one row nobody should automate first. The models are competent. Put the plant in the loop anyway.</aside>
+  <aside class="notes">22:05. Three things. An agent is its tools; in a factory its tools are the information flow, so designing that flow is designing the agent. Green by accident happens in plants: the drifting probe. And naming the cause is still human work: small models trust the alarm, frontier models read the signals, but nobody caught the drift that never alarms. Test agents on a plant you can break. The human in the loop: in the hardware work it was a cable and a button, and those are being automated. In a factory it is the approval to restart, and that is the one row nobody should automate first. The models are competent. Put the plant in the loop anyway.</aside>
 </section>
-
 <!-- ============ Thanks ============ -->
 <section data-timing="10">
   <div class="cols two" style="grid-template-columns:1fr 1.1fr;align-items:center;margin-top:40px">
@@ -772,7 +632,130 @@
       </svg>
     </div>
   </div>
-  <aside class="notes">27:40. Thank you. Questions — and I would love to hear your worst plant failures; they become test scenarios.</aside>
+  <aside class="notes">23:05. Thank you. Questions — and I would love to hear your worst plant failures; they become test scenarios.</aside>
+</section>
+<!-- ============ backup ============ -->
+<section class="divider" data-background-color="#666666" data-visibility="uncounted" data-timing="0">
+  <div class="big">+</div>
+  <h1>Backup</h1>
+  <p>Slides kept for questions: not part of the talk.</p>
+  <aside class="notes">Backup slides, for questions.</aside>
+</section>
+
+<!-- ============ 1.1 · One year ============ -->
+<section data-visibility="uncounted" data-timing="0">
+  <div class="act"><b>1</b> · agents</div>
+  <h2>In a year: from autocomplete to the whole loop</h2>
+  <p class="sub">What the model is trusted to do has grown one step at a time. Each step closes a longer loop without a human in it.</p>
+  <div class="steps">
+    <div class="step s1 fragment rise"><b>Completion</b><strong>The next line</strong>Suggests code as you type. You accept or reject every line.</div>
+    <div class="step s2 fragment rise"><b>Assistant</b><strong>The next answer</strong>Chat: explains, drafts, reviews. You copy the result and run it yourself.</div>
+    <div class="step s3 fragment rise"><b>Agent</b><strong>The next task</strong>Reads the code, edits files, runs the tests, reads the errors, tries again. You review the change.</div>
+    <div class="step s4 fragment rise"><b>Agent in the research loop</b><strong>The whole project</strong>Builds the system, sets up the experiments, evaluates them and writes up the result.</div>
+  </div>
+  <div class="quote foot fragment rise" style="font-style:normal"><strong>What gets automated is not a tool, it is the loop around the tools.</strong> AI-written papers have passed peer review; new benchmarks measure how well agents reproduce published research.</div>
+  <aside class="notes">0:30. The trend in one picture. Completion: the model guesses the next line. Assistant: it answers, and you do the work. Agent: it gets a task and works in a loop on its own, reading, editing, running tests, reading errors. And now agents run the whole research loop. The point is not that the model got smarter at one thing; it is that each step removes a human from a longer loop.</aside>
+</section>
+<!-- ============ 2.1 · The problem ============ -->
+<section data-visibility="uncounted" data-timing="0">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>The loop a coding agent closes is its own</h2>
+  <div class="cols two" style="margin-top:34px">
+    <div>
+      <p>Coding agents are extremely good <strong>at closing loops they can observe.</strong></p>
+      <p>Left alone, the loop they observe is <strong>their own model of the world</strong>: the code they wrote, the tests they wrote, the log lines they expected.</p>
+      <p>Tests written by the same model that wrote the code <strong>share its blind spots.</strong></p>
+      <p class="fragment rise teal" data-fragment-index="1"><strong>Hardware does not share the model's blind spots.</strong></p>
+    </div>
+    <div>
+      <svg viewBox="0 0 520 360" width="520" height="360">
+        <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <rect x="14" y="14" width="492" height="300" rx="10" fill="none" stroke="#bbb" stroke-dasharray="6 6"/>
+        <text x="260" y="342" text-anchor="middle" font-size="15" fill="#9a9a9a" font-style="italic">the model's world — same blind spots on every side</text>
+        <rect class="node" x="170" y="40" width="180" height="56" rx="12"/>
+        <text x="260" y="75" text-anchor="middle" font-size="19" font-weight="700">Agent</text>
+        <rect class="node" x="40" y="220" width="180" height="56" rx="12"/>
+        <text x="130" y="255" text-anchor="middle" font-size="19" font-weight="700">Code it wrote</text>
+        <rect class="node" x="300" y="220" width="180" height="56" rx="12"/>
+        <text x="390" y="255" text-anchor="middle" font-size="19" font-weight="700">Tests it wrote</text>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M225 96 L150 220"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M220 248 L300 248"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M370 220 L295 96"/>
+        <text x="372" y="160" font-size="16" fill="#9a9a9a" font-style="italic">"all green"</text>
+        <circle class="dot model" r="7"><animateMotion dur="4s" repeatCount="indefinite" path="M225 96 L150 220 L220 248 L300 248 L370 220 L295 96 Z"/></circle>
+      </svg>
+    </div>
+  </div>
+  <div class="quote foot fragment rise" data-fragment-index="1">Green suites that are green by accident are the failure mode that scares me: the tests pass, the model is happy, and nobody touched a board.</div>
+  <aside class="notes">5:10. The claim from the September talk. Code, tests and expectations all come from the same model. Hardware is the one thing in the room that does not share those blind spots.</aside>
+</section>
+<!-- ============ 2.4 · Emulator and silicon ============ -->
+<section data-visibility="uncounted" data-timing="0">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>Emulator and silicon keep each other honest</h2>
+  <div class="cols two" style="margin-top:24px">
+    <div class="card fragment rise">
+      <h3><span class="num" style="width:34px;height:34px;font-size:17px">2</span>Cooja-NG: the chip calibrates the emulator</h3>
+      <ul class="small">
+        <li>Measured on the real chip: one switch into the secure world and back costs <strong>58 cycles</strong>. That number becomes the emulator's timing, never the other way round.</li>
+        <li>Once trusted, the emulator is the proxy: <strong>~2400× real time</strong>, deterministic, in CI.</li>
+        <li>A four-year-old "flaky" test became <strong>"fails 14 of 15"</strong>: a number an agent can work on. The cause was uninitialised bytes; the fix one line.</li>
+      </ul>
+    </div>
+    <div class="card fragment rise">
+      <h3><span class="num" style="width:34px;height:34px;font-size:17px">3</span>esp32sim: compared against the real chip</h3>
+      <ul class="small">
+        <li>Every instruction of three real firmware images against the standard disassembler: <strong>0 mismatches</strong> in 1.2 M.</li>
+        <li>Real chip and emulator stepped side by side: <strong>never diverged</strong>.</li>
+        <li>What only the chip could tell: one register at the wrong address made an interrupt handler re-enter itself <strong class="coral">3 867 times</strong>. The crash was 500 KB from the cause.</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top:22px"><strong>The reference never comes from the model: <span class="teal">a disassembler, the real chip, a boot log, a logic analyzer.</span></strong></p>
+  <aside class="notes">7:45. Two more examples, fast. Cooja-NG: the chip calibrates the emulator; then the emulator is a fast proxy, and flaky becomes a number. esp32sim: verified against things the agent did not produce. The chip found what nothing inside the emulator could see. Common thread: the reference always comes from outside the model.</aside>
+</section>
+<!-- ============ 2.5 · The pattern ============ -->
+<section data-visibility="uncounted" data-timing="0">
+  <div class="act"><b>2</b> · hardware in the loop</div>
+  <h2>The pattern: six rules</h2>
+  <div class="cols two pattern" style="margin-top:22px;row-gap:26px">
+    <div><p><span class="num">1</span><strong>Make the loop observable</strong></p><p class="small grey">If the agent cannot see it, it cannot fix it.</p></div>
+    <div><p><span class="num">2</span><strong>Make it deterministic</strong></p><p class="small grey">"Flaky" is not a work item. "14 of 15" is.</p></div>
+    <div><p><span class="num">3</span><strong>Compare against reality, not yourself</strong></p><p class="small grey">The reference must come from outside the model.</p></div>
+    <div><p><span class="num">4</span><strong>Pin the reference outputs, then go faster</strong></p><p class="small grey">Speed is safe only when every output stays byte-identical.</p></div>
+    <div><p><span class="num">5</span><strong>Keep the receipts</strong></p><p class="small grey">Data, checksums and a way to reproduce, for every claim.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>A human holds the board and names the cause</strong></p><p class="small grey">The agent applies fixes; the human decides what "correct" means.</p></div>
+  </div>
+  <p class="foot teal fragment rise" style="font-style:italic">Six rules — none of them about the model. All of them about what the model gets to observe.</p>
+  <aside class="notes">8:45. The six rules. None is about the model. They come back at the end of part three, translated for a plant.</aside>
+</section>
+<!-- ============ 3.8 · Live demo: the kiln ============ -->
+<section data-visibility="uncounted" data-demo-src="viewer/index.html?src=runs/deck/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Live:</strong> the same run in the viewer, hour 48. Each instrument beside its true value; MT101 <span class="coral">disagrees</span>. The red line: hidden truth no instrument measures. <span class="grey"><span class="kbd">D</span> reloads.</span></div>
+  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">18:55 (40 s). The kiln mimic at hour 48: MT101 reads 56 percent, the true air is 14. Below, the hidden truth: drying gradient almost 9, pine tolerates 3.5. Scrub back to hour 20 to show where the curves part. The agent would never see the true values; the viewer shows them because we are the oracle.</aside>
+</section>
+<!-- ============ 3.12 · Built the same way ============ -->
+<section data-visibility="uncounted" data-timing="0">
+  <div class="act"><b>3</b> · the factory</div>
+  <h2>Built the same way: part two's method, in six days</h2>
+  <div class="stats" style="margin:26px 0 26px">
+    <div class="stat"><b class="count" data-to="6">0</b><span>days, from an empty repository to both plants</span></div>
+    <div class="stat"><b class="count" data-to="67">0</b><span>commits, written with a coding agent</span></div>
+    <div class="stat"><b class="count" data-to="20">0</b><span>pinned golden runs, compared byte for byte at every change</span></div>
+    <div class="stat"><b class="count" data-to="3">0</b><span>real protocols live: MQTT, Sparkplug B, OPC UA</span></div>
+  </div>
+  <div class="cols two">
+    <ul class="small">
+      <li><strong>Deterministic core</strong>: integer physics, named random streams, no wall clock. Any episode replays to the same state hash.</li>
+      <li><strong>Pinned references</strong>: state hashes, canonical recordings and agent trajectories stayed identical through a full architecture refactor.</li>
+    </ul>
+    <ul class="small">
+      <li><strong>Receipts</strong>: every agent episode is a replayable log with the model, seed, versions and reward explanation.</li>
+      <li><strong>The human named the process</strong>: sawmill stage order, what a kiln operator watches, what OTTO needs to see.</li>
+    </ul>
+  </div>
+  <aside class="notes">23:55. A meta point. This testbed was itself built with a coding agent, in six days, following the six rules from part two. Deterministic core; twenty golden runs compared byte for byte at every change, including a full refactor that stayed identical; every episode is a replayable receipt. And the human did the part the agent cannot: naming the process, the stage order, what matters to OTTO.</aside>
 </section>
 
 </div>

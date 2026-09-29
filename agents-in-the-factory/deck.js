@@ -7,7 +7,13 @@ document.querySelectorAll('section[data-demo-src]').forEach(sec => {
 Reveal.initialize({
   width: 1280, height: 720, margin: 0.04,
   center: false, hash: true, progress: true, controls: false,
-  slideNumber: 'c/t',
+  // count the talk's slides only; backup slides (data-visibility="uncounted") show "+"
+  slideNumber: slide => {
+    const counted = [...document.querySelectorAll('.reveal .slides > section')]
+      .filter(s => s.dataset.visibility !== 'uncounted');
+    const i = counted.indexOf(slide);
+    return i < 0 ? ['+'] : [i + 1, '/', counted.length];
+  },
   transition: 'fade', transitionSpeed: 'fast', backgroundTransition: 'none',
   defaultTiming: 60,
   totalTime: 1800,
