@@ -147,7 +147,7 @@
   <div class="act"><b>1</b> · agenter</div>
   <h2>En agent vet bara det den ser</h2>
   <div class="cols three" style="margin-top:30px">
-    <div class="card fragment rise"><p><span class="num">1</span><strong>Den ser det verktygen visar</strong></p><p class="small grey">Gamla värden, saknade värden och en givare som ljuger ser likadana ut — om ingen talar om att värdet är gammalt.</p></div>
+    <div class="card fragment rise"><p><span class="num">1</span><strong>Den ser det verktygen visar</strong></p><p class="small grey">Gamla värden, saknade värden och en givare som visar fel ser likadana ut — om ingen talar om att värdet är gammalt.</p></div>
     <div class="card fragment rise"><p><span class="num">2</span><strong>Den rättar sin egen läxa</strong></p><p class="small grey">När samma modell skriver både svaret och testet kommer båda från samma bild av världen. Grönt är inte samma sak som rätt.</p></div>
     <div class="card risk fragment rise"><p><span class="num" style="background:var(--coral)">3</span><strong>Instruktioner kan gömma sig i data</strong></p><p class="small grey">En arbetsorder där det står <em>"diagnostisera detta som ett stopp"</em> är text för oss — men kan bli en order för modellen. Allt den läser är en väg in.</p></div>
   </div>
@@ -314,7 +314,7 @@
     <tr><td><strong>Data som lämnar anläggningen</strong></td><td>molnbaserade IoT-, mät- och analystjänster</td></tr>
     <tr><td><strong>Namngivning av signaler</strong></td><td>samma signal i flera system, från flera leverantörer</td></tr>
   </table>
-  <div class="quote" style="font-style:normal;font-size:20px;margin-top:14px;margin-right:80px"><strong>Torken är en fjärrvärmecentral med virke i:</strong> en värmeventil, en PI-regulator och givare som kan ljuga.</div>
+  <div class="quote" style="font-style:normal;font-size:20px;margin-top:14px;margin-right:80px"><strong>Torken är i grunden en fjärrvärmecentral med virke i:</strong> en värmeventil, en regulator och givare som kan visa fel.</div>
   <aside class="notes">8:30. Den här bilden är för alla som inte driver ett sågverk. Energi och elnät, vatten och avfall, fastigheter och värme, IoT och nät: samma fel finns i era anläggningar. En givare som glider utan att larma men kostar energi eller kvalitet. En ventil som fastnar. Ytterstationer som tystnar. Entreprenörer med fjärråtkomst. Data som hamnar i någons moln. Och namngivningen, samma signal i fem system. Vi valde ett sågverk för att det har allt det här, och skogen finns i rummet. Men torken är i grunden en fjärrvärmecentral med virke i. Ha er egen anläggning i tankarna resten av föredraget.</aside>
 </section>
 
@@ -476,7 +476,7 @@
 <section data-timing="75">
   <div class="act"><b>3</b> · anläggningen</div>
   <h2>Larmet pekar ut den friska givaren</h2>
-  <p class="sub">Torkuppgift k02: styrgivaren TT101 visar 5 °C för lågt — men det är TT102 som larmar. Vilken givare ljuger?</p>
+  <p class="sub">Torkuppgift k02: styrgivaren TT101 visar 5 °C för lågt — men det är TT102 som larmar. Vilken givare visar fel?</p>
   <div class="cols two" style="grid-template-columns:1.15fr 1fr;gap:26px">
     <div>
       <svg viewBox="0 0 590 340" width="590" height="340">
@@ -502,7 +502,7 @@
     </div>
   </div>
   <p class="foot fragment rise"><strong class="teal">De små modellerna går in i väggen från del två.</strong> De starkaste tar sig förbi — och går in i den på nästa bild.</p>
-  <aside class="notes">16:55. Fällan, konstruerad med flit. Samma fråga som när två givare i en värmecentral inte stämmer: vilken ljuger? Styrgivaren visar 5 grader för lågt. Styrningen värmer hårdare, den verkliga temperaturen stiger, och kontrollgivaren larmar: larmet bär den friska givarens namn. Trenden avslöjar vilken som är fel: TT101 hoppade på ett enda mätvärde, och luft kan inte göra så. gemma4 väntade och skyllde på larmets enhet, som den enkla regeln. qwen3 tittade faktiskt på trender, men vid tid noll, och pekade sedan ut exakt rätt svar innan felet fanns: det är instruktionen som talar, inte anläggningen. I uppgiften med den fastnade ventilen visade observationen kommando noll, läge hundra procent, och ingen av modellerna jämförde de två. Samma vägg som i hårdvaruarbetet. Claude, alla tre storlekarna, gjorde det fysiken kräver: såg språnget, såg värmen svara, pekade ut TT101, efter att felet börjat, tre av tre. Likadant med den fastnade ventilen: den jämförde kommando med läge.</aside>
+  <aside class="notes">16:55. Fällan, konstruerad med flit. Samma fråga som när två givare i en värmecentral inte stämmer: vilken visar fel? Styrgivaren visar 5 grader för lågt. Styrningen värmer hårdare, den verkliga temperaturen stiger, och kontrollgivaren larmar: larmet bär den friska givarens namn. Trenden avslöjar vilken som är fel: TT101 hoppade på ett enda mätvärde, och luft kan inte göra så. gemma4 väntade och skyllde på larmets enhet, som den enkla regeln. qwen3 tittade faktiskt på trender, men vid tid noll, och pekade sedan ut exakt rätt svar innan felet fanns: det är instruktionen som talar, inte anläggningen. I uppgiften med den fastnade ventilen visade observationen kommando noll, läge hundra procent, och ingen av modellerna jämförde de två. Samma vägg som i hårdvaruarbetet. Claude, alla tre storlekarna, gjorde det fysiken kräver: såg språnget, såg värmen svara, pekade ut TT101, efter att felet börjat, tre av tre. Likadant med den fastnade ventilen: den jämförde kommando med läge.</aside>
 </section>
 <!-- ============ 3.10b · Gränsen ============ -->
 <section data-timing="55">
