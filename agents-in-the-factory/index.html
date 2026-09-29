@@ -167,7 +167,7 @@
 <!-- ============ 2.2 · The fix ============ -->
 <section data-timing="60">
   <div class="act"><b>2</b> · hardware in the loop</div>
-  <h2>Put the chip in the loop, and give the agent eyes</h2>
+  <h2>Put the hardware in the loop, and give the agent eyes</h2>
   <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:56px">
     <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
            <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
@@ -181,10 +181,10 @@
     </g>
     <g class="fragment" data-fragment-index="2">
       <rect class="node si" x="910" y="60" width="230" height="70" rx="14"/>
-      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Real board</text>
+      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Real hardware</text>
       <rect x="1000" y="16" width="80" height="26" rx="13" fill="#FFE500"/>
       <text x="1040" y="34" text-anchor="middle" font-size="14" font-weight="700">a human</text>
-      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">holds the board</text>
+      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">plugs in the hardware</text>
     </g>
     <path class="arrow" style="marker-end:url(#ah2)" d="M250 95 L308 95"/>
     <path class="arrow fragment" data-fragment-index="1" style="marker-end:url(#ah2)" d="M550 95 L608 95"/>
@@ -196,12 +196,12 @@
     <g class="fragment" data-fragment-index="4">
       <path class="arrow" style="marker-end:url(#ah2)" d="M1025 130 L1025 200 L130 200 L130 134"/>
       <text x="580" y="232" text-anchor="middle" font-size="18"><tspan font-weight="700" fill="#009BA5">observation: </tspan><tspan fill="#666">what the board prints · what its screen shows · instruction counts · chip and emulator stepped side by side · one LED at a time</tspan></text>
-      <circle class="dot" r="8"><animateMotion dur="6s" repeatCount="indefinite" path="M130 95 L430 95 L730 95 L1025 95 L1025 200 L130 200 Z"/></circle>
+      <circle class="dot" r="8"><animateMotion dur="6s" repeatCount="indefinite" path="M1025 132 L1025 200 L130 200 L130 132"/></circle>
     </g>
     <g class="fragment rise" data-fragment-index="5">
-      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Oracle</tspan><tspan fill="#666"> — the real board has the last word on what is correct</tspan></text>
-      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Calibrator</tspan><tspan fill="#666"> — timings measured on the board become the emulator's timings</tspan></text>
-      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — a fast, repeatable stand-in for the board that the agent can iterate in</tspan></text>
+      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Oracle</tspan><tspan fill="#666"> — the real hardware has the last word on what is correct</tspan></text>
+      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Calibrator</tspan><tspan fill="#666"> — timings measured on the hardware become the emulator's timings</tspan></text>
+      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — a fast, repeatable stand-in for the hardware that the agent can iterate in</tspan></text>
     </g>
   </svg>
   <p class="foot grey small" style="font-style:italic">Three roles for hardware in the loop. Keep them in mind: part three reuses all three.</p>
@@ -210,7 +210,7 @@
 <!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
 <section class="roomy" data-timing="50">
   <div class="act"><b>2</b> · hardware in the loop</div>
-  <div class="role"><i>agent</i><i>emulator</i><i class="on">board = oracle</i><i class="human">human: cable + button</i></div>
+  <div class="role"><i>agent</i><i>emulator</i><i class="on">hardware = oracle</i><i class="human">human: cable + button</i></div>
   <h2><span class="num">1</span>Contiki-NG 5.2: the agent ran the hardware tests</h2>
   <p class="sub">An open-source OS for small wireless devices · released 2026-08-13 · every board test run by the agent</p>
   <div class="stats" style="margin:18px 0 22px">

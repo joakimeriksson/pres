@@ -167,7 +167,7 @@
 <!-- ============ 2.2 · Lösningen ============ -->
 <section data-timing="60">
   <div class="act"><b>2</b> · hårdvara i loopen</div>
-  <h2>Sätt kretsen i loopen — och ge agenten ögon</h2>
+  <h2>Sätt hårdvaran i loopen — och ge agenten ögon</h2>
   <svg viewBox="0 0 1150 370" width="1150" height="370" style="margin-top:56px">
     <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
            <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#666"/></marker></defs>
@@ -181,10 +181,10 @@
     </g>
     <g class="fragment" data-fragment-index="2">
       <rect class="node si" x="910" y="60" width="230" height="70" rx="14"/>
-      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Riktigt kort</text>
+      <text x="1025" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Riktig hårdvara</text>
       <rect x="990" y="16" width="100" height="26" rx="13" fill="#FFE500"/>
       <text x="1040" y="34" text-anchor="middle" font-size="14" font-weight="700">en människa</text>
-      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">håller i kortet</text>
+      <text x="1040" y="58" text-anchor="middle" font-size="13" fill="#666" font-style="italic">kopplar in hårdvaran</text>
     </g>
     <path class="arrow" style="marker-end:url(#ah2)" d="M250 95 L308 95"/>
     <path class="arrow fragment" data-fragment-index="1" style="marker-end:url(#ah2)" d="M550 95 L608 95"/>
@@ -195,42 +195,42 @@
     </g>
     <g class="fragment" data-fragment-index="4">
       <path class="arrow" style="marker-end:url(#ah2)" d="M1025 130 L1025 200 L130 200 L130 134"/>
-      <text x="580" y="232" text-anchor="middle" font-size="18"><tspan font-weight="700" fill="#009BA5">det agenten ser: </tspan><tspan fill="#666">vad kortet skriver ut · vad skärmen visar · räknare · krets och emulator steg för steg · en lysdiod i taget</tspan></text>
-      <circle class="dot" r="8"><animateMotion dur="6s" repeatCount="indefinite" path="M130 95 L430 95 L730 95 L1025 95 L1025 200 L130 200 Z"/></circle>
+      <text x="580" y="232" text-anchor="middle" font-size="18"><tspan font-weight="700" fill="#009BA5">det agenten ser: </tspan><tspan fill="#666">vad hårdvaran skriver ut · vad skärmen visar · räknare · krets och emulator steg för steg · en lysdiod i taget</tspan></text>
+      <circle class="dot" r="8"><animateMotion dur="6s" repeatCount="indefinite" path="M1025 132 L1025 200 L130 200 L130 132"/></circle>
     </g>
     <g class="fragment rise" data-fragment-index="5">
-      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Facit</tspan><tspan fill="#666"> — det riktiga kortet har sista ordet</tspan></text>
-      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Kalibrering</tspan><tspan fill="#666"> — tider mätta på kortet blir emulatorns tider</tspan></text>
-      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Ersättare</tspan><tspan fill="#666"> — en snabb kopia av kortet som agenten kan öva i</tspan></text>
+      <text x="10" y="280" font-size="24"><tspan font-weight="700" fill="#009BA5">Facit</tspan><tspan fill="#666"> — den riktiga hårdvaran har sista ordet</tspan></text>
+      <text x="10" y="318" font-size="24"><tspan font-weight="700" fill="#009BA5">Kalibrering</tspan><tspan fill="#666"> — tider mätta på hårdvaran blir emulatorns tider</tspan></text>
+      <text x="10" y="356" font-size="24"><tspan font-weight="700" fill="#009BA5">Ersättare</tspan><tspan fill="#666"> — en snabb kopia av hårdvaran som agenten kan öva i</tspan></text>
     </g>
   </svg>
   <p class="foot grey small" style="font-style:italic">Tre roller för hårdvaran. Del tre använder samma tre.</p>
-  <aside class="notes">4:10. Mönstret i en bild. Agenten skriver fortfarande koden, men det den observerar kommer nu från en emulator och från kisel, jämförda med varandra. Hårdvaran spelar tre roller: facit, kalibrering, ersättare. Del tre återanvänder exakt de tre rollerna, med en anläggning i stället för ett kort.</aside>
+  <aside class="notes">4:10. Mönstret i en bild. Agenten skriver fortfarande koden, men det den observerar kommer nu från en emulator och från kisel, jämförda med varandra. Hårdvaran spelar tre roller: facit, kalibrering, ersättare. Del tre återanvänder exakt de tre rollerna, med en anläggning i stället för ett kretskort.</aside>
 </section>
 <!-- ============ 2.3 · Contiki-NG 5.2 ============ -->
 <section class="roomy" data-timing="50">
   <div class="act"><b>2</b> · hårdvara i loopen</div>
-  <div class="role"><i>agent</i><i>emulator</i><i class="on">kort = facit</i><i class="human">människa: kabel + knapp</i></div>
+  <div class="role"><i>agent</i><i>emulator</i><i class="on">hårdvara = facit</i><i class="human">människa: kabel + knapp</i></div>
   <h2><span class="num">1</span>Contiki-NG 5.2: agenten körde hårdvarutesterna</h2>
-  <p class="sub">Ett öppet operativsystem för små trådlösa enheter · släppt 13 augusti 2026 · alla korttester körda av agenten</p>
+  <p class="sub">Ett öppet operativsystem för små trådlösa enheter · släppt 13 augusti 2026 · alla hårdvarutester körda av agenten</p>
   <div class="stats" style="margin:18px 0 22px">
     <div class="stat"><b class="count" data-to="458">0</b><span>commits</span></div>
     <div class="stat"><b class="count" data-to="113">0</b><span>pull requests</span></div>
     <div class="stat"><b class="count" data-to="16">0</b><span>kontroller före release</span></div>
-    <div class="stat"><b><i class="count" data-to="18">0</i> / 18</b><span>riktiga kort, varje rad grön</span></div>
+    <div class="stat"><b><i class="count" data-to="18">0</i> / 18</b><span>riktiga kretskort, varje rad grön</span></div>
   </div>
   <div class="cols two">
     <ul class="small">
-      <li>Releaseteamet satte reglerna, som varje år: plan, körbok och en checklista med riktiga kort. Ingen release förrän alla rader är gröna.</li>
+      <li>Releaseteamet satte reglerna, som varje år: plan, körbok och en checklista med riktiga kretskort. Ingen release förrän alla rader är gröna.</li>
       <li>Agenten läste CI-inställningarna och upptäckte: <em>"CI har aldrig testat release-grenen."</em> Så blev själva releasen det CI måste klara.</li>
     </ul>
     <ul class="small">
-      <li>Den byggde och laddade in firmware på <strong>varje kort på listan</strong>, läste vad kortet skrev ut och fyllde i raden — med en rapport under varje.</li>
+      <li>Den byggde och laddade in firmware på <strong>varje kretskort på listan</strong>, läste vad det skrev ut och fyllde i raden — med en rapport under varje.</li>
       <li><strong>Människans jobb: sätta i kabeln, trycka på knappen.</strong></li>
     </ul>
   </div>
-  <div class="quote foot">Simuleringen bevisar logiken; kortet bevisar resten. Kortet är facit — och nu är det agenten som rättar mot det.</div>
-  <aside class="notes">5:10. Första exemplet, kortet som facit. Teamet satte reglerna; agenten arbetade inom dem och körde alla korttester. Människan satte i kablar och tryckte på knappar. 18 av 18.</aside>
+  <div class="quote foot">Simuleringen bevisar logiken; hårdvaran bevisar resten. Hårdvaran är facit — och nu är det agenten som rättar mot den.</div>
+  <aside class="notes">5:10. Första exemplet, hårdvaran som facit. Teamet satte reglerna; agenten arbetade inom dem och körde alla hårdvarutester. Människan satte i kablar och tryckte på knappar. 18 av 18.</aside>
 </section>
 <!-- ============ 2.6 · Där agenterna stannade ============ -->
 <section data-timing="45">
@@ -260,9 +260,9 @@
     <tr><td><strong>Agenten</strong></td><td class="sim">skriver kod och firmware</td><td>ställer diagnos, planerar, begär åtgärder — i en linje, ett nät eller en fastighet</td></tr>
     <tr><td><strong>Ersättare</strong></td><td class="sim">emulatorn: snabb, samma varje gång</td><td><strong class="teal">testbädden</strong>: en simulerad anläggning, 1 000 gånger snabbare än verkligheten</td></tr>
     <tr><td><strong>Kalibrering</strong></td><td class="sim">klockcykler från kretsen</td><td>verkliga värden: energi, flöden, utbyten, scheman</td></tr>
-    <tr><td><strong>Facit</strong></td><td class="sim">det riktiga kortet</td><td>simulatorns dolda sanning — senare den riktiga anläggningen</td></tr>
+    <tr><td><strong>Facit</strong></td><td class="sim">den riktiga hårdvaran</td><td>simulatorns dolda sanning — senare den riktiga anläggningen</td></tr>
     <tr><td><strong>Det den ser</strong></td><td class="sim">seriell utskrift, bilder, räknare</td><td>bara det anläggningens <strong>informationsflöde</strong> levererar</td></tr>
-    <tr><td><strong>Människan</strong></td><td class="sim">håller i kortet</td><td>godkänner omstarten</td></tr>
+    <tr><td><strong>Människan</strong></td><td class="sim">kopplar in hårdvaran</td><td>godkänner omstarten</td></tr>
   </table>
   <aside class="notes">6:45. Bryggan. Vänd på riktningen: agenten sköter anläggningen i stället för att skriva kod. Testbädden är emulatorn: en deterministisk anläggning, snabb, repeterbar. Värden från verkliga anläggningar kalibrerar den. Dess dolda sanning är facit, och senare en riktig anläggning. Och det agenten observerar är det anläggningens informationsflöde levererar: där kommer IT/OT och cybersäkerhet in.</aside>
 </section>
@@ -691,7 +691,7 @@
       </svg>
     </div>
   </div>
-  <div class="quote foot fragment rise" data-fragment-index="1">Testsviter som är gröna av en slump är det felläge som skrämmer mig: testerna går igenom, modellen är nöjd, och ingen har rört ett kort.</div>
+  <div class="quote foot fragment rise" data-fragment-index="1">Testsviter som är gröna av en slump är det felläge som skrämmer mig: testerna går igenom, modellen är nöjd, och ingen har rört hårdvaran.</div>
   <aside class="notes">5:10. Påståendet från septemberföredraget. Kod, tester och förväntningar kommer alla från samma modell. Hårdvaran är det enda i rummet som inte delar de blinda fläckarna.</aside>
 </section>
 <!-- ============ 2.4 · Emulator och kisel ============ -->
@@ -729,7 +729,7 @@
     <div><p><span class="num">3</span><strong>Jämför mot verkligheten, inte mot dig själv</strong></p><p class="small grey">Referensen måste komma utifrån modellen.</p></div>
     <div><p><span class="num">4</span><strong>Lås referensutdata, gå sedan fortare</strong></p><p class="small grey">Hastighet är säker bara när varje utdata förblir identiskt byte för byte.</p></div>
     <div><p><span class="num">5</span><strong>Spara kvittona</strong></p><p class="small grey">Data, kontrollsummor och ett sätt att återskapa, för varje påstående.</p></div>
-    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>En människa håller i kortet och namnger orsaken</strong></p><p class="small grey">Agenten tillämpar lösningar; människan avgör vad "rätt" betyder.</p></div>
+    <div><p><span class="num" style="background:var(--yellow);color:var(--ink)">6</span><strong>En människa kopplar in hårdvaran och namnger orsaken</strong></p><p class="small grey">Agenten tillämpar lösningar; människan avgör vad "rätt" betyder.</p></div>
   </div>
   <p class="foot teal fragment rise" style="font-style:italic">Sex regler — ingen av dem handlar om modellen. Alla handlar om vad modellen får observera.</p>
   <aside class="notes">8:45. De sex reglerna. Ingen handlar om modellen. De kommer tillbaka i slutet av del tre, översatta till en anläggning.</aside>
