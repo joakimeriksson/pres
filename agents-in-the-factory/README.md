@@ -1,4 +1,4 @@
-# Agents in the factory loop — web deck
+# Agents in the OT loop — web deck
 
 reveal.js 5, no build step, same design as `../agentic-hw` (the hardware-in-the-loop talk, which is part two here).
 Two languages, same slides: `index.html` (English) and `sv.html` (svenska, for Swedish industry); both use the
@@ -62,3 +62,7 @@ hardware-loop "six rules", the kiln demo and "Built the same way". The slide cou
 (backup slides show "+"); the speaker-note timestamps are the cumulative plan. Written for a broad OT
 audience (energy and grids, water and waste, property and heating, IoT, forestry, process industry): the
 slide "The sawmill is the example — the patterns are yours" maps each testbed fault to their plants.
+
+The sawmill and kiln are the worked example throughout part three; each slide names the counterpart in heating,
+water, grids or buildings where it fits ("the kiln is a heating substation with timber in it"). The folder keeps
+its original name, agents-in-the-factory.
