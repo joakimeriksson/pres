@@ -1,0 +1,1378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Line Viewer</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --ink: #1c1e21; --muted: #6b7280; --line: #d1d5db;
+    --belt: #cbd2dc; --belt-edge: #8b95a5; --log: #b8864b; --log-edge: #6e4c22; --plank: #e3c48f; --block: #d4a766; --side: #c9b48a;
+    --off: #9ca3af; --starting: #f59e0b; --running: #16a34a; --stopping: #f97316;
+    --beam: #2563eb; --beam-blocked: #dc2626; --accent: #2563eb;
+    --fieldbus: #16a34a; --supervisory: #2563eb; --uns-link: #8b5cf6; --it-link: #0f766e; --band: #f8f9fb; --band-alt: #eef1f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111418; --panel: #1a1f26; --ink: #e5e7eb; --muted: #9ca3af; --line: #2d3540;
+      --band: #161b21; --band-alt: #1d232b; --uns-link: #a78bfa; --it-link: #2dd4bf;
+      --belt: #3b4552; --belt-edge: #6b7686; --log: #c08a4c; --log-edge: #3f2a12; --plank: #d9b77a; --block: #c9974f; --side: #a8946a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+           padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 16px; margin: 0 8px 0 0; font-weight: 600; }
+  main { padding: 16px; max-width: 1200px; margin: 0 auto; }
+  main.wide { max-width: 1680px; }
+  .workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  main.wide .workspace { grid-template-columns: minmax(0, 1fr) 400px; }
+  @media (max-width: 1100px) { main.wide .workspace { grid-template-columns: minmax(0, 1fr); } }
+  #uns { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+         display: flex; flex-direction: column; max-height: calc(100vh - 110px); position: sticky; top: 12px; }
+  #uns h2 { font-size: 14px; margin: 0 0 6px; }
+  #uns .bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+  #uns .bar button.on { border-color: var(--accent); color: var(--accent); }
+  #uns input[type=search] { flex: 1 1 140px; font: inherit; padding: 4px 8px; border: 1px solid var(--line);
+         border-radius: 6px; background: var(--bg); color: var(--ink); }
+  #uns .prefix { font: 11px ui-monospace, Menlo, monospace; color: var(--muted); margin-bottom: 4px; word-break: break-all; }
+  #uns-tree { overflow-y: auto; flex: 1 1 auto; font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #uns-tree details { margin-left: 10px; }
+  #uns-tree summary { cursor: pointer; color: var(--ink); }
+  #uns-tree summary.eq-selected { color: var(--accent); font-weight: 600; }
+  #uns-tree .sig { display: flex; gap: 8px; margin-left: 22px; cursor: pointer; border-radius: 4px; padding: 0 4px; }
+  #uns-tree .sig:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  #uns-tree .sig.selected { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  #uns-tree .sig .n { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #uns-tree .sig .v { color: var(--running); white-space: nowrap; }
+  #uns-tree .sig .r { color: var(--muted); font-size: 10px; width: 28px; text-align: right; }
+  #uns-card { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; font-size: 12px; }
+  #uns-card code { font-size: 11px; word-break: break-all; }
+  #uns-card .k { color: var(--muted); width: 88px; display: inline-block; vertical-align: top; }
+  #uns-card .row { margin: 2px 0; }
+  #uns-card .chips { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  #uns-card .chip { border: 1px solid var(--line); border-radius: 10px; padding: 0 7px; background: var(--bg); }
+  #uns-card .chip.zone-cell, #uns-card .chip.zone-control { border-color: var(--running); }
+  #uns-card .chip.zone-supervisory, #uns-card .chip.zone-operations { border-color: var(--accent); }
+  #uns-card .chip.zone-dmz { border-color: var(--starting); }
+  #uns-card .chip.zone-enterprise, #uns-card .chip.zone-external { border-color: var(--stopping); }
+  #live { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+  #live .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0; }
+  #live .dot { color: var(--beam-blocked); font-weight: 700; }
+  #live .dot.paused { color: var(--muted); }
+  #live select, #live button { font-size: 13px; }
+  #live button.danger { border-color: var(--beam-blocked); color: var(--beam-blocked); }
+  #live-msg { font-size: 12px; }
+  #live-trip { font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--beam-blocked);
+               color: var(--beam-blocked); display: block; }
+  #live-faults { font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  #live-faults span { border: 1px solid var(--line); border-radius: 10px; padding: 1px 8px; }
+  #live-faults span.active { border-color: var(--beam-blocked); color: var(--beam-blocked); }
+  #live-faults span.repairing { border-color: var(--starting); color: var(--starting); }
+  #security { margin-top: 8px; font-size: 12px; }
+  #security .sechead { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; margin-bottom: 4px; }
+  #security .sechead b { font-size: 14px; }
+  #sec-events { max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  #sec-events .netev { display: grid; grid-template-columns: 64px 76px 1fr; gap: 8px; padding: 3px 8px; border-bottom: 1px solid var(--line); }
+  #sec-events .netev:last-child { border-bottom: 0; }
+  #sec-events .netev .t { color: var(--muted); font-variant-numeric: tabular-nums; }
+  #sec-events .netev.sev-alarm .k { color: var(--beam-blocked); font-weight: 600; }
+  #sec-events .netev.sev-warning .k { color: var(--starting); font-weight: 600; }
+  #sec-events .netev.future { opacity: .35; }
+  #flow { height: 330px; margin-top: 10px; cursor: pointer; }
+  .flowhead { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 12px; font-size: 12px; align-items: baseline; }
+  .flowhead b { font-size: 14px; margin-right: 4px; }
+  .flowhead .cls { display: inline-flex; gap: 6px; align-items: center; }
+  .flowhead .sw { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+  #uns-card canvas { width: 100%; height: 48px; border: none; margin-top: 4px; }
+  canvas { width: 100%; display: block; background: var(--panel); border: 1px solid var(--line);
+           border-radius: 8px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+  .controls input[type=range] { flex: 1 1 240px; }
+  button, select { font: inherit; padding: 4px 10px; border: 1px solid var(--line);
+                   border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .stat .k { color: var(--muted); font-size: 12px; }
+  .stat .v { font-variant-numeric: tabular-nums; font-size: 18px; }
+  .stat.alarms { grid-column: 1 / -1; }
+  .alarm { border-left: 3px solid var(--beam-blocked); padding: 4px 8px; margin: 6px 0; }
+  .hint { color: var(--muted); }
+  #timeline { width: 100%; height: 44px; display: block; cursor: pointer; margin-top: 4px;
+              background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  #agent { margin-top: 10px; background: var(--panel); border: 1px solid var(--line);
+           border-radius: 8px; padding: 8px 10px; max-height: 220px; overflow-y: auto;
+           font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #agent .ev { color: var(--muted); }
+  #agent .ev.done { color: var(--ink); }
+  #agent .ev.now { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+  #agent .marker { color: var(--beam-blocked); }
+  #agent .marker.open { color: var(--muted); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  #drop { border: 2px dashed var(--line); border-radius: 8px; padding: 32px; text-align: center;
+          color: var(--muted); }
+  #drop.over { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Line Viewer</h1>
+  <input id="file" type="file" accept=".jsonl,.json">
+  <span id="meta" class="hint"></span>
+  <a id="toDash" href="#" hidden>dashboard →</a>
+</header>
+<main>
+  <div id="drop">Drop a recording here or choose a file above.<br>
+    <code>uv run industrial-testbed run --scenario cv102_jam_v1 --record runs/jam.jsonl</code></div>
+  <div id="app" hidden><div class="workspace"><div class="left">
+    <canvas id="c" height="400"></canvas>
+    <div id="flowhead" class="flowhead" hidden></div>
+    <canvas id="flow" hidden></canvas>
+    <div id="security" hidden>
+      <div class="sechead" id="sec-head"></div>
+      <div id="sec-events"></div>
+    </div>
+    <div class="controls">
+      <button id="play">Play</button>
+      <button id="stepb">−1</button>
+      <button id="stepf">+1</button>
+      <select id="speed">
+        <option value="0.25">0.25×</option><option value="1" selected>1×</option>
+        <option value="4">4×</option><option value="16">16×</option><option value="64">64×</option>
+      </select>
+      <input id="scrub" type="range" min="0" max="0" value="0">
+      <span id="time" class="hint" style="min-width: 150px"></span>
+    </div>
+    <div id="live" hidden>
+      <div class="row">
+        <span class="dot" id="live-dot">● LIVE</span>
+        <span class="hint" id="live-status"></span>
+        <label class="hint">speed <select id="live-speed"></select></label>
+        <button id="live-pause">Pause</button>
+        <button id="live-follow">Follow live</button>
+        <button id="live-reset">Reset line</button>
+      </div>
+      <div class="row">
+        <b style="font-size:13px">Break something:</b>
+        <select id="live-device" title="device (click a machine on the line to pick it)"></select>
+        <select id="live-fault"></select>
+        <select id="live-duration">
+          <option value="">until repaired</option><option value="30">for 30 s</option>
+          <option value="60">for 60 s</option><option value="120">for 2 min</option>
+        </select>
+        <button id="live-inject" class="danger">Inject fault</button>
+        <button id="live-repair">Send maintenance</button>
+      </div>
+      <div class="row">
+        <b style="font-size:13px">Break the network:</b>
+        <select id="comm-type">
+          <option value="link_down">link down</option><option value="degraded">link degraded</option>
+          <option value="system_down">system down</option><option value="host_down">host down</option><option value="zone_isolated">zone isolated</option>
+        </select>
+        <select id="comm-target"></select>
+        <select id="comm-degrade" title="loss and latency">
+          <option value="40,0">40 % lost</option><option value="0,2000">2 s late</option>
+          <option value="40,2000" selected>40 % lost, 2 s late</option><option value="90,0">90 % lost</option>
+        </select>
+        <button id="comm-inject" class="danger">Inject</button>
+      </div>
+      <div class="row" id="live-trip" hidden></div>
+      <div class="row">
+        <b style="font-size:13px">Security:</b>
+        <button id="sec-fw">Enforce firewall</button>
+        <button id="sec-vendor">Open supplier session</button>
+        <span id="sec-sessions" class="hint"></span>
+      </div>
+      <div class="row"><div id="live-faults"></div></div>
+      <div class="row"><span id="live-msg" class="hint"></span></div>
+    </div>
+    <canvas id="timeline" hidden></canvas>
+    <div id="agent" hidden></div>
+    <div id="stats" class="stats"></div>
+  </div>
+  <aside id="uns" hidden>
+    <h2>Unified namespace</h2>
+    <div class="bar">
+      <span class="hint">names:</span>
+      <button data-mode="uns" class="on">UNS topic</button><button data-mode="opcua">OPC UA</button><button data-mode="plc">PLC tag</button>
+    </div>
+    <div class="bar"><input id="uns-search" type="search" placeholder="filter: CV201, current, _cmd …"></div>
+    <div id="uns-prefix" class="prefix"></div>
+    <div id="uns-tree"></div>
+    <div id="uns-card" class="hint">Click a machine on the line or a signal in the tree.</div>
+  </aside>
+  </div></div>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+let layout = null, frames = [], index = 0, playing = false, lastTime = 0, carry = 0;
+let agentEvents = [], markers = [], netEvents = [];
+let ns = null, selectedSignal = null, selectedEquipment = null, selectedSystem = null, nameMode = 'uns', hits = [];
+
+// what each system saw, where it differs from a perfect UNS (comm faults); null = caught up
+function mergeSeen(prev, delta) {
+  if (!delta || !Object.keys(delta).length) return prev;
+  const out = Object.assign({}, prev);
+  for (const [sys, d] of Object.entries(delta)) {
+    const m = Object.assign({}, out[sys] || {});
+    for (const [k, v] of Object.entries(d)) { if (v === null) delete m[k]; else m[k] = v; }
+    if (Object.keys(m).length) out[sys] = m; else delete out[sys];
+  }
+  return out;
+}
+function parse(text) {
+  setup(text.split('\n').filter(l => l.trim()).map(l => JSON.parse(l)));
+}
+function setup(records) {
+  layout = records.find(r => r.type === 'layout');
+  if (!layout) throw new Error('recording has no layout record');
+  frames = records.filter(r => r.type === 'frame');
+  // episode replays (industrial-testbed replay --view) also carry the agent's tool calls and
+  // markers, some of them verifier truth the agent never saw
+  agentEvents = records.filter(r => r.type === 'agent');
+  netEvents = records.filter(r => r.type === 'net');
+  markers = records.filter(r => r.type === 'marker');
+  $('timeline').hidden = $('agent').hidden = !(agentEvents.length || markers.length);
+  // frames carry only the values that changed; rebuild the full set per frame
+  // and only the link counts that changed (0 = link went idle)
+  let carried = {}, carriedFlow = {}, carriedSeen = {};
+  for (const fr of records.filter(r => r.type === 'frame')) {
+    carried = Object.assign({}, carried, fr.values || {});
+    fr.values = carried;
+    carriedFlow = Object.assign({}, carriedFlow, fr.flow || {});
+    fr.flow = carriedFlow;
+    carriedSeen = mergeSeen(carriedSeen, fr.seen);
+    fr.seen = carriedSeen;
+    fr.comm = fr.comm || {};
+  }
+  ns = records.find(r => r.type === 'namespace') || null;
+  if (!frames.length) throw new Error('recording has no frames');
+  index = 0;
+  $('scrub').max = frames.length - 1;
+  $('meta').textContent = `${layout.plant} · seed ${layout.seed} · ${frames.length} frames · ${layout.tick_ms} ms/tick`;
+  $('drop').hidden = true; $('app').hidden = false;
+  $('meta').textContent = live ? `${layout.plant} · live · ${layout.tick_ms} ms/tick` : $('meta').textContent;
+  buildUns();
+  $('flow').hidden = $('flowhead').hidden = !(ns && ns.links && ns.links.length);
+  $('security').hidden = !(ns && ns.security && ns.security.conduits);
+  const hasKpis = !!(ns && ns.signals.some(s => s.role === 'kpi'));
+  $('toDash').hidden = !(hasKpis && (src || live));
+  setPlaying(false);
+  // ?t=SECONDS jumps to a moment; ?play=SPEED starts playback at that speed
+  const params = new URLSearchParams(location.search);
+  const t = parseFloat(params.get('t'));
+  if (!isNaN(t)) index = Math.max(0, frames.findIndex(fr => fr.sim_time_ms >= t * 1000));
+  const pick = params.get('select');
+  if (pick && ns) { const sig = ns.signals.find(x => x.plc_tag === pick.toUpperCase()); if (sig) { selectedSignal = sig; selectedEquipment = sig.equipment; buildUns(); } }
+  const speed = params.get('play');
+  if (speed && [...$('speed').options].some(o => o.value === speed)) { $('speed').value = speed; setPlaying(true); }
+  render();
+  // ?focus=flow scrolls a section into view (e.g. the information flow, for a slide)
+  const focus = params.get('focus');
+  if (focus === 'flow') requestAnimationFrame(() => $('flowhead').scrollIntoView({ block: 'start' }));
+}
+
+function load(file) {
+  file.text().then(parse).catch(e => { alert(e.message); });
+}
+$('file').addEventListener('change', e => e.target.files[0] && load(e.target.files[0]));
+const drop = $('drop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over');
+  e.dataTransfer.files[0] && load(e.dataTransfer.files[0]); });
+
+// Serve the repo root (python -m http.server) and open viewer/?src=runs/line-1234.jsonl
+const src = new URLSearchParams(location.search).get('src');
+const live = new URLSearchParams(location.search).has('live');
+if (live) startLive();
+else if (src) {
+  fetch(src.startsWith('/') || src.includes('://') ? src : '../' + src)
+    .then(r => { if (!r.ok) throw new Error(`${r.status} loading ${src}`); return r.text(); })
+    .then(parse).catch(e => { $('meta').textContent = e.message; });
+}
+
+// ---- live mode (industrial-testbed live) ------------------------------------
+// The server streams the same records as a recording; commands go back as JSON. Faults shown here
+// were injected by the operator in this browser (or another), so listing them is no leak.
+const MAX_FRAMES = 6000;  // 10 min of history at 10 frames/s
+let following = true, liveInfo = null, liveStatus = null, renderQueued = false;
+function startLive() {
+  $('drop').textContent = 'Connecting to the live simulation…';
+  let header = [];
+  const es = new EventSource('/live/stream');
+  es.onmessage = ev => {
+    const r = JSON.parse(ev.data);
+    if (r.type === 'live') { liveStatus = r; updateLivePanel(); return; }
+    if (!layout || header.length) {
+      header.push(r);
+      if (r.type !== 'frame') return;
+      setup(header); header = [];
+      $('live').hidden = false;
+      ['play', 'stepb', 'stepf', 'speed'].forEach(id => $(id).hidden = true);
+      index = frames.length - 1;
+      fetch('/live/info').then(x => x.json()).then(info => { liveInfo = info; buildLivePanel(); });
+      render();
+      return;
+    }
+    if (r.type === 'marker') { markers.push(r); $('timeline').hidden = false; queueRender(); return; }
+    if (r.type === 'net') { netEvents.push(r); queueRender(); return; }
+    if (r.type !== 'frame') return;
+    const prev = frames[frames.length - 1];
+    r.values = Object.assign({}, prev.values, r.values || {});
+    r.flow = Object.assign({}, prev.flow, r.flow || {});
+    r.seen = mergeSeen(prev.seen || {}, r.seen);
+    r.comm = r.comm || {};
+    frames.push(r);
+    if (frames.length > MAX_FRAMES) { const n = frames.length - MAX_FRAMES; frames.splice(0, n); index = Math.max(0, index - n); }
+    $('scrub').max = frames.length - 1;
+    if (following) index = frames.length - 1;
+    queueRender();
+  };
+  es.onerror = () => { $('live-dot').textContent = '○ disconnected'; $('live-dot').classList.add('paused'); };
+  es.onopen = () => { $('live-dot').textContent = '● LIVE'; $('live-dot').classList.remove('paused'); };
+}
+function queueRender() {
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; render(); });
+}
+function sendLive(cmd) {
+  return fetch('/live/command', { method: 'POST', body: JSON.stringify(cmd) })
+    .then(r => r.json()).then(res => { $('live-msg').textContent = res.message; $('live-msg').style.color = res.ok ? '' : css('--beam-blocked'); return res; })
+    .catch(e => { $('live-msg').textContent = e.message; });
+}
+function buildLivePanel() {
+  $('live-speed').innerHTML = liveInfo.speeds.map(v => `<option value="${v}">${v}×</option>`).join('');
+  $('live-speed').value = String(liveInfo.status.speed);
+  $('live-device').innerHTML = Object.keys(liveInfo.catalog).map(d => `<option>${d}</option>`).join('');
+  fillFaultTypes();
+  fillCommTargets();
+  updateLivePanel();
+}
+function fillFaultTypes() {
+  const types = liveInfo.catalog[$('live-device').value] || [];
+  $('live-fault').innerHTML = types.map(t => `<option value="${t}">${t.replaceAll('_', ' ')}</option>`).join('');
+}
+function pickLiveDevice(equipment) {
+  // clicking a machine offers its first breakable device (the belt, then its motor, ...)
+  if (!liveInfo || !equipment) return;
+  const device = Object.keys(liveInfo.catalog).find(d => d === equipment || d.startsWith(equipment + '.'));
+  if (device) { $('live-device').value = device; fillFaultTypes(); }
+}
+function updateLivePanel() {
+  if (liveStatus?.defenses) {
+    const on = liveStatus.defenses.enforce_conduits;
+    $('sec-fw').textContent = on ? 'Firewall enforced: switch off' : 'Enforce firewall';
+    $('sec-fw').classList.toggle('danger', !on);
+    const open = (liveStatus.sessions || []).find(x => x.principal === supplier());
+    $('sec-vendor').hidden = !supplier();
+    $('sec-vendor').textContent = open ? `Close supplier session ${open.id}` : `Open supplier session to ${sysName(systemOfKind('scada'))}`;
+    $('sec-sessions').textContent = (liveStatus.sessions || []).map(x => `${x.id}: ${x.principal} → ${x.target}`).join(' · ');
+  }
+  if (!liveStatus) return;
+  const f = frames[frames.length - 1];
+  const clock = f ? new Date(f.sim_time_ms).toISOString().slice(11, 19) : '';
+  $('live-status').textContent = `${liveStatus.scenario} · seed ${liveStatus.seed} · sim time ${clock}`;
+  // a trip is latched: the PLC does not restart the line by itself once the cause is gone
+  const tripped = liveStatus.alarms.length > 0;
+  const causes = liveStatus.faults.filter(x => x.active);
+  const repairing = causes.some(x => x.repairing);
+  $('live-trip').hidden = !tripped;
+  $('live-trip').innerHTML = !tripped ? '' : `<b>Line tripped</b> (${liveStatus.alarms.join(', ')}). ` + (
+    causes.length === 0 ? 'The cause is gone, but the trip is latched: press <b>Reset line</b> to restart.'
+    : repairing ? 'Maintenance is under way; press <b>Reset line</b> once it is done.'
+    : 'Fix the cause first (<b>Send maintenance</b> to the faulty device), then press <b>Reset line</b>.');
+  $('live-reset').classList.toggle('danger', tripped && causes.length === 0);
+  $('live-dot').classList.toggle('paused', liveStatus.paused);
+  $('live-pause').textContent = liveStatus.paused ? 'Resume' : 'Pause';
+  if (document.activeElement !== $('live-speed')) $('live-speed').value = String(liveStatus.speed);
+  const plant = liveStatus.faults.map(x => `<span class="${x.repairing ? 'repairing' : x.active ? 'active' : ''}">${x.id} ${x.fault_type.replaceAll('_', ' ')} on ${x.component} · ${x.repairing ? 'repair under way' : x.active ? 'active' : 'cleared'}</span>`);
+  const comms = (liveStatus.comm_faults || []).map(x => `<span class="${x.active ? 'active' : ''}">${x.id} ${x.fault_type.replaceAll('_', ' ')} on ${x.target} · ${x.active ? `active <a href="#" data-restore="${x.id}">restore</a>` : 'restored'}</span>`);
+  $('live-faults').innerHTML = [...plant, ...comms].join('') || '<span class="hint">no faults injected yet</span>';
+}
+$('live-device').addEventListener('change', fillFaultTypes);
+function fillCommTargets() {
+  if (!ns) return;
+  const type = $('comm-type').value;
+  const links = ns.links.filter(l => l.link_class === 'supervisory' || l.link_class === 'uns').map(l => l.source + '>' + l.target);
+  const opts = type === 'system_down' ? ns.systems.map(x => x.id)
+    : type === 'host_down' ? (ns.hosts || []).map(h => h.id)
+    : type === 'zone_isolated' ? ns.zones.filter(z => z.id !== 'cell').map(z => z.id) : links;
+  $('comm-target').innerHTML = opts.map(o => `<option>${o}</option>`).join('');
+  $('comm-degrade').hidden = type !== 'degraded';
+}
+$('comm-type').addEventListener('change', fillCommTargets);
+$('sec-fw').onclick = () => sendLive({ type: 'defenses', enforce_conduits: !(liveStatus?.defenses?.enforce_conduits) });
+$('sec-vendor').onclick = () => {
+  const open = (liveStatus?.sessions || []).find(x => x.principal === supplier());
+  sendLive(open ? { type: 'close_session', fault_id: open.id } : { type: 'session', principal: supplier(), target: systemOfKind('scada') });
+};
+$('comm-inject').onclick = () => {
+  const type = $('comm-type').value, [loss, lat] = $('comm-degrade').value.split(',').map(Number);
+  const d = $('live-duration').value;
+  sendLive({ type: 'comm', comm_type: type, target: $('comm-target').value,
+    ...(type === 'degraded' ? { loss_pct: loss, latency_ms: lat } : {}), ...(d ? { duration_s: +d } : {}) });
+};
+$('live-faults').addEventListener('click', e => {
+  const id = e.target.dataset?.restore;
+  if (id) { e.preventDefault(); sendLive({ type: 'restore', fault_id: id }); }
+});
+$('live-speed').addEventListener('change', e => sendLive({ type: 'speed', speed: +e.target.value }));
+$('live-pause').onclick = () => sendLive({ type: liveStatus?.paused ? 'resume' : 'pause' });
+$('live-reset').onclick = () => sendLive({ type: 'reset' });
+$('live-follow').onclick = () => { following = true; goto(frames.length - 1); };
+$('live-inject').onclick = () => {
+  const d = $('live-duration').value;
+  sendLive({ type: 'inject', component: $('live-device').value, fault_type: $('live-fault').value, ...(d ? { duration_s: +d } : {}) });
+};
+$('live-repair').onclick = () => sendLive({ type: 'repair', component: $('live-device').value });
+
+// ---- playback ----------------------------------------------------------
+function setPlaying(p) { playing = p; $('play').textContent = p ? 'Pause' : 'Play'; lastTime = 0; carry = 0;
+  if (p) requestAnimationFrame(tickAnim); }
+function goto(i) { index = Math.max(0, Math.min(frames.length - 1, i)); if (live) following = index >= frames.length - 1; render(); }
+$('play').onclick = () => setPlaying(!playing);
+$('stepb').onclick = () => { setPlaying(false); goto(index - 1); };
+$('stepf').onclick = () => { setPlaying(false); goto(index + 1); };
+$('scrub').oninput = e => { setPlaying(false); following = +e.target.value >= frames.length - 1; goto(+e.target.value); };
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.key === ' ') { e.preventDefault(); setPlaying(!playing); }
+  if (e.key === 'ArrowLeft') { setPlaying(false); goto(index - (e.shiftKey ? 10 : 1)); }
+  if (e.key === 'ArrowRight') { setPlaying(false); goto(index + (e.shiftKey ? 10 : 1)); }
+});
+
+function tickAnim(now) {
+  if (!playing) return;
+  if (lastTime) {
+    // advance in simulated time so playback speed is independent of the recording interval
+    const simMsPerFrame = frames.length > 1 ? (frames[1].sim_time_ms - frames[0].sim_time_ms) : layout.tick_ms;
+    carry += (now - lastTime) * +$('speed').value;
+    const steps = Math.floor(carry / simMsPerFrame);
+    if (steps > 0) { carry -= steps * simMsPerFrame; index += steps; }
+    if (index >= frames.length - 1) { index = frames.length - 1; setPlaying(false); }
+    render();
+  }
+  lastTime = now;
+  if (playing) requestAnimationFrame(tickAnim);
+}
+
+// ---- drawing -----------------------------------------------------------
+const canvas = $('c');
+function render() {
+  const f = frames[index];
+  $('scrub').value = index;
+  $('time').textContent = `tick ${f.tick} · ${(f.sim_time_ms / 1000).toFixed(2)} s`;
+  if (src) $('toDash').href = `dashboard.html?src=${encodeURIComponent(src)}&t=${(f.sim_time_ms / 1000).toFixed(1)}`;
+  if (live) $('toDash').href = 'dashboard.html?live=1';
+  if (layout.units?.length) drawProcess(f); else drawPlant(f);
+  drawFlow(f);
+  drawSecurity(f);
+  drawStats(f);
+  drawTimeline(f);
+  updateUns(f);
+}
+
+// ---- unified namespace panel ----------------------------------------------
+const ROLE = { pv: 'process value', fb: 'feedback', st: 'status', cnt: 'counter', cmd: 'command', sp: 'setpoint', alm: 'alarm', kpi: 'KPI' };
+const valueSpans = {};
+// ids come from the namespace, by kind, never hardcoded
+const systemOfKind = kind => ns?.systems.find(x => x.kind === kind)?.id;
+const dmzZone = () => ns?.zones.find(z => z.level === 3.5)?.id;
+function supplier() {
+  // the principal a remote session is opened for: the first one outside the site
+  const principals = ns?.security?.principals || [];
+  return (principals.find(p => p.zone === 'external') || principals[0])?.id;
+}
+function sysName(id) {
+  const s = ns.systems.find(x => x.id === id);
+  if (s) return s.name;
+  if (/^IO\d/.test(id)) return `remote I/O ${id}`;
+  return id;
+}
+function zoneOf(id) {
+  const s = ns.systems.find(x => x.id === id);
+  return s ? s.zone : 'cell';
+}
+function fmt(sig, v) {
+  if (v === undefined || v === null) return '–';
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (typeof v === 'string') return v;
+  if (sig.unit === 'mA') return (v / 1000).toFixed(1) + ' A';
+  if (sig.unit === 'm°C') return (v / 1000).toFixed(1) + ' °C';
+  if (sig.unit === 'ms') return (v / 1000).toFixed(1) + ' s';
+  const SCALED = { '‰': [10, ' %'], 'dm³': [1000, ' m³'], 'dm³/h': [1000, ' m³/h'], 'Wh': [1000, ' kWh'],
+    'Wh/m³': [1000, ' kWh/m³'], 'm/10min': [1000, ' / 10 min'] };
+  if (SCALED[sig.unit]) return (v / SCALED[sig.unit][0]).toFixed(1) + SCALED[sig.unit][1];
+  return v + (sig.unit ? ' ' + sig.unit : '');
+}
+function sigName(sig) {
+  if (nameMode === 'plc') return sig.plc_tag;
+  if (nameMode === 'opcua') return sig.opcua_path.split('/').pop();
+  return sig.name;
+}
+function equipmentOf(canvasId) {
+  // a click on a belt selects its equipment (CV101, whose motor is CV101.M1); a kiln valve
+  // KL101.V1 belongs to the chamber's equipment KL101
+  return canvasId.split('.')[0];
+}
+function buildUns() {
+  $('uns').hidden = !ns;
+  document.querySelector('main').classList.toggle('wide', !!ns);
+  if (!ns) return;
+  const prefix = [ns.enterprise, ns.site, ns.area, ns.line].join('/');
+  $('uns-prefix').textContent = nameMode === 'uns' ? prefix + '/' : nameMode === 'opcua'
+    ? '/' + [ns.area, ns.line].map(p => p[0].toUpperCase() + p.slice(1)).join('/') + '/' : 'flat PLC tags';
+  const q = $('uns-search').value.trim().toLowerCase();
+  const match = sig => !q || [sig.uns_topic, sig.plc_tag, sig.opcua_path, sig.description, ROLE[sig.role]]
+    .some(t => t.toLowerCase().includes(q));
+  const cells = {};
+  for (const sig of ns.signals) {
+    if (!match(sig)) continue;
+    const dev = sig.device === sig.equipment || sig.device === 'LINE' ? '' : sig.device.split('.').slice(1).join('.');
+    ((cells[sig.cell] ??= {})[sig.equipment] ??= {})[dev] ??= [];
+    cells[sig.cell][sig.equipment][dev].push(sig);
+  }
+  const tree = $('uns-tree');
+  tree.innerHTML = '';
+  for (const k in valueSpans) delete valueSpans[k];
+  for (const [cell, eqs] of Object.entries(cells)) {
+    const dc = document.createElement('details');
+    dc.open = !!q || Object.keys(eqs).includes(selectedEquipment) || cell === 'line';
+    dc.innerHTML = `<summary>${cell}/</summary>`;
+    for (const [eq, devs] of Object.entries(eqs)) {
+      const de = document.createElement('details');
+      de.open = !!q || eq === selectedEquipment;
+      de.innerHTML = `<summary class="${eq === selectedEquipment ? 'eq-selected' : ''}">${eq}/</summary>`;
+      de.querySelector('summary').addEventListener('click', () => { selectedEquipment = eq; render(); });
+      for (const [dev, sigs] of Object.entries(devs)) {
+        const host = dev ? document.createElement('details') : de;
+        if (dev) { host.open = true; host.innerHTML = `<summary>${dev}/</summary>`; de.appendChild(host); }
+        for (const sig of sigs) {
+          const row = document.createElement('div');
+          row.className = 'sig' + (selectedSignal === sig ? ' selected' : '');
+          row.innerHTML = `<span class="n" title="${sig.uns_topic}">${sigName(sig)}</span><span class="v"></span><span class="r">${sig.role}</span>`;
+          row.addEventListener('click', () => selectSignal(sig));
+          valueSpans[sig.value_key] = [...(valueSpans[sig.value_key] || []), [sig, row.querySelector('.v')]];
+          host.appendChild(row);
+        }
+      }
+      dc.appendChild(de);
+    }
+    tree.appendChild(dc);
+  }
+}
+function selectSignal(sig) {
+  selectedSignal = sig; selectedSystem = null;
+  selectedEquipment = sig.equipment;
+  buildUns();
+  render();
+  const row = $('uns-tree').querySelector('.sig.selected');
+  if (row) row.scrollIntoView({ block: 'nearest' });
+}
+function updateUns(f) {
+  if (!ns) return;
+  for (const [key, list] of Object.entries(valueSpans))
+    for (const [sig, span] of list) span.textContent = fmt(sig, f.values?.[key]);
+  const sig = selectedSignal;
+  const card = $('uns-card');
+  if (!sig && selectedSystem) {
+    card.className = '';
+    const sys = ns.systems.find(x => x.id === selectedSystem);
+    const zone = sys && ns.zones.find(z => z.id === sys.zone);
+    const inbound = ns.signals.filter(s => s.consumers.includes(selectedSystem));
+    const members = ns.links.filter(l => l.target === selectedSystem && l.link_class === 'wired').map(l => l.source);
+    const produced = ns.signals.filter(s => s.path.includes(selectedSystem) || s.write_path.includes(selectedSystem));
+    const rate = id => Math.round(linkRate(id, 1000));
+    const ins = ns.links.filter(l => l.target === selectedSystem && l.link_class !== 'wired');
+    const outs = ns.links.filter(l => l.source === selectedSystem && l.link_class !== 'wired');
+    const fmtLinks = ls => ls.map(l => `<span class="chip">${l.source === selectedSystem ? l.target : l.source} · ${rate(l.source + '>' + l.target)}/s</span>`).join(' ') || '–';
+    card.innerHTML = `
+      <div class="row"><b>${sys ? sys.name : members.length ? 'Remote I/O node ' + selectedSystem : 'Device controller ' + selectedSystem}</b>
+        <span class="hint">${zone ? `(Purdue level ${zone.level}, ${zone.name})` : '(Purdue level 0, cell / field)'}</span></div>
+      ${members.length ? `<div class="row"><span class="k">wired devices</span>${members.join(', ')}</div>` : ''}
+      <div class="row"><span class="k">receives</span><span class="chips">${fmtLinks(ins)}</span></div>
+      <div class="row"><span class="k">sends</span><span class="chips">${fmtLinks(outs)}</span></div>
+      <div class="row"><span class="k">signals</span>${inbound.length ? inbound.length + ' subscribed via the UNS' : produced.length + ' pass through here'}</div>
+      ${itRows(sys, f)}
+      <div class="hint row">Messages per second over the last second of the recording.</div>`;
+    return;
+  }
+  if (!sig) {
+    card.className = 'hint';
+    card.innerHTML = selectedEquipment
+      ? `<b>${selectedEquipment}</b>: ${ns.signals.filter(s => s.equipment === selectedEquipment).length} signals — click one for its names and data path.`
+      : 'Click a machine on the line or a signal in the tree.';
+    return;
+  }
+  card.className = '';
+  const chip = id => `<span class="chip zone-${zoneOf(id)}" title="zone: ${zoneOf(id)}">${sysName(id)}</span>`;
+  const flow = sig.path.map(chip).join(' → ');
+  card.innerHTML = `
+    <div class="row"><b>${sig.description}</b> <span class="hint">(${ROLE[sig.role]}, ${sig.datatype}${sig.unit ? ', ' + sig.unit : ''})</span></div>
+    <div class="row"><span class="k">now</span><b>${fmt(sig, f.values?.[sig.value_key])}</b>${sig.role === 'kpi' ? ' <span class="hint">(true value)</span>' : ''}</div>
+    ${seenRows(sig, f)}
+    <div class="row"><span class="k">UNS topic</span><code>${sig.uns_topic}</code></div>
+    <div class="row"><span class="k">OPC UA</span><code>${sig.opcua_path}</code></div>
+    <div class="row"><span class="k">PLC tag</span><code>${sig.plc_tag}</code></div>
+    <div class="row"><span class="k">data path</span><span class="chips">${flow}</span></div>
+    ${sig.write_path.length ? `<div class="row"><span class="k">written to</span><span class="chips">${sig.write_path.map(chip).join(' → ')}</span></div>` : ''}
+    <div class="row"><span class="k">consumers</span><span class="chips">${sig.consumers.map(chip).join(' ') || '–'}</span></div>
+    <div class="row"><span class="k">writable by</span>${sig.writable_by.map(sysName).join(', ') || 'nobody (read-only)'}</div>
+    <div class="row"><span class="k">zone</span>${sig.zone} · <span class="k" style="width:auto">class</span> ${sig.classification}</div>
+    <canvas id="uns-spark"></canvas>`;
+  drawSpark(sig, f);
+}
+function itRows(sys, f) {
+  // U8: where it runs, what it needs, its IT flows, and for an LLM the response-time estimate
+  if (!sys) return '';
+  const rows = [];
+  const comm = f.comm || {};
+  const state = (comm.systems_down || []).includes(sys.id) ? 'down' : (comm.systems_degraded || []).includes(sys.id) ? 'degraded' : 'up';
+  const host = (ns.hosts || []).find(h => h.id === sys.host);
+  if (host) rows.push(`<div class="row"><span class="k">runs on</span>${host.name} (${host.id})${(comm.hosts_down || []).includes(host.id) ? ' <b style="color:' + css('--beam-blocked') + '">host down</b>' : ''}</div>`);
+  if (state !== 'up') rows.push(`<div class="row"><span class="k">state</span><b style="color:${css(state === 'down' ? '--beam-blocked' : '--starting')}">${state}</b>${state === 'degraded' ? ' <span class="hint">(a dependency is down: its IT requests fail)</span>' : ''}</div>`);
+  const needs = (ns.depends_on || {})[sys.id] || [];
+  if (needs.length) rows.push(`<div class="row"><span class="k">needs</span><span class="chips">${needs.map(d => `<span class="chip${(comm.systems_down || []).includes(d) ? ' zone-external' : ''}">${sysName(d)}</span>`).join(' ')}</span></div>`);
+  const flows = (ns.flows || []).filter(x => x.from === sys.id || x.to === sys.id);
+  for (const x of flows) {
+    const other = x.from === sys.id ? `→ ${sysName(x.to)}` : `← ${sysName(x.from)}`;
+    const how = x.mode === 'batch' ? `every ${x.period_s / 60} min` : `${x.rate_per_min}/min`;
+    rows.push(`<div class="row"><span class="k">IT flow</span>${other}: ${x.what} <span class="hint">(${x.protocol}, ${how}, ${x.classification})</span></div>`);
+  }
+  const inf = (ns.inference || {})[sys.id];
+  if (inf) rows.push(`<div class="row"><span class="k">response</span><b>${inf.response_s ?? 'overloaded'} s</b> <span class="hint">mean; ${inf.service_s} s per request, ${Math.round(inf.utilisation * 100)} % busy at ${inf.requests_per_min}/min · ${inf.model}, measured on ${inf.measured_on}</span></div>`);
+  return rows.join('');
+}
+function drawSecurity(f) {
+  const sec = ns?.security;
+  if (!sec || !sec.conduits) return;
+  const comm = f.comm || {};
+  const liveDef = live && liveStatus?.defenses;
+  const enforced = liveDef ? liveDef.enforce_conduits : (comm.blocked || []).length > 0 || sec.defenses.enforce_conduits;
+  const nViol = new Set(sec.findings.filter(x => x.verdict === 'violation').map(x => x.link)).size;
+  const nGov = sec.findings.filter(x => x.verdict === 'data_leaves_site').length;
+  const d = sec.defenses;
+  $('sec-head').innerHTML = `<b>Network events</b>
+    <span>${nViol} flows violate the zone model${nGov ? ` · ${nGov} data-governance finding` : ''}</span>
+    <span>firewall: <b style="font-size:12px;color:${css(enforced ? '--running' : '--starting')}">${enforced ? 'enforced' : 'not enforced'}</b></span>
+    <span class="hint">broker ACL ${d.broker_acl ? 'on' : 'off'} · PLC OPC UA ${d.plc_write_auth ? 'write-protected' : 'open'}</span>`;
+  const now = f.tick;
+  const tickMs = layout.tick_ms;
+  const rows = netEvents.slice(-200).map(e => `<div class="netev sev-${e.severity}${e.tick > now ? ' future' : ''}" data-tick="${e.tick}">
+      <span class="t">${(e.tick * tickMs / 1000).toFixed(0)} s</span><span class="k">${e.kind}</span><span>${e.text}</span></div>`);
+  const html = rows.reverse().join('') || '<div class="netev"><span></span><span></span><span class="hint">no events yet</span></div>';
+  if ($('sec-events').dataset.html !== html) { $('sec-events').innerHTML = html; $('sec-events').dataset.html = html; }
+}
+$('sec-events').addEventListener('click', e => {
+  const row = e.target.closest('.netev'); if (row && row.dataset.tick && !live) jumpToTick(+row.dataset.tick);
+});
+function seenRows(sig, f) {
+  // systems whose image differs from a perfect UNS, and consumers told their data is stale
+  const rows = [];
+  const pub = sig.path[sig.path.length - 2];
+  for (const [sys, d] of Object.entries(f.seen || {})) {
+    if (!(sig.value_key in d)) continue;
+    const st = (f.comm?.stale || {})[sys];
+    const knows = st && (st.includes('*') || st.includes(pub));
+    rows.push(`<div class="row"><span class="k">${sysName(sys)}</span><b style="color:${css('--beam-blocked')}">sees ${fmt(sig, d[sig.value_key])}</b> <span class="hint">${knows ? '(marked stale)' : '(does not know)'}</span></div>`);
+  }
+  return rows.join('');
+}
+function drawSpark(sig, f) {
+  const cv = $('uns-spark'); if (!cv) return;
+  const vals = frames.map(fr => fr.values?.[sig.value_key]);
+  const nums = vals.map(v => typeof v === 'number' ? v : typeof v === 'boolean' ? +v : null);
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = 48;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  const present = nums.filter(v => v !== null);
+  if (!present.length) { ctx.fillStyle = css('--muted'); ctx.font = '11px system-ui'; ctx.fillText('text value — no trend', 4, 24); return; }
+  const lo = Math.min(...present), hi = Math.max(...present), span = hi - lo || 1;
+  ctx.strokeStyle = css('--accent'); ctx.lineWidth = 1.2; ctx.beginPath();
+  nums.forEach((v, i) => {
+    if (v === null) return;
+    const x = (i / (nums.length - 1)) * W, y = H - 4 - ((v - lo) / span) * (H - 8);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  ctx.stroke();
+  const cx = (index / (frames.length - 1)) * W;
+  ctx.strokeStyle = css('--beam-blocked'); ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+  ctx.fillStyle = css('--muted'); ctx.font = '10px system-ui';
+  ctx.fillText(`${fmt(sig, hi)}`, 2, 10); ctx.fillText(`${fmt(sig, lo)}`, 2, H - 2);
+}
+document.querySelectorAll('#uns [data-mode]').forEach(b => b.addEventListener('click', () => {
+  nameMode = b.dataset.mode;
+  document.querySelectorAll('#uns [data-mode]').forEach(x => x.classList.toggle('on', x === b));
+  buildUns(); render();
+}));
+$('uns-search').addEventListener('input', () => { buildUns(); render(); });
+canvas.addEventListener('click', e => {
+  if (!ns) return;
+  const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const hit = hits.find(h => x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h);
+  selectedEquipment = hit ? equipmentOf(hit.id) : null;
+  selectedSignal = null; selectedSystem = null;
+  if (live && hit) pickLiveDevice(hit.id);
+  buildUns(); render();
+  const summary = $('uns-tree').querySelector('summary.eq-selected');
+  if (summary) summary.scrollIntoView({ block: 'nearest' });
+});
+canvas.style.cursor = 'pointer';
+
+// ---- information flow ------------------------------------------------------
+// Purdue levels bottom-up, the systems in them, and the messages the core counted per link.
+const LINK_COLOR = { fieldbus: '--fieldbus', supervisory: '--supervisory', uns: '--uns-link', it: '--it-link' };
+const LINK_LABEL = { fieldbus: 'fieldbus', supervisory: 'supervisory', uns: 'UNS', it: 'IT' };
+function windowSum(field, id, ms) {
+  // sum of a per-frame counter (e.g. comm.failed) over the last ms of the recording
+  const now = frames[index].sim_time_ms;
+  let n = 0;
+  for (let i = index; i >= 0 && frames[i].sim_time_ms > now - ms; i--) n += frames[i].comm?.[field]?.[id] || 0;
+  return n;
+}
+let flowNodes = [];
+function linkRate(id, windowMs) {
+  // messages per second on a link over the recorded frames in the last windowMs
+  const now = frames[index].sim_time_ms;
+  let n = 0, i = index;
+  // at least one frame back, so sparse recordings (a kiln frame a minute) still give a rate
+  for (; i > 0 && (i === index || frames[i].sim_time_ms > now - windowMs); i--) n += frames[i].flow?.[id] || 0;
+  const span = now - frames[i].sim_time_ms;
+  return span > 0 ? n * 1000 / span : 0;
+}
+function highlightedLinks() {
+  const ids = new Set();
+  const addPath = p => { for (let i = 0; i + 1 < p.length; i++) ids.add(p[i] + '>' + p[i + 1]); };
+  const sigs = selectedSignal ? [selectedSignal]
+    : selectedEquipment ? ns.signals.filter(s => s.equipment === selectedEquipment) : [];
+  for (const s of sigs) {
+    addPath(s.path); addPath(s.write_path);
+    const broker = systemOfKind('broker');
+    if (s.path[s.path.length - 1] === broker) for (const c of s.consumers) ids.add(`${broker}>${c}`);
+  }
+  if (selectedSystem) for (const l of ns.links) if (l.source === selectedSystem || l.target === selectedSystem) ids.add(l.source + '>' + l.target);
+  return ids;
+}
+function drawFlow(f) {
+  const cv = $('flow');
+  if (cv.hidden) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = 330;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  // header: one line per link class with protocol, mode and total rate
+  const totals = {};
+  for (const l of ns.links) if (l.link_class !== 'wired')
+    totals[l.link_class] = (totals[l.link_class] || 0) + linkRate(l.source + '>' + l.target, 1000);
+  const mode = t => t.mode === 'cyclic' ? `cyclic every ${t.period_ms} ms` : t.mode === 'poll' ? `polled every ${t.period_ms} ms` : 'on change only';
+  const comm = f.comm || {};
+  const linkState = comm.links || {}, down = new Set(comm.systems_down || []), stale = comm.stale || {};
+  const degraded = new Set(comm.systems_degraded || []);
+  const warn = [
+    ...(comm.hosts_down || []).map(x => `host ${x} down`),
+    ...Object.entries(linkState).map(([id, st]) => `${id} ${(comm.blocked || []).includes(id) ? 'blocked' : st}`),
+    ...[...down].map(x => `${x} down`),
+    ...[...degraded].map(x => `${x} degraded`),
+  ];
+  $('flowhead').innerHTML = (warn.length ? `<span style="color:${css('--beam-blocked')};font-weight:600">⚠ ${warn.join(' · ')}</span>` : '') + '<b>Information flow</b>' + ['fieldbus', 'supervisory', 'uns'].filter(c => ns.transport[c]).map(c =>
+    `<span class="cls"><span class="sw" style="background:${css(LINK_COLOR[c])}"></span>${LINK_LABEL[c]}: ${ns.transport[c].protocol}, ${mode(ns.transport[c])} · <b style="font-size:12px">${Math.round(totals[c] || 0)}</b> msg/s</span>`
+  ).join('') + ((ns.flows || []).length ? `<span class="cls"><span class="sw" style="background:${css('--it-link')}"></span>IT: batches and requests (HTTPS/HTTP) · <b style="font-size:12px">${Math.round(ns.links.filter(l => l.link_class === 'it').reduce((a, l) => a + linkRate(l.source + '>' + l.target, 60000), 0) * 60)}</b> /min</span>` : '');
+
+  // bands per zone, Purdue level 0 at the bottom
+  const zones = [...ns.zones].sort((a, b) => a.level - b.level);
+  const bandH = { cell: 64 };
+  const heights = zones.map(z => bandH[z.id] || 38);
+  const scaleH = H / heights.reduce((a, b) => a + b, 0);
+  const band = {};
+  let y = H;
+  zones.forEach((z, i) => {
+    const h = heights[i] * scaleH; y -= h;
+    band[z.id] = { y, h, level: z.level };
+    ctx.fillStyle = css(i % 2 ? '--band-alt' : '--band'); ctx.fillRect(0, y, W, h);
+    ctx.fillStyle = css('--muted'); ctx.font = '11px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(`L${z.level} ${z.name}`, 6, y + 4);
+  });
+
+  // nodes: field nodes (I/O nodes, device controllers) sit under their machines on the line
+  const systemIds = new Set(ns.systems.map(s => s.id));
+  const members = {};
+  for (const l of ns.links) if (l.link_class === 'wired' && !systemIds.has(l.target)) (members[l.target] ??= []).push(l.source);
+  const field = [...new Set(ns.links.filter(l => l.link_class === 'fieldbus').flatMap(l => [l.source, l.target]).filter(id => !systemIds.has(id)))];
+  const hitX = id => { const h = hits.find(x => x.id === id || x.id === id.split('.')[0]); return h ? h.x + h.w / 2 : null; };
+  const pos = {};
+  const fieldX = field.map(id => {
+    const xs = (members[id] || [id]).map(hitX).filter(x => x !== null);
+    return [id, xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : W / 2];
+  }).sort((a, b) => a[1] - b[1]);
+  const minGap = 74;
+  for (let i = 1; i < fieldX.length; i++) fieldX[i][1] = Math.max(fieldX[i][1], fieldX[i - 1][1] + minGap);
+  const overflow = fieldX.length ? fieldX[fieldX.length - 1][1] - (W - 40) : 0;
+  for (const fx of fieldX) pos[fx[0]] = { x: fx[1] - Math.max(0, overflow), y: band.cell.y + 22 };
+  const byZone = {};
+  for (const s of ns.systems) (byZone[s.zone] ??= []).push(s);
+  // single systems above site operations fan out left and right of the broker so links don't overlap
+  const upper = [0.68, 0.34, 0.86, 0.16];
+  let k = 0;
+  for (const [zone, list] of Object.entries(byZone).sort((a, b) => band[a[0]].level - band[b[0]].level)) {
+    const b = band[zone];
+    list.forEach((s, i) => {
+      const spread = list.length > 3 ? [0.17, 0.7] : [0.3, 0.4];  // clear of the zone labels
+      const x = list.length > 1 ? W * (spread[0] + spread[1] * i / (list.length - 1))
+        : b.level > 3 ? W * upper[k++ % upper.length] : W / 2;
+      pos[s.id] = { x, y: b.y + b.h / 2 + 3 };
+    });
+  }
+  // principals (U7): actors besides the systems, at the right edge of their zone
+  const principals = (ns.security?.principals || []);
+  for (const pr of principals) pos[pr.id] = { x: W * 0.955, y: band[pr.zone].y + band[pr.zone].h / 2 + 3, principal: pr };
+
+  // conduits (U7): the allowed crossings, labelled at the bottom of the upper zone's band
+  const tags = {};
+  for (const c of (ns.security?.conduits || [])) {
+    const upperZone = band[c.from].level > band[c.to].level ? c.from : c.to;
+    const arrow = c.bidirectional ? '↕' : band[c.to].level > band[c.from].level ? '↑' : '↓';
+    (tags[upperZone] ??= []).push(`${c.id} ${arrow} ${c.remote_access ? 'remote access' : c.protocols.join(', ')}`);
+  }
+  ctx.font = '9px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillStyle = css('--muted');
+  for (const [zone, list] of Object.entries(tags)) ctx.fillText('conduit ' + list.join('  ·  '), 6, band[zone].y + band[zone].h - 2);
+
+  const findingsByLink = {};
+  for (const x of (ns.security?.findings || [])) if (x.verdict !== 'allowed') (findingsByLink[x.link] ??= []).push(x.verdict);
+  // remote sessions (U7): principal -> target through the DMZ jump host, dashed
+  for (const sess of (comm.sessions || [])) {
+    const a = pos[sess.principal], b = pos[sess.target];
+    if (!a || !b) continue;
+    const dmz = band[dmzZone()];
+    const jumpY = dmz ? dmz.y + dmz.h / 2 : (a.y + b.y) / 2;
+    ctx.strokeStyle = css('--starting'); ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(a.x, jumpY); ctx.lineTo(b.x + 40, jumpY); ctx.lineTo(b.x + 40, b.y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = css('--starting'); ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`remote session ${sess.id} via ${sess.via.join(' → ')}`, a.x - 8, jumpY - 2);
+  }
+
+  // links, dimmed when something else is selected
+  const hl = highlightedLinks();
+  const t = f.sim_time_ms;
+  for (const l of ns.links) {
+    if (l.link_class === 'wired') continue;
+    const a = pos[l.source], b = pos[l.target];
+    if (!a || !b) continue;
+    const id = l.source + '>' + l.target;
+    const on = !hl.size || hl.has(id);
+    // two directions on the same pair get two lanes
+    const back = ns.links.some(k => k.source === l.target && k.target === l.source);
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+    const off = back ? 3 : 0, ox = -dy / len * off, oy = dx / len * off;
+    const state = linkState[id] || (down.has(l.source) || down.has(l.target) ? 'down' : 'up');
+    const color = state === 'down' ? css('--beam-blocked') : state === 'degraded' ? css('--starting') : css(LINK_COLOR[l.link_class]);
+    ctx.globalAlpha = on || state !== 'up' ? 1 : 0.15;  // faults stay visible
+    ctx.strokeStyle = color; ctx.lineWidth = hl.has(id) || state !== 'up' ? 3 : 1.2;
+    if (state !== 'up') ctx.setLineDash(state === 'down' ? [3, 4] : [8, 4]);
+    ctx.beginPath(); ctx.moveTo(a.x + ox, a.y + oy); ctx.lineTo(b.x + ox, b.y + oy); ctx.stroke();
+    ctx.setLineDash([]);
+    if (state === 'down') {
+      const mx = a.x + dx * 0.5, my = a.y + dy * 0.5;
+      ctx.fillStyle = css('--beam-blocked'); ctx.font = 'bold 14px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('✕', mx, my);
+      if ((comm.blocked || []).includes(id)) { ctx.font = 'bold 10px system-ui'; ctx.fillText('blocked', mx, my + 12); }
+    }
+    const verdicts = findingsByLink[id] || [];
+    if (state === 'up' && verdicts.includes('violation')) {
+      ctx.fillStyle = css('--starting'); ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('⚠', a.x + dx * 0.3, a.y + dy * 0.3);
+    }
+    if (verdicts.includes('data_leaves_site')) {
+      ctx.fillStyle = css('--starting'); ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText('plant data leaves the site', a.x + dx * 0.75 + 8, a.y + dy * 0.75);
+    }
+    if (state === 'degraded' && comm.dropped?.[id]) {
+      ctx.fillStyle = css('--starting'); ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(`${comm.dropped[id]} lost`, a.x + dx * 0.5 + 7, a.y + dy * 0.5 + 12);
+    }
+    // messages: dots travelling source -> target; count grows with the rate, positions follow sim time
+    const isIt = l.link_class === 'it';
+    const recent = linkRate(id, isIt ? 3000 : 400);  // IT traffic is sparse: show it for a while
+    if (recent > 0) {
+      const n = Math.min(6, Math.ceil(Math.log2(1 + recent) / 2));
+      const travelMs = l.link_class === 'fieldbus' ? 700 : 1000;
+      ctx.fillStyle = color;
+      for (let k = 0; k < n; k++) {
+        const u = ((t / travelMs) + k / n) % 1;
+        ctx.beginPath(); ctx.arc(a.x + ox + dx * u, a.y + oy + dy * u, hl.has(id) ? 3.5 : 2.5, 0, 2 * Math.PI); ctx.fill();
+      }
+    }
+    if (l.link_class !== 'fieldbus' && on && state !== 'down') {
+      const failed = isIt ? windowSum('failed', id, 60000) : 0;
+      const label = failed ? `${failed} failed` : isIt ? `${+(linkRate(id, 60000) * 60).toFixed(1)}/min` : `${Math.round(linkRate(id, 1000))}/s`;
+      ctx.font = failed ? 'bold 10px system-ui' : '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3; ctx.strokeStyle = css('--panel');
+      ctx.strokeText(label, a.x + dx * 0.5 + 7, a.y + dy * 0.5);
+      ctx.fillStyle = failed ? css('--beam-blocked') : css('--muted'); ctx.fillText(label, a.x + dx * 0.5 + 7, a.y + dy * 0.5);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // node boxes
+  flowNodes = [];
+  ctx.font = '11px system-ui'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  for (const [id, p] of Object.entries(pos)) {
+    const sys = ns.systems.find(s => s.id === id);
+    if (p.principal) {  // principals: dashed, muted, short id
+      const w = ctx.measureText(id).width + 14, h = 18;
+      const inSession = (comm.sessions || []).some(x => x.principal === id);
+      ctx.fillStyle = css('--panel'); ctx.strokeStyle = inSession ? css('--starting') : css('--muted'); ctx.lineWidth = inSession ? 2 : 1;
+      ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.roundRect(p.x - w / 2, p.y - h / 2, w, h, 5); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = css('--muted'); ctx.fillText(id, p.x, p.y);
+      flowNodes.push({ id, x: p.x - w / 2, y: p.y - h / 2, w, h });
+      continue;
+    }
+    const label = sys ? sys.name : id;
+    const w = Math.max(54, ctx.measureText(label).width + 14), h = 20;
+    const sel = selectedSystem === id, isDown = down.has(id);
+    ctx.fillStyle = isDown ? css('--band-alt') : css('--panel');
+    ctx.strokeStyle = isDown ? css('--beam-blocked') : sel ? css('--accent') : css('--belt-edge'); ctx.lineWidth = sel || isDown ? 2.5 : 1;
+    ctx.beginPath(); ctx.roundRect(p.x - w / 2, p.y - h / 2, w, h, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = isDown ? css('--muted') : css('--ink'); ctx.fillText(label, p.x, p.y);
+    const badge = isDown ? 'DOWN' : degraded.has(id) ? 'DEGRADED' : stale[id] ? (stale[id].includes('*') ? 'STALE: all' : `STALE: ${stale[id].join(', ')}`) : null;
+    if (badge) {
+      ctx.font = 'bold 9px system-ui';
+      const bw = ctx.measureText(badge).width + 8;
+      ctx.fillStyle = isDown ? css('--beam-blocked') : css('--starting');
+      ctx.beginPath(); ctx.roundRect(p.x + w / 2 - bw + 4, p.y - h / 2 - 9, bw, 12, 3); ctx.fill();  // DEGRADED and STALE share amber
+      ctx.fillStyle = '#fff'; ctx.fillText(badge, p.x + w / 2 - bw / 2 + 4, p.y - h / 2 - 3);
+      ctx.font = '11px system-ui';
+    }
+    if (members[id]) {
+      ctx.fillStyle = css('--muted'); ctx.font = '9px system-ui';
+      ctx.fillText(members[id].map(m => m.replace('.M1', '')).join(' '), p.x, p.y + 19);
+      ctx.font = '11px system-ui';
+    }
+    flowNodes.push({ id, x: p.x - w / 2, y: p.y - h / 2, w, h });
+  }
+}
+$('flow').addEventListener('click', e => {
+  const r = $('flow').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const hit = flowNodes.find(n => x >= n.x - 4 && x <= n.x + n.w + 4 && y >= n.y - 4 && y <= n.y + n.h + 4);
+  selectedSystem = hit ? hit.id : null;
+  if (live && hit && ns.systems.some(x => x.id === hit.id)) { $('comm-type').value = 'system_down'; fillCommTargets(); $('comm-target').value = hit.id; }
+  selectedSignal = null; selectedEquipment = null;
+  buildUns(); render();
+});
+
+// ---- agent timeline ------------------------------------------------------
+const ACTION_COLOR = {
+  wait: '--off', get_trend: '--accent', get_alarm_history: '--accent', search_records: '--accent',
+  observe: '--accent', finish_diagnosis: '--running', report_first_out: '--running',
+  finish: '--ink', request_approval: '--starting', request_maintenance: '--starting',
+  reset_line: '--stopping', start_motor: '--stopping', stop_motor: '--stopping',
+};
+function actionText(a) {
+  const args = Object.entries(a).filter(([k, v]) => k !== 'type' && v !== null && v !== '')
+    .map(([k, v]) => `${k}=${v}`).join(', ');
+  return `${a.type}(${args})`;
+}
+const lastTick = () => Math.max(frames[frames.length - 1].tick, ...markers.map(m => m.tick), 1);
+function drawTimeline(f) {
+  if (!agentEvents.length && !markers.length) return;
+  const cv = $('timeline'), dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = 44;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
+  const span = lastTick(), x = t => 8 + (W - 16) * t / span;
+  ctx.fillStyle = css('--line'); ctx.fillRect(8, 20, W - 16, 2);
+  for (const m of markers) {
+    ctx.strokeStyle = m.hidden ? css('--beam-blocked') : css('--ink'); ctx.lineWidth = 2;
+    ctx.setLineDash(m.hidden ? [3, 2] : []);
+    ctx.beginPath(); ctx.moveTo(x(m.tick), 4); ctx.lineTo(x(m.tick), 40); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  for (const e of agentEvents) {
+    ctx.fillStyle = css(ACTION_COLOR[e.action.type] || '--muted');
+    const r = e.action.type === 'wait' ? 2 : 4;
+    ctx.beginPath(); ctx.arc(x(e.tick), 21, r, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.strokeStyle = css('--accent'); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x(f.tick), 0); ctx.lineTo(x(f.tick), H); ctx.stroke();
+  // the list follows playback
+  const secs = t => (t * layout.tick_ms / 1000).toFixed(0).padStart(4);
+  const items = [
+    ...agentEvents.map(e => ({ tick: e.tick, html: `<div class="ev ${e.tick <= f.tick ? 'done' : ''}" data-t="${e.tick}">${secs(e.tick)} s  ${actionText(e.action)}  → ${e.result}</div>` })),
+    ...markers.map(m => ({ tick: m.tick, html: `<div class="marker ${m.tick > f.tick ? 'open' : ''}" data-t="${m.tick}">${secs(m.tick)} s  ${m.hidden ? '▲ hidden: ' : '■ '}${m.label}</div>` })),
+  ].sort((a, b) => a.tick - b.tick);
+  const box = $('agent');
+  const dot = v => `<span style="color:${css(v)}">●</span>`;
+  box.innerHTML = live ? `<div class="hint">operator actions in this live session · click to jump</div>` + items.map(i => i.html).join('') : `<div class="hint">agent tool calls: ${dot('--off')} wait ${dot('--accent')} query ${dot('--stopping')} plant action ${dot('--starting')} request ${dot('--running')} answer · <span style="color:${css('--beam-blocked')}">▲ verifier truth the agent never saw</span> · click to jump</div>` + items.map(i => i.html).join('');
+  const current = [...box.querySelectorAll('.ev.done')].pop();
+  if (current) { current.classList.add('now'); if (playing) current.scrollIntoView({ block: 'nearest' }); }
+}
+function jumpToTick(tick) {
+  setPlaying(false);
+  goto(Math.max(0, frames.findIndex(fr => fr.tick >= tick)));
+}
+$('timeline').addEventListener('click', e => {
+  const r = $('timeline').getBoundingClientRect();
+  jumpToTick(((e.clientX - r.left - 8) / (r.width - 16)) * lastTick());
+});
+$('agent').addEventListener('click', e => {
+  const t = e.target.closest('[data-t]'); if (t) jumpToTick(+t.dataset.t);
+});
+
+function motorColor(state) {
+  return { OFF: css('--off'), STARTING: css('--starting'), RUNNING: css('--running'),
+           STOPPING: css('--stopping') }[state] || css('--off');
+}
+
+function drawPlant(f) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.clientWidth, H = 400;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const endcap = 56, margin = 16;
+  // the main lane only; branches (e.g. the side-board line) show up as their sink counter
+  const segments = layout.segments.filter(s => ['conveyor', 'station', 'diverter'].includes(s.kind) && (s.lane ?? 'main') === 'main');
+  const conveyors = segments.filter(s => s.kind === 'conveyor');
+  const diverterPx = 28 * segments.filter(s => s.kind === 'diverter').length;
+  const totalMm = segments.reduce((a, s) => a + s.length_mm, 0);
+  const scale = (W - 2 * margin - 2 * endcap - diverterPx) / totalMm;
+  const beltY = 110, beltH = 34;
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.textBaseline = 'middle';
+
+  // source / sink end caps (sinks stacked on the right)
+  const cap = (x, y, label, sub) => {
+    ctx.fillStyle = css('--belt'); ctx.strokeStyle = css('--belt-edge');
+    ctx.beginPath(); ctx.roundRect(x, y, endcap - 8, 30, 6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = css('--ink'); ctx.textAlign = 'center';
+    ctx.fillText(label, x + (endcap - 8) / 2, y + 10);
+    ctx.fillStyle = css('--muted'); ctx.fillText(sub, x + (endcap - 8) / 2, y + 22);
+  };
+  cap(margin, beltY + 2, 'SRC', String(f.counters.released ?? ''));
+  const sinks = layout.segments.filter(s => s.kind === 'sink');
+  sinks.forEach((s, i) => {
+    const y = beltY + 2 + (i - (sinks.length - 1) / 2) * 36;
+    cap(W - margin - endcap + 8, y, s.id.replace('SINK_', '').replace('BIN_', ''),
+        String(f.counters['delivered_' + s.id] ?? f.counters.delivered ?? ''));
+  });
+
+  hits = [];
+  // segments in flow order: conveyors (belts), stations (boxes), diverters (wedges)
+  const segX = {};
+  let x = margin + endcap;
+  for (const seg of segments) {
+    const w = seg.length_mm * scale;
+    segX[seg.id] = x;
+    hits.push({ id: seg.id, x, y: beltY - 18, w: w + (seg.kind === 'diverter' ? 28 : 0), h: beltH + 36 });
+    if (seg.kind === 'conveyor' && seg.transverse) {
+      // wide cross chain: pieces lie across it, so it is drawn tall, with chain strands
+      ctx.fillStyle = css('--belt'); ctx.strokeStyle = css('--belt-edge'); ctx.lineWidth = 1;
+      ctx.fillRect(x, beltY - 16, w, beltH + 32); ctx.strokeRect(x + 0.5, beltY - 15.5, w - 1, beltH + 31);
+      ctx.globalAlpha = 0.5;
+      for (const cy of [beltY - 8, beltY + beltH / 2, beltY + beltH + 8]) {
+        ctx.beginPath(); ctx.moveTo(x, cy); ctx.lineTo(x + w, cy); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    } else if (seg.kind === 'conveyor') {
+      ctx.fillStyle = css('--belt'); ctx.strokeStyle = css('--belt-edge'); ctx.lineWidth = 1;
+      ctx.fillRect(x, beltY, w, beltH); ctx.strokeRect(x + 0.5, beltY + 0.5, w - 1, beltH - 1);
+      ctx.strokeStyle = css('--belt-edge'); ctx.globalAlpha = 0.5;
+      for (let cx = x + 20; cx < x + w - 10; cx += 40) {
+        ctx.beginPath(); ctx.moveTo(cx - 4, beltY + 10); ctx.lineTo(cx + 2, beltY + beltH / 2);
+        ctx.lineTo(cx - 4, beltY + beltH - 10); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    if (seg.kind === 'conveyor') {
+      // labels for both belt kinds, sized to the room the segment has on screen
+      const m = seg.motor ? f.motors[seg.motor] : null;
+      const y0 = beltY + beltH + (seg.transverse ? 32 : 16);
+      ctx.save(); ctx.beginPath(); ctx.rect(x, y0 - 12, w - 2, 34); ctx.clip();
+      ctx.textAlign = 'left'; ctx.fillStyle = css('--ink');
+      ctx.fillText(seg.id + (seg.transverse ? ' ⇄' : ''), x + 4, y0);
+      if (m) {
+        ctx.fillStyle = motorColor(m.state);
+        ctx.beginPath(); ctx.arc(x + 10, y0 + 14, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = css('--muted');
+        const full = `${m.speed_mm_s} mm/s · ${(m.current_mA / 1000).toFixed(1)} A · ${(m.temperature_mC / 1000).toFixed(0)} °C`;
+        ctx.fillText(w > 200 ? full : `${(m.current_mA / 1000).toFixed(1)} A`, x + 20, y0 + 14);
+      }
+      ctx.restore();
+    } else if (seg.kind === 'station') {
+      const st = f.stations?.[seg.id] || {};
+      const active = ['CUTTING'].includes(st.state);
+      ctx.fillStyle = css('--panel'); ctx.strokeStyle = active ? css('--beam-blocked') : css('--belt-edge');
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.beginPath(); ctx.roundRect(x, beltY - 10, w, beltH + 20, 6); ctx.fill(); ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.save(); ctx.beginPath(); ctx.rect(x, beltY + beltH + 4, w, 70); ctx.clip();
+      ctx.fillStyle = css('--ink'); ctx.textAlign = 'left';
+      ctx.fillText(seg.id, x + 4, beltY + beltH + 22);
+      ctx.fillStyle = css('--muted');
+      ctx.fillText(seg.label || '', x + 4, beltY + beltH + 36);
+      ctx.fillStyle = st.enable === false ? css('--off') : css('--muted');
+      ctx.fillText(`${(st.state ?? '').replace('WAITING_FOR_LOG', 'WAITING')}${st.clamp_closed ? ' · clamp' : ''}`, x + 4, beltY + beltH + 50);
+      ctx.fillText(`cuts ${st.cuts ?? 0}`, x + 4, beltY + beltH + 64);
+      ctx.restore();
+    } else if (seg.kind === 'diverter') {
+      const dv = f.diverters?.[seg.id] || {};
+      const moving = (dv.state || '').startsWith('MOVING');
+      ctx.fillStyle = css('--panel'); ctx.strokeStyle = moving ? css('--starting') : css('--belt-edge');
+      const dw = 28;
+      ctx.beginPath(); ctx.moveTo(x, beltY); ctx.lineTo(x + dw, beltY - 14); ctx.lineTo(x + dw, beltY + beltH + 14);
+      ctx.lineTo(x, beltY + beltH); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = css('--ink'); ctx.textAlign = 'center';
+      ctx.fillText(moving ? '…' : (dv.state || '').replace('POSITION_', ''), x + dw / 2, beltY - 22);
+      ctx.fillStyle = css('--ink'); ctx.textAlign = 'left';
+      ctx.fillText(seg.id, x - 2, beltY + beltH + 32);  // per-route counts are on the bins
+      x += dw;
+    }
+    x += w;
+  }
+  const beltsEnd = x;
+
+  // logs (position_mm is the leading edge measured from the segment inlet); a log entering from
+  // the source has a negative tail, so clip drawing to the belts
+  ctx.save();
+  ctx.beginPath(); ctx.rect(margin + endcap, beltY - 12, beltsEnd - margin - endcap, beltH + 24); ctx.clip();
+  const transverseSeg = Object.fromEntries(segments.map(s => [s.id, !!s.transverse]));
+  for (const log of f.materials) {
+    const sx = segX[log.segment]; if (sx === undefined) continue;
+    if (transverseSeg[log.segment]) {
+      // crosswise: along the flow a piece occupies its width; drawn as a tall bar
+      const extent = log.width_mm ?? log.diameter_mm;
+      const lead = sx + log.position_mm * scale, wpx = Math.max(3, extent * scale);
+      ctx.fillStyle = css({ block: '--block', plank: '--plank', side_board: '--side' }[log.kind] || '--log');
+      ctx.strokeStyle = css('--log-edge');
+      ctx.beginPath(); ctx.rect(lead - wpx, beltY - 12, wpx, beltH + 24); ctx.fill(); ctx.stroke();
+      continue;
+    }
+    const lead = sx + log.position_mm * scale, len = log.length_mm * scale;
+    const kind = log.kind || 'log';
+    const h = { block: 14, plank: 7, side_board: 4 }[kind]
+      ?? Math.max(6, Math.min(beltH - 8, log.diameter_mm * scale * 1.5));
+    ctx.fillStyle = css({ block: '--block', plank: '--plank', side_board: '--side' }[kind] || '--log');
+    ctx.strokeStyle = css('--log-edge');
+    ctx.beginPath(); ctx.roundRect(lead - len, beltY + (beltH - h) / 2, len, h, 3); ctx.fill(); ctx.stroke();
+  }
+  ctx.restore();
+
+  // scanners
+  for (const seg of conveyors) for (const s of (seg.scanners || [])) {
+    const sv = f.scanners?.[s.id] || {}; const px = segX[seg.id] + s.position_mm * scale;
+    hits.unshift({ id: s.id, x: px - 7, y: beltY - 48, w: 14, h: beltH + 56 });
+    ctx.strokeStyle = css('--running'); ctx.lineWidth = 2; ctx.setLineDash([2, 2]);
+    ctx.beginPath(); ctx.moveTo(px, beltY - 14); ctx.lineTo(px, beltY + beltH + 6); ctx.stroke();
+    ctx.setLineDash([]); ctx.lineWidth = 1;
+    ctx.fillStyle = css('--running'); ctx.textAlign = 'center';
+    ctx.fillText(s.id, px, beltY - 24);
+    ctx.fillStyle = css('--muted');
+    ctx.fillText(sv.last_diameter_mm ? `⌀${sv.last_diameter_mm} · ${sv.last_length_mm} mm` : `n=${sv.measurements ?? 0}`, px, beltY - 40);
+  }
+
+  // photo-eyes drawn on top of logs
+  for (const seg of conveyors) for (const s of seg.sensors) {
+    const sv = f.sensors[s.id] || {}; const px = segX[seg.id] + s.position_mm * scale;
+    hits.unshift({ id: s.id, x: px - 7, y: beltY - 48, w: 14, h: beltH + 56 });
+    ctx.strokeStyle = sv.blocked ? css('--beam-blocked') : css('--beam'); ctx.lineWidth = 2;
+    ctx.setLineDash(sv.blocked ? [] : [4, 3]);
+    ctx.beginPath(); ctx.moveTo(px, beltY - 14); ctx.lineTo(px, beltY + beltH + 6); ctx.stroke();
+    ctx.setLineDash([]); ctx.lineWidth = 1;
+    ctx.fillStyle = ctx.strokeStyle; ctx.textAlign = 'center';
+    ctx.fillText(`${s.id}${sv.blocked ? ' ●' : ''}`, px, beltY - 24);
+    ctx.fillStyle = css('--muted'); ctx.fillText(`n=${sv.count ?? 0}`, px, beltY - 40);
+  }
+
+  // namespace selection: outline the equipment the selected signal (or click) belongs to
+  const sel = selectedEquipment && hits.find(h => h.id === selectedEquipment);
+  if (sel) {
+    ctx.strokeStyle = css('--accent'); ctx.lineWidth = 2.5; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.roundRect(sel.x - 3, sel.y - 3, sel.w + 6, sel.h + 6, 6); ctx.stroke();
+    ctx.lineWidth = 1;
+  }
+
+  drawTrend(ctx, W, H, margin, endcap);
+
+  // legend
+  ctx.textAlign = 'left'; let lx = margin;
+  for (const [k, v] of Object.entries({ OFF: '--off', STARTING: '--starting', RUNNING: '--running', STOPPING: '--stopping' })) {
+    ctx.fillStyle = css(v); ctx.beginPath(); ctx.arc(lx + 6, H - 16, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = css('--muted'); ctx.fillText(k, lx + 16, H - 16); lx += 90;
+  }
+}
+
+// Motor current over the last TREND_FRAMES frames, one line per motor, rated = 8 A.
+const TREND_FRAMES = 300, MOTOR_COLORS = ['--accent', '--stopping', '--running', '--starting', '--beam-blocked'];
+function drawTrend(ctx, W, H, margin, endcap) {
+  const top = 215, height = 120, left = margin + endcap, width = W - 2 * margin - 2 * endcap;
+  const start = Math.max(0, index - TREND_FRAMES + 1), slice = frames.slice(start, index + 1);
+  const motorIds = Object.keys(frames[index].motors);
+  const maxA = 24;
+  ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+  ctx.strokeRect(left + 0.5, top + 0.5, width, height);
+  ctx.fillStyle = css('--muted'); ctx.font = '11px system-ui, sans-serif'; ctx.textAlign = 'right';
+  for (const a of [0, 8, 16, 24]) {
+    const y = top + height - (a / maxA) * height;
+    ctx.fillText(`${a} A`, left - 6, y);
+    if (a === 8) { ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(left + width, y); ctx.stroke(); ctx.setLineDash([]); }
+  }
+  ctx.textAlign = 'left';
+  ctx.fillText('motor current, last ' + Math.round(TREND_FRAMES * (frames[1] ? (frames[1].sim_time_ms - frames[0].sim_time_ms) : layout.tick_ms) / 1000) + ' s', left + 6, top + 12);
+  motorIds.forEach((id, i) => {
+    ctx.strokeStyle = css(MOTOR_COLORS[i % MOTOR_COLORS.length]); ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    slice.forEach((fr, j) => {
+      const xx = left + (j / (TREND_FRAMES - 1)) * width;
+      const yy = top + height - Math.min(1, fr.motors[id].current_mA / 1000 / maxA) * height;
+      j === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+    });
+    ctx.stroke();
+    ctx.fillStyle = ctx.strokeStyle; ctx.fillText(id, left + 6 + i * 80, top + height - 6);
+  });
+  // alarms raised inside the window
+  const f = frames[index];
+  for (const a of f.alarms || []) {
+    const j = slice.findIndex(fr => fr.tick >= a.tick);
+    if (j < 0) continue;
+    const xx = left + (j / (TREND_FRAMES - 1)) * width;
+    ctx.strokeStyle = css('--beam-blocked'); ctx.setLineDash([2, 2]);
+    ctx.beginPath(); ctx.moveTo(xx, top); ctx.lineTo(xx, top + height); ctx.stroke(); ctx.setLineDash([]);
+  }
+  ctx.font = '12px system-ui, sans-serif';
+}
+
+// ---- process plants (the kiln) --------------------------------------------------------------
+// A mimic in the style of a kiln HMI: what the instruments report, beside the true state that no
+// instrument shows (drying gradient, crack index) - the gap between the two is the lesson.
+const PROC_UNIT = { temperature: ['m°C', 1000, '°C', 1], humidity: ['‰', 10, '%', 1], moisture: ['bp', 100, '%', 2], heat_power: ['W', 1000, 'kW', 0] };
+function procVal(measures, raw) {
+  const [, div, unit, dec] = PROC_UNIT[measures] || ['', 1, '', 0];
+  return raw == null ? '–' : `${(raw / div).toFixed(dec)} ${unit}`;
+}
+function drawProcess(f) {
+  const dpr = window.devicePixelRatio || 1, W = canvas.clientWidth, H = 400;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
+  hits = [];
+  const unit = layout.units[0], truth = (f.process || {})[unit.id] || {}, v = f.values || {};
+  const devs = unit.devices, byRole = r => devs.find(d => d.kind === 'valve' && d.role === r);
+  const x0 = 150, y0 = 40, cw = Math.min(460, W - 520), ch = 190;
+  // chamber and timber stacks
+  ctx.fillStyle = css('--belt'); ctx.strokeStyle = css('--belt-edge'); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(x0, y0, cw, ch, 8); ctx.fill(); ctx.stroke();
+  hits.push({ id: unit.id, x: x0, y: y0, w: cw, h: ch });
+  for (let i = 0; i < 3; i++) for (let row = 0; row < 7; row++) {
+    ctx.fillStyle = css(row % 2 ? '--plank' : '--block');
+    ctx.fillRect(x0 + 40 + i * (cw - 80) / 3, y0 + 60 + row * 16, (cw - 80) / 3 - 18, 11);
+  }
+  ctx.fillStyle = css('--ink'); ctx.font = '600 13px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`${unit.id} · drying kiln · step ${v[`${unit.id}/program_step`] ?? '–'}`, x0 + 10, y0 + 8);
+  ctx.font = '12px system-ui'; ctx.fillStyle = css('--muted');
+  ctx.fillText(`setpoint ${procVal('temperature', v[`${unit.id}/temp_sp`])} · ${procVal('humidity', v[`${unit.id}/rh_sp`])} RH`, x0 + 10, y0 + 26);
+  // valves: heating (district heating, left), vent (roof), spray (roof)
+  const valve = (d, x, y, label) => {
+    if (!d) return;
+    const pos = v[`${d.id}/position`] ?? 0, cmd = v[`${d.id}/command`] ?? 0;
+    ctx.fillStyle = css('--panel'); ctx.strokeStyle = css('--belt-edge'); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect(x, y, 108, 34, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = css('--running'); ctx.fillRect(x + 4, y + 24, 100 * pos / 1000, 6);
+    ctx.fillStyle = css('--ink'); ctx.font = '11px system-ui'; ctx.textBaseline = 'top';
+    ctx.fillText(`${label} ${d.id}`, x + 5, y + 4);
+    ctx.fillStyle = css('--muted');
+    ctx.fillText(`${(pos / 10).toFixed(0)} % ${Math.abs(pos - cmd) > 20 ? `(cmd ${(cmd / 10).toFixed(0)} %)` : ''}`, x + 5, y + 14);
+    hits.push({ id: d.id, x, y, w: 108, h: 34 });
+  };
+  valve(byRole('heating'), 20, y0 + ch / 2 - 17, 'heat');
+  valve(byRole('vent'), x0 + cw - 118, 2, 'vent');
+  valve(byRole('spray'), x0 + 10, 2 + 0, 'spray');
+  // instruments: reported vs true
+  const trueOf = { temperature: truth.temp_mc, humidity: truth.rh_permille, moisture: truth.mc_bp, heat_power: truth.heat_w };
+  let iy = y0;
+  const ix = x0 + cw + 24;
+  ctx.textBaseline = 'top';
+  for (const d of devs.filter(d => d.kind === 'transmitter')) {
+    const reported = v[`${d.id}/value`], real = trueOf[d.measures];
+    const off = reported != null && real != null && Math.abs(reported - real) > (d.measures === 'temperature' ? 1500 : d.measures === 'humidity' ? 30 : d.measures === 'moisture' ? 150 : 10000);
+    ctx.fillStyle = off ? css('--beam-blocked') : css('--ink'); ctx.font = '600 12px system-ui';
+    ctx.fillText(`${d.id}  ${procVal(d.measures, reported)}`, ix, iy);
+    ctx.fillStyle = css('--muted'); ctx.font = '11px system-ui';
+    ctx.fillText(`${d.measures.replace('_', ' ')} · true ${procVal(d.measures, real)}${off ? ' · DISAGREES' : ''}`, ix, iy + 15);
+    hits.push({ id: d.id, x: ix - 4, y: iy - 2, w: 230, h: 30 });
+    iy += 36;
+  }
+  // hidden truth: what the verifier sees
+  ctx.fillStyle = css('--beam-blocked'); ctx.font = '600 11px system-ui';
+  ctx.fillText('▲ hidden truth (no instrument shows this)', 20, y0 + ch + 14);
+  ctx.fillStyle = css('--ink'); ctx.font = '12px system-ui';
+  const grad = truth.gradient_permille / 1000;
+  ctx.fillText(`drying gradient ${isFinite(grad) ? grad.toFixed(2) : '–'} (pine tolerates ~3.5) · drying ${((truth.drying_rate_bp_h || 0) / 100).toFixed(2)} %/h · crack index ${truth.crack_index ?? 0} · heat used ${((truth.energy_wh || 0) / 1e6).toFixed(1)} MWh`, 20, y0 + ch + 30);
+  drawProcessTrend(ctx, W, H, unit, devs);
+}
+function drawProcessTrend(ctx, W, H, unit, devs) {
+  const top = 290, h = H - top - 16, left = 44, right = W - 16;
+  const tt = devs.find(d => d.measures === 'temperature'), mt = devs.find(d => d.measures === 'humidity');
+  const n = frames.length, step = Math.max(1, Math.floor(n / (right - left)));
+  const X = i => left + (i / Math.max(1, n - 1)) * (right - left);
+  const line = (get, max, color, dash) => {
+    ctx.strokeStyle = css(color); ctx.setLineDash(dash); ctx.lineWidth = 1.4; ctx.beginPath();
+    let on = false;
+    for (let i = 0; i < n; i += step) {
+      const val = get(frames[i]); if (val == null) continue;
+      const y = top + h - Math.max(0, Math.min(1, val / max)) * h;
+      on ? ctx.lineTo(X(i), y) : ctx.moveTo(X(i), y); on = true;
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  ctx.fillStyle = css('--muted'); ctx.font = '10px system-ui'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+  for (const g of [0, 50, 100]) { const y = top + h - g / 100 * h; ctx.fillText(`${g}`, left - 6, y); ctx.strokeStyle = css('--line'); ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke(); }
+  line(fr => fr.process?.[unit.id]?.temp_mc / 1000, 100, '--stopping', []);
+  if (tt) line(fr => fr.values?.[`${tt.id}/value`] / 1000, 100, '--stopping', [4, 3]);
+  line(fr => fr.process?.[unit.id]?.rh_permille / 10, 100, '--beam', []);
+  if (mt) line(fr => fr.values?.[`${mt.id}/value`] / 10, 100, '--beam', [4, 3]);
+  line(fr => fr.process?.[unit.id]?.mc_bp / 100, 100, '--log', []);
+  ctx.strokeStyle = css('--beam-blocked'); ctx.beginPath(); ctx.moveTo(X(index), top); ctx.lineTo(X(index), top + h); ctx.stroke();
+  ctx.textAlign = 'left'; ctx.fillStyle = css('--muted');
+  ctx.fillText('whole run · °C and % · solid: true, dashed: as the probe reports · orange temperature, blue humidity, brown wood moisture', left, top - 8);
+}
+
+function drawStats(f) {
+  if (layout.units?.length) {
+    const unit = layout.units[0], truth = (f.process || {})[unit.id] || {};
+    const alarms = (f.alarms || []).length
+      ? f.alarms.map(a => `<div class="alarm"><b>${a.alarm_id}</b> <span class="hint">${(a.tick * layout.tick_ms / 3600000).toFixed(1)} h</span><br>${a.message}</div>`).join('')
+      : '<div class="hint">no active alarms</div>';
+    const items = [['Elapsed', `${(f.sim_time_ms / 3600000).toFixed(1)} h`], ['Step', f.values?.[`${unit.id}/program_step`] ?? '–'],
+      ['Heat used (true)', `${((truth.energy_wh || 0) / 1e6).toFixed(1)} MWh`], ['Crack index (true)', truth.crack_index ?? 0]];
+    $('stats').innerHTML = items.map(([k, val]) => `<div class="stat"><div class="k">${k}</div><div class="v">${val}</div></div>`).join('')
+      + `<div class="stat alarms"><div class="k">Alarms</div>${alarms}</div>`;
+    return;
+  }
+  const items = [
+    ['Released', f.counters.released], ['Delivered', f.counters.delivered],
+    ['In transit', f.materials.length], ['Source blocked (ticks)', f.counters.source_blocked_ticks],
+  ];
+  for (const [id, s] of Object.entries(f.sensors)) items.push([`${id} count`, s.count]);
+  items.push(['Resets', f.counters.resets]);
+  if (f.counters.chips_dm3 != null) items.push(['Chips (dm³)', f.counters.chips_dm3], ['Bark (dm³)', f.counters.bark_dm3]);
+  const alarms = (f.alarms || []).length
+    ? f.alarms.map(a => `<div class="alarm"><b>${a.alarm_id}</b> <span class="hint">t=${a.tick} · ${(a.tick * layout.tick_ms / 1000).toFixed(1)} s</span><br>${a.message}</div>`).join('')
+    : '<div class="hint">no active alarms</div>';
+  $('stats').innerHTML = items.map(([k, v]) =>
+    `<div class="stat"><div class="k">${k}</div><div class="v">${v ?? '–'}</div></div>`).join('')
+    + `<div class="stat alarms"><div class="k">Alarms</div>${alarms}</div>`;
+}
+window.addEventListener('resize', () => frames.length && render());
+</script>
+</body>
+</html>

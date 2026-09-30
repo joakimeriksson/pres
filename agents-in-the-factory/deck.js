@@ -1,7 +1,7 @@
-// Demo slides: the testbed viewer as the slide background. Locally the deck's demos/testbed is a symlink to the
-// testbed repository (not published), so the viewer and its recordings are always the current build.
+// Demo slides: the testbed viewer as the slide background. demos/viewer is a copy of the testbed's viewer and
+// demos/runs holds the recordings, so the deck is self-contained: no testbed and no network needed.
 document.querySelectorAll('section[data-demo-src]').forEach(sec => {
-  sec.setAttribute('data-background-iframe', 'demos/testbed/' + sec.dataset.demoSrc);
+  sec.setAttribute('data-background-iframe', 'demos/' + sec.dataset.demoSrc);
 });
 
 Reveal.initialize({

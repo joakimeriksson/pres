@@ -408,8 +408,8 @@
   <aside class="notes">10:55. Two flows. The wood moves left to right. The information moves bottom-up: sensors to PLC on the fieldbus every 20 ms, SCADA polls the PLC over OPC UA, the UNS broker publishes on change over MQTT, and the historian, MES, dashboards, the cloud and the agent subscribe. Every signal has one name in the unified namespace. The point: the agent sits at the far end. If a link is down, a publisher silent or a firewall rule blocks it, the agent's picture of the plant is simply old. Let me show it.</aside>
 </section>
 <!-- ============ 3.4 · Live demo: the sawline ============ -->
-<section data-demo-src="viewer/index.html?src=runs/deck/sawline.jsonl&t=240&play=1" data-background-interactive class="demo-slide" data-timing="60">
-  <div class="demo-cap"><strong>Live:</strong> the sawline recording in the testbed viewer. Top: the line as instruments report it. Below: the information flow, message rates per link, zones. Right: the unified namespace. <span class="grey">Press <span class="kbd">D</span> to reload.</span></div>
+<section data-demo-src="viewer/index.html?src=runs/sawline.jsonl&t=180&play=1" data-background-interactive class="demo-slide" data-timing="60">
+  <div class="demo-cap"><strong>Recorded run:</strong> the sawline recording in the testbed viewer. Top: the line as instruments report it. Below: the information flow, message rates per link, zones. Right: the unified namespace. <span class="grey">Press <span class="kbd">D</span> to reload.</span></div>
   <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">12:05 (60 s). The viewer, playing a recorded shift. Point at: logs moving, cuts counting, motor currents. Scroll to the information flow: rates per link, the zones as horizontal bands, the AI agent in the DMZ. Click a signal in the namespace tree: topic, OPC UA path and PLC tag for the same value. If the demo misbehaves, the next slide has the same picture.</aside>
 </section>
@@ -757,8 +757,8 @@
   <aside class="notes">8:45. The six rules. None is about the model. They come back at the end of part three, translated for a plant.</aside>
 </section>
 <!-- ============ 3.8 · Live demo: the kiln ============ -->
-<section data-visibility="uncounted" data-demo-src="viewer/index.html?src=runs/deck/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="0">
-  <div class="demo-cap"><strong>Live:</strong> the same run in the viewer, hour 48. Each instrument beside its true value; MT101 <span class="coral">disagrees</span>. The red line: hidden truth no instrument measures. <span class="grey"><span class="kbd">D</span> reloads.</span></div>
+<section data-visibility="uncounted" data-demo-src="viewer/index.html?src=runs/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Recorded run:</strong> the same run in the viewer, hour 48. Each instrument beside its true value; MT101 <span class="coral">disagrees</span>. The red line: hidden truth no instrument measures. <span class="grey"><span class="kbd">D</span> reloads.</span></div>
   <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">18:55 (40 s). The kiln mimic at hour 48: MT101 reads 56 percent, the true air is 14. Below, the hidden truth: drying gradient almost 9, pine tolerates 3.5. Scrub back to hour 20 to show where the curves part. The agent would never see the true values; the viewer shows them because we are the oracle.</aside>
 </section>

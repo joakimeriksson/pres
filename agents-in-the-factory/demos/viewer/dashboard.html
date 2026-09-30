@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sawline Dashboard</title>
+<style>
+  :root {
+    --bg: #eef1f5; --panel: #ffffff; --ink: #1c1e21; --muted: #6b7280; --line: #d1d5db;
+    --good: #16a34a; --warn: #f59e0b; --bad: #dc2626; --idle: #9ca3af; --accent: #2563eb; --track: #e5e7eb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1116; --panel: #171c23; --ink: #e5e7eb; --muted: #9ca3af; --line: #2d3540; --track: #2a313b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1116; --panel: #171c23; --ink: #e5e7eb; --muted: #9ca3af; --line: #2d3540; --track: #2a313b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 10px 16px;
+           background: var(--panel); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 17px; margin: 0; }
+  header .where { color: var(--muted); font-size: 13px; }
+  header .clock { font: 600 20px ui-monospace, SFMono-Regular, Menlo, monospace; margin-left: auto; }
+  .controls { display: flex; gap: 8px; align-items: center; padding: 8px 16px; flex-wrap: wrap; }
+  .controls input[type=range] { flex: 1 1 240px; }
+  button, select { font: inherit; padding: 3px 10px; border: 1px solid var(--line); border-radius: 6px;
+                   background: var(--panel); color: var(--ink); cursor: pointer; }
+  a { color: var(--accent); }
+  main { padding: 0 16px 20px; max-width: 1500px; margin: 0 auto; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+          display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .tile h3 { margin: 0; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .tile .big { font: 600 32px/1.1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  .tile .big small { font-size: 15px; color: var(--muted); font-weight: 500; margin-left: 3px; }
+  .tile .sub { color: var(--muted); font-size: 12px; }
+  .tile .src { margin-top: auto; padding-top: 6px; font: 10px ui-monospace, Menlo, monospace; color: var(--muted);
+               overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tile .src a { color: inherit; text-decoration: none; }
+  .tile .src a:hover { color: var(--accent); text-decoration: underline; }
+  .wide { grid-column: span 2; }
+  .full { grid-column: 1 / -1; }
+  @media (max-width: 520px) { .wide { grid-column: auto; } }
+  .oee { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center; }
+  .bar { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; }
+  .bar > div { height: 100%; border-radius: 4px; }
+  .factor { display: grid; grid-template-columns: 92px 1fr 88px; gap: 8px; align-items: center; font-size: 13px; margin: 3px 0; }
+  .factor .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .andon { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .machine { border-radius: 8px; padding: 6px 8px; color: #fff; font-size: 12px; line-height: 1.3; }
+  .machine b { font-size: 14px; display: block; }
+  .bins { display: flex; gap: 10px; align-items: flex-end; height: 120px; padding-top: 8px; }
+  .bins .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; height: 100%; justify-content: flex-end; }
+  .bins .col div.b { width: 70%; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; }
+  .bins .col span { font-size: 11px; color: var(--muted); }
+  canvas { width: 100%; height: 120px; display: block; }
+  .band { font-size: 12px; font-weight: 600; }
+  #empty { padding: 60px 16px; text-align: center; color: var(--muted); }
+  .tile.stale { opacity: .55; border-style: dashed; }
+  .stalebadge { font-size: 11px; font-weight: 700; color: var(--warn); }
+  #banner { margin: 0 0 12px; padding: 8px 12px; border-radius: 8px; background: var(--warn); color: #111; font-weight: 600; }
+  .note { color: var(--muted); font-size: 12px; margin: 14px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sawline dashboard</h1>
+  <span class="where" id="where"></span>
+  <a id="toViewer" href="#">open the line viewer →</a>
+  <span class="clock" id="clock">--:--:--</span>
+</header>
+<div class="controls" id="controls" hidden>
+  <button id="play">Play</button>
+  <select id="speed"><option value="10">10×</option><option value="30" selected>30×</option><option value="60">60×</option><option value="1">1×</option></select>
+  <input id="scrub" type="range" min="0" max="0" value="0">
+</div>
+<main>
+  <div id="empty">Open with <code>?src=runs/shift.jsonl</code> (a recording made with <code>industrial-testbed run --record</code>).</div>
+  <div id="banner" hidden></div>
+  <div id="dash" class="grid" hidden></div>
+  <p class="note" id="note" hidden>Every number here comes from a UNS topic the office dashboards subscribe to. The KPIs are
+    computed by the MES from UNS data and published back under <code>line/KPI</code>. Click a topic to see it on the line and in the information flow.
+    Quality is not measured on the sawline (grading happens after drying), so OEE = availability × performance.
+    With comm faults, this page shows what the dashboards received: stale where it was told, silently wrong where it was not.
+    The line viewer shows the truth.</p>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let me = null;  // the dashboard system's id, from the namespace
+let frames = [], ns = null, layout = null, index = 0, playing = false, lastTime = 0, carry = 0, sigs = {};
+const params = new URLSearchParams(location.search);
+const src = params.get('src');
+const live = params.has('live');
+
+function parse(text) {
+  setup(text.split('\n').filter(l => l.trim()).map(l => JSON.parse(l)));
+}
+// A frame as the office dashboards system has it: true values, overridden where its image
+// differs (comm faults: seen[<dashboard id>], null = caught up), plus what it has been told is stale.
+function toFrame(f, prev) {
+  const truth = Object.assign({}, prev ? prev.truth : {});
+  for (const [k, v] of Object.entries(f.values || {})) if (sigs[k]) truth[k] = v;
+  const mine = Object.assign({}, prev ? prev.mine : {});
+  for (const [k, v] of Object.entries((f.seen || {})[me] || {})) { if (v === null) delete mine[k]; else mine[k] = v; }
+  const stale = ((f.comm || {}).stale || {})[me] || [];
+  return { tick: f.tick, t: f.sim_time_ms, truth, mine, v: Object.assign({}, truth, mine), stale };
+}
+function setup(records) {
+  layout = records.find(r => r.type === 'layout');
+  ns = records.find(r => r.type === 'namespace');
+  if (!ns) throw new Error('this recording has no namespace; re-record it with the current version');
+  // the dashboard is a UNS consumer: it only gets the signals it subscribes to
+  // this page is the namespace's dashboard system; its id comes from the namespace
+  me = (ns.systems.find(x => x.kind === 'dashboard') || {}).id;
+  for (const s of ns.signals) if (s.consumers.includes(me)) sigs[s.value_key] = s;
+  let prev = null;
+  frames = records.filter(r => r.type === 'frame').map(f => (prev = toFrame(f, prev)));
+  if (!frames.length) throw new Error('recording has no frames');
+  $('where').textContent = `${ns.enterprise} / ${ns.site} / ${ns.area} / ${ns.line} · ${layout.plant} · seed ${layout.seed}`;
+  $('scrub').max = frames.length - 1;
+  $('empty').hidden = true; $('dash').hidden = $('controls').hidden = $('note').hidden = false;
+  const t = parseFloat(params.get('t'));
+  index = isNaN(t) ? frames.length - 1 : Math.max(0, frames.findIndex(f => f.t >= t * 1000));
+  if (live) { $('play').hidden = $('speed').hidden = true; $('where').textContent += ' · LIVE'; }
+  build();
+  render();
+  if (params.get('play')) { index = 0; setPlaying(true); }
+}
+// live: the same stream as the line viewer; the dashboard keeps only its subscriptions
+let following = true, queued = false;
+if (live) {
+  let header = [];
+  const es = new EventSource('/live/stream');
+  es.onmessage = ev => {
+    const r = JSON.parse(ev.data);
+    if (!frames.length) {
+      if (r.type === 'live') return;
+      header.push(r);
+      if (r.type === 'frame') { setup(header); header = []; }
+      return;
+    }
+    if (r.type !== 'frame') return;
+    frames.push(toFrame(r, frames[frames.length - 1]));
+    if (frames.length > 36000) { frames.shift(); index = Math.max(0, index - 1); }
+    $('scrub').max = frames.length - 1;
+    if (following) index = frames.length - 1;
+    if (!queued) { queued = true; setTimeout(() => { queued = false; render(); }, 250); }  // a dashboard needn't repaint at 10 Hz
+  };
+  es.onerror = () => { $('where').textContent = $('where').textContent.replace(' · LIVE', '') + ' · disconnected'; };
+} else if (src) {
+  fetch(src.startsWith('/') || src.includes('://') ? src : '../' + src)
+    .then(r => { if (!r.ok) throw new Error(`${r.status} loading ${src}`); return r.text(); })
+    .then(parse).catch(e => { $('empty').textContent = e.message; });
+}
+
+// ---- values --------------------------------------------------------------
+const kpi = name => `kpi/${name}`;
+const val = k => frames[index].v[k];
+const pct = permille => permille === undefined ? '–' : (permille / 10).toFixed(1);
+const dur = s => s === undefined ? '–' : s >= 3600 ? `${Math.floor(s / 3600)} h ${Math.floor(s % 3600 / 60)} min` : s >= 60 ? `${Math.floor(s / 60)} min ${s % 60} s` : `${s} s`;
+const clock = ms => { const s = Math.floor(ms / 1000); return [s / 3600, s % 3600 / 60, s % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':'); };
+const tag = k => sigs[k]?.plc_tag;
+const topic = k => sigs[k] ? sigs[k].uns_topic.split('/').slice(4).join('/') : '';
+function srcLink(k) {
+  const s = sigs[k]; if (!s) return '';
+  const href = live ? `index.html?live=1&select=${s.plc_tag}` : `index.html?src=${encodeURIComponent(src)}&t=${(frames[index].t / 1000).toFixed(1)}&select=${s.plc_tag}`;
+  return `<a href="${href}" title="${s.uns_topic}\nproduced by ${s.producer}, via ${s.path.join(' → ')}">${topic(k)}</a>`;
+}
+
+// ---- tiles ---------------------------------------------------------------
+const TILES = [
+  { id: 'oee', cls: 'wide', title: 'OEE — breakdown saw', src: kpi('oee') },
+  { id: 'throughput', title: 'Throughput', src: kpi('throughput') },
+  { id: 'volume', title: 'Log volume', src: kpi('volume_rate') },
+  { id: 'pieces', title: 'Pieces out', src: 'line/delivered' },
+  { id: 'downtime', title: 'Downtime', src: kpi('downtime') },
+  { id: 'mttr', title: 'MTTR / MTBF', src: kpi('mttr') },
+  { id: 'alarms', title: 'Alarm rate (ISA-18.2)', src: kpi('alarm_rate') },
+  { id: 'energy', title: 'Drive energy', src: kpi('energy') },
+  { id: 'andon', cls: 'full', title: 'Machines', src: null },
+  { id: 'trend', cls: 'wide', title: 'OEE and availability over the shift', src: kpi('oee') },
+  { id: 'bins', cls: 'wide', title: 'Sorted to bins', src: null },
+];
+function build() {
+  $('dash').innerHTML = TILES.map(t => `<div class="tile ${t.cls || ''}" id="t-${t.id}"><h3>${t.title}</h3><div class="body"></div><div class="src"></div></div>`).join('');
+}
+function isStale(k) {
+  const st = frames[index].stale;
+  if (!st.length || !k || !sigs[k]) return false;
+  return st.includes('*') || st.includes(sigs[k].path[sigs[k].path.length - 2]);
+}
+function tile(id, html, srcKey) {
+  const el = $('t-' + id);
+  const stale = isStale(srcKey);
+  el.classList.toggle('stale', stale);
+  el.querySelector('.body').innerHTML = html + (stale ? '<div class="stalebadge">STALE · last known value</div>' : '');
+  el.querySelector('.src').innerHTML = srcKey ? 'UNS: ' + srcLink(srcKey) : '';
+}
+function color(permille, good = 850, warn = 600) {
+  return permille === undefined ? css('--idle') : permille >= good ? css('--good') : permille >= warn ? css('--warn') : css('--bad');
+}
+function ring(permille) {
+  const r = 52, c = 2 * Math.PI * r, f = (permille || 0) / 1000;
+  return `<svg viewBox="0 0 130 130" width="130" height="130" role="img" aria-label="OEE ${pct(permille)} %">
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="${css('--track')}" stroke-width="12"/>
+    <circle cx="65" cy="65" r="${r}" fill="none" stroke="${color(permille)}" stroke-width="12" stroke-linecap="round"
+      stroke-dasharray="${c * f} ${c}" transform="rotate(-90 65 65)"/>
+    <text x="65" y="63" text-anchor="middle" font-size="26" font-weight="600" fill="${css('--ink')}">${pct(permille)}</text>
+    <text x="65" y="84" text-anchor="middle" font-size="12" fill="${css('--muted')}">% OEE</text></svg>`;
+}
+function factor(label, permille, note) {
+  return `<div class="factor"><span>${label}</span><div class="bar"><div style="width:${(permille || 0) / 10}%;background:${color(permille)}"></div></div><span class="v">${note ?? pct(permille) + ' %'}</span></div>`;
+}
+const STATE_COLOR = { RUNNING: '--good', CUTTING: '--good', POSITIONING: '--good', CLAMPING: '--good', READY_TO_CUT: '--good',
+  RELEASING: '--good', EJECTING: '--good', WAITING_FOR_LOG: '--warn', STARTING: '--warn', STOPPING: '--warn',
+  IDLE: '--bad', OFF: '--idle', FAULTED: '--bad' };
+
+function render() {
+  const f = frames[index];
+  $('scrub').value = index;
+  $('clock').textContent = clock(f.t);
+  const b = $('banner');
+  b.hidden = !f.stale.length;
+  b.textContent = f.stale.includes('*') ? '⚠ Connection to the UNS broker lost: every value below is the last one received.'
+    : f.stale.length ? `⚠ ${f.stale.map(x => (ns.systems.find(s => s.id === x) || {}).name || x).join(' and ')} went offline (MQTT last will): values from it are stale.` : '';
+  $('toViewer').href = live ? 'index.html?live=1' : `index.html?src=${encodeURIComponent(src)}&t=${(f.t / 1000).toFixed(1)}`;
+
+  tile('oee', `<div class="oee">${ring(val(kpi('oee')))}<div>
+      ${factor('Availability', val(kpi('availability')))}
+      ${factor('Performance', val(kpi('performance')))}
+      ${factor('Quality', undefined, 'not measured')}
+      <div class="sub">world class ≈ 85 %; ideal cycle 15 s per log on SW301</div></div></div>`, kpi('oee'));
+  const logs = val(kpi('throughput'));
+  tile('throughput', `<div class="big">${logs ?? '–'}<small>logs/h</small></div><div class="sub">${val('line/released') ?? 0} logs in this shift</div>`, kpi('throughput'));
+  const m3h = val(kpi('volume_rate'));
+  tile('volume', `<div class="big">${m3h === undefined ? '–' : (m3h / 1000).toFixed(1)}<small>m³/h</small></div><div class="sub">${((val(kpi('volume_in')) || 0) / 1000).toFixed(2)} m³ scanned this shift</div>`, kpi('volume_rate'));
+  tile('pieces', `<div class="big">${val('line/delivered') ?? '–'}<small>pieces</small></div><div class="sub">planks and side boards to the bins</div>`, 'line/delivered');
+  const stops = val(kpi('stops')) || 0;
+  tile('downtime', `<div class="big" style="color:${(val(kpi('downtime')) || 0) > 0 ? css('--bad') : 'inherit'}">${dur(val(kpi('downtime')))}</div><div class="sub">${stops} fault stop${stops === 1 ? '' : 's'} this shift</div>`, kpi('downtime'));
+  tile('mttr', stops ? `<div class="big">${dur(val(kpi('mttr')))}</div><div class="sub">MTBF ${dur(val(kpi('mtbf')))}</div>` : `<div class="big">–</div><div class="sub">no fault stops yet</div>`, kpi('mttr'));
+  const rate = (val(kpi('alarm_rate')) || 0) / 1000, active = val('line/active_alarms') || 0;
+  // EEMUA 191 / ISA-18.2 guidance: about 1 alarm per 10 min is acceptable, 2 is manageable
+  const band = rate <= 1 ? ['--good', 'acceptable'] : rate <= 2 ? ['--warn', 'manageable'] : ['--bad', 'overloaded'];
+  tile('alarms', `<div class="big">${rate.toFixed(1)}<small>/ 10 min</small></div><div class="band" style="color:${css(band[0])}">${band[1]}</div>
+    <div class="sub">${val(kpi('alarms')) ?? 0} alarms this shift · <b style="color:${active ? css('--bad') : 'inherit'}">${active} active now</b></div>`, kpi('alarm_rate'));
+  const kwh = (val(kpi('energy')) || 0) / 1000, perM3 = val(kpi('energy_per_volume'));
+  tile('energy', `<div class="big">${kwh.toFixed(2)}<small>kWh</small></div><div class="sub">${perM3 ? (perM3 / 1000).toFixed(2) + ' kWh per m³ of logs' : '–'} · conveyor drives only</div>`, kpi('energy'));
+
+  // andon: one card per machine, from the state topics the dashboard receives
+  const cards = Object.values(sigs).filter(s => s.name === 'state_st' || s.name === 'position_st').map(s => {
+    const v = val(s.value_key) ?? '–';
+    const c = s.name === 'position_st' ? '--good' : STATE_COLOR[v] || '--idle';
+    const extra = s.device_kind === 'motor' ? `${((val(s.value_key.replace('/state', '/current_mA')) || 0) / 1000).toFixed(1)} A` : '';
+    return `<a class="machine" style="background:${css(c)};text-decoration:none${isStale(s.value_key) ? ';opacity:.5;outline:2px dashed var(--warn)' : ''}" href="${live ? 'index.html?live=1' : `index.html?src=${encodeURIComponent(src)}&t=${(f.t / 1000).toFixed(1)}`}&select=${s.plc_tag}" title="${s.uns_topic}"><b>${s.equipment}</b>${String(v).replaceAll('_', ' ').toLowerCase()} ${extra}</a>`;
+  });
+  tile('andon', `<div class="andon">${cards.join('')}</div>`, null);
+
+  drawTrend();
+
+  const bins = Object.values(sigs).filter(s => /^routed_.*_cnt$/.test(s.name));
+  const max = Math.max(1, ...bins.map(s => val(s.value_key) || 0));
+  tile('bins', `<div class="bins">${bins.map(s => `<div class="col" title="${s.uns_topic}"><span>${val(s.value_key) ?? 0}</span><div class="b" style="height:${(val(s.value_key) || 0) / max * 80}%"></div><span>${s.name.replace('routed_', '').replace('_cnt', '').toUpperCase()}</span></div>`).join('')}</div>`, bins[0]?.value_key);
+}
+
+function drawTrend() {
+  const body = $('t-trend').querySelector('.body');
+  if (!body.querySelector('canvas')) body.innerHTML = `<canvas></canvas><div class="sub">— OEE &nbsp; - - availability &nbsp; (${live ? 'since this page opened' : 'whole shift'}; the cursor is now)</div>`;
+  $('t-trend').querySelector('.src').innerHTML = 'UNS: ' + srcLink(kpi('oee')) + ', ' + srcLink(kpi('availability'));
+  const cv = body.querySelector('canvas');
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = 120;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  const y = p => H - 6 - (p / 1000) * (H - 16);
+  ctx.strokeStyle = css('--track'); ctx.fillStyle = css('--muted'); ctx.font = '10px system-ui';
+  for (const g of [0, 500, 850, 1000]) { ctx.beginPath(); ctx.moveTo(24, y(g)); ctx.lineTo(W, y(g)); ctx.stroke(); ctx.fillText(g / 10 + '%', 0, y(g) + 3); }
+  const n = frames.length, step = Math.max(1, Math.floor(n / W));
+  const line = (k, dash, colorName) => {
+    ctx.strokeStyle = css(colorName); ctx.setLineDash(dash); ctx.lineWidth = 1.6; ctx.beginPath();
+    let started = false;
+    for (let i = 0; i < n; i += step) {
+      const v = frames[i].v[k]; if (v === undefined) continue;
+      const x = 24 + (i / (n - 1)) * (W - 24);
+      started ? ctx.lineTo(x, y(v)) : ctx.moveTo(x, y(v)); started = true;
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  line(kpi('availability'), [4, 3], '--muted');
+  line(kpi('oee'), [], '--accent');
+  const cx = 24 + (index / (n - 1)) * (W - 24);
+  ctx.strokeStyle = css('--bad'); ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+}
+
+// ---- playback ----------------------------------------------------------
+function setPlaying(p) { playing = p; $('play').textContent = p ? 'Pause' : 'Play'; lastTime = 0; carry = 0; if (p) requestAnimationFrame(tick); }
+function tick(now) {
+  if (!playing) return;
+  if (lastTime) {
+    const per = frames.length > 1 ? frames[1].t - frames[0].t : 100;
+    carry += (now - lastTime) * +$('speed').value;
+    const steps = Math.floor(carry / per);
+    if (steps) { carry -= steps * per; index = Math.min(frames.length - 1, index + steps); render(); }
+    if (index >= frames.length - 1) setPlaying(false);
+  }
+  lastTime = now;
+  if (playing) requestAnimationFrame(tick);
+}
+$('play').onclick = () => { if (!playing && index >= frames.length - 1) index = 0; setPlaying(!playing); };
+$('scrub').oninput = e => { setPlaying(false); index = +e.target.value; following = index >= frames.length - 1; render(); };
+window.addEventListener('resize', () => frames.length && render());
+</script>
+</body>
+</html>

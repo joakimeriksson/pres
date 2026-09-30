@@ -406,8 +406,8 @@
   <aside class="notes">10:55. Två flöden. Virket rör sig från vänster till höger. Informationen rör sig nerifrån och upp: givare till PLC på fältbussen var 20:e millisekund, SCADA pollar PLC:n över OPC UA, UNS-brokern publicerar vid ändring över MQTT, och historikdatabas, MES, dashboards, moln och agent prenumererar. Varje signal har ett namn i den gemensamma namnrymden. Poängen: agenten sitter längst bort. Om en länk är nere, en källa tyst eller en brandväggsregel blockerar, är agentens bild av anläggningen helt enkelt gammal. Låt mig visa.</aside>
 </section>
 <!-- ============ 3.4 · Live-demo: såglinjen ============ -->
-<section data-demo-src="viewer/index.html?src=runs/deck/sawline.jsonl&t=240&play=1" data-background-interactive class="demo-slide" data-timing="60">
-  <div class="demo-cap"><strong>Live:</strong> såglinjen i testbäddens visare. Överst: linjen som givarna ser den. Nedanför: informationsflödet och zonerna. Till höger: namnrymden. <span class="grey">Tryck <span class="kbd">D</span> för att ladda om.</span></div>
+<section data-demo-src="viewer/index.html?src=runs/sawline.jsonl&t=180&play=1" data-background-interactive class="demo-slide" data-timing="60">
+  <div class="demo-cap"><strong>Inspelad körning:</strong> såglinjen i testbäddens visare. Överst: linjen som givarna ser den. Nedanför: informationsflödet och zonerna. Till höger: namnrymden. <span class="grey">Tryck <span class="kbd">D</span> för att ladda om.</span></div>
   <div class="demo-nav"><button data-go="prev" title="föregående bild (←)">‹</button><button data-go="next" title="nästa bild (→)">›</button></div>
   <aside class="notes">12:05 (60 s). Visaren spelar ett inspelat skift. Peka på: stockar som rör sig, snitt som räknas, motorströmmar. Scrolla ner till informationsflödet: meddelanden per länk, zonerna som vågräta band, AI-agenten i DMZ. Klicka på en signal i namnrymden: topic, OPC UA-sökväg och PLC-tagg för samma värde. Visaren är på engelska. Strular demon har nästa bild samma bild.</aside>
 </section>
@@ -753,8 +753,8 @@
   <aside class="notes">8:45. De sex reglerna. Ingen handlar om modellen. De kommer tillbaka i slutet av del tre, översatta till en anläggning.</aside>
 </section>
 <!-- ============ 3.8 · Live-demo: torken ============ -->
-<section data-visibility="uncounted" data-demo-src="viewer/index.html?src=runs/deck/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="0">
-  <div class="demo-cap"><strong>Live:</strong> samma torkning i visaren, timme 48. Varje givare bredvid sitt sanna värde; MT101 <span class="coral">avviker</span>. Den röda raden: dold sanning som ingen givare mäter. <span class="grey"><span class="kbd">D</span> laddar om.</span></div>
+<section data-visibility="uncounted" data-demo-src="viewer/index.html?src=runs/kiln-drift.jsonl&t=172800" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Inspelad körning:</strong> samma torkning i visaren, timme 48. Varje givare bredvid sitt sanna värde; MT101 <span class="coral">avviker</span>. Den röda raden: dold sanning som ingen givare mäter. <span class="grey"><span class="kbd">D</span> laddar om.</span></div>
   <div class="demo-nav"><button data-go="prev" title="föregående bild (←)">‹</button><button data-go="next" title="nästa bild (→)">›</button></div>
   <aside class="notes">18:55 (40 s). Torkens processbild vid timme 48: MT101 visar 56 procent, den verkliga luften är 14. Nedanför den dolda sanningen: fuktgradient nästan 9, furu tål 3,5. Dra tillbaka till timme 20 för att visa var kurvorna skiljs åt. Agenten skulle aldrig se de sanna värdena; visaren visar dem eftersom vi är oraklet.</aside>
 </section>

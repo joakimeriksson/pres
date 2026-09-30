@@ -2,5 +2,3 @@
 .DS_Store
 # local symlinks to the esp32sim web build; on GitHub Pages the decks use joakimeriksson.github.io/esp32sim
 */demos/esp32sim
-# local symlink to the testbed (not published: the repo has no license yet)
-*/demos/testbed

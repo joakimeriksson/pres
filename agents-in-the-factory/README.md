@@ -23,20 +23,18 @@ agentic loop, and the OTTO testbed (IT/OT, zones, a kiln fault that never alarms
 
 `?fragments=false` shows every slide fully built (handy for screenshots and a PDF: `index.html?print-pdf&fragments=false`).
 
-## The live demos
+## The demos
 
-Two slides use the testbed's own viewer as an interactive background: the sawline (information flow, UNS) and the kiln
-with a drifting humidity probe at hour 48. `demos/testbed` is a symlink to `~/work/openind4agent` and is gitignored:
-the testbed repository has no license yet, so nothing of it is published with the deck. The recordings are in
-`~/work/openind4agent/runs/deck/`; recreate them with
+Two slides use the testbed's own viewer as an interactive background, replaying recorded runs: the sawline
+(information flow, namespace, zones) and, in the backup, the kiln with a drifting humidity probe at hour 48. The deck is
+self-contained: `demos/viewer/` is a copy of the testbed viewer (index.html and dashboard.html, no dependencies) and
+`demos/runs/` holds the recordings (the sawline trimmed to its first 480 s). No testbed and no network are needed, and
+the demos work from GitHub Pages too. To refresh them, copy `viewer/*.html` from the testbed and re-record with
 
     cd ~/work/openind4agent
     uv run industrial-testbed run --scenario sawmill_full_baseline_v1 --record runs/deck/sawline.jsonl --every 10
-    uv run industrial-testbed run --scenario sawmill_full_segmented_v1 --record runs/deck/segmented.jsonl --every 10
     uv run industrial-testbed run --scenario kiln_rh_drift_v1 --record runs/deck/kiln-drift.jsonl --every 60
 
-On GitHub Pages the demo slides are empty (no testbed there); every point they make is also on the slide before or
-after as a screenshot, so the deck still works as a handout.
 
 ## Where the numbers come from
 
