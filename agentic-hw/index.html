@@ -421,22 +421,22 @@
 <!-- ============ 9 · Live demo (WASM) ============ -->
 <!-- esp32sim's own web page, full-bleed and interactive. data-demo-fw names the firmware manifest (see demos.json);
      the script below turns it into data-background-iframe: the local symlink demos/esp32sim -> ~/work/esp32sim/web
-     when served from localhost, the hosted joakimeriksson.github.io/esp32sim when the deck itself is on GitHub Pages.
+     when served from localhost, the hosted mikroverk.github.io/esp32sim when the deck itself is on GitHub Pages.
      No data-preload on purpose: the emulator boots when the slide appears, so the audience sees the boot. -->
 <section>
 <section data-demo-fw="atech" data-background-interactive class="demo-slide" data-timing="40">
   <div class="demo-cap"><strong>Live:</strong> the same emulator, compiled to run in a browser, booting the board's real firmware. <span class="grey">Press <span class="kbd">D</span> to reboot · <span class="kbd">↓</span> two more scenarios.</span></div>
-  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">6:20 (45 s; the two sub-slides below are extras, skip them if late). esp32sim boots the Atech firmware: mask ROM, bootloader, app. Point at the console diff scrolling by and the readable display. Click "enable audio" for the synth. If it misbehaves: that is the talk. D reboots it.</aside>
 </section>
 <section data-demo-fw="c6-contiki-net" data-background-interactive class="demo-slide" data-timing="0">
   <div class="demo-cap"><strong>Extra:</strong> two emulated wireless nodes running Contiki-NG on one shared, emulated radio channel, in this tab. The second powers on 1.3 s later; both hear each other's broadcasts.</div>
-  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">Extra. Two C6 motes, unmodified Contiki-NG, one emulated radio medium, no simulator behind them. Deterministic to the cycle: boot two identical images at the same time and every frame collides, which is why the second one starts 1.3 s late.</aside>
 </section>
 <section data-demo-fw="atech-sid" data-background-interactive class="demo-slide" data-timing="0">
   <div class="demo-cap"><strong>Extra:</strong> the same firmware playing Commodore 64 music: an emulated C64 sound chip inside the emulated ESP32. Click "enable audio".</div>
-  <div class="demo-nav"><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
   <aside class="notes">Extra, for fun and for the two-wrongs story on the next slide: this is the audio path where 2× tempo and 0.5× real time cancelled. Enable audio; Commando by Rob Hubbard.</aside>
 </section>
 </section>
@@ -533,7 +533,7 @@
     <div>
       <h1 style="font-size:64px">Thanks for<br>listening</h1>
       <p class="grey" style="font-size:22px;margin-top:26px">Joakim Eriksson, RISE</p>
-      <p class="small grey" style="line-height:1.6">contiki-ng/contiki-ng<br>Cooja-NG, SNCNW 2026<br>joakimeriksson.github.io/esp32sim<br>atech.dev</p>
+      <p class="small grey" style="line-height:1.6">contiki-ng/contiki-ng<br>Cooja-NG, SNCNW 2026<br>mikroverk.github.io/esp32sim<br>atech.dev</p>
     </div>
     <div>
       <svg viewBox="0 0 560 400" width="560" height="400" role="img" aria-label="A robot arm pressing the user buttons on an IoT board while a camera watches">
@@ -648,8 +648,9 @@
 <script src="vendor/notes.js"></script>
 <script>
 // Demo slides: pick the emulator source before Reveal reads the backgrounds.
-// Local: the symlink to the esp32sim web build. On GitHub Pages: the hosted build (same origin, so 'D' can still reload it).
-const demoBase = /\.github\.io$/.test(location.hostname) ? 'https://joakimeriksson.github.io/esp32sim/' : 'demos/esp32sim/index.html';
+// Local: the symlink to the esp32sim web build. On GitHub Pages: the hosted build, which lives under the
+// mikroverk organisation and so is a different origin from the deck (see the key forwarding and 'D' below).
+const demoBase = /\.github\.io$/.test(location.hostname) ? 'https://mikroverk.github.io/esp32sim/' : 'demos/esp32sim/index.html';
 document.querySelectorAll('section[data-demo-fw]').forEach(sec => {
   sec.setAttribute('data-background-iframe', `${demoBase}?wasm&fw=${sec.dataset.demoFw}`);
 });
@@ -739,10 +740,17 @@ Reveal.on('slidechanged', e => { runPlayer(!!e.currentSlide.querySelector('#play
 
 // Demo slides: the emulator page takes keyboard focus once you click in it, so the deck would stop
 // hearing the arrow keys. Two ways back: the ‹ › buttons in the caption bar, and forwarding of the
-// navigation keys from inside the (same-origin) emulator page to the deck.
+// navigation keys from inside the emulator page to the deck. The forwarding needs the emulator to be
+// same-origin, which holds locally; on GitHub Pages it is not, and the buttons are the way back.
+function rebootDemo(){
+  const slide = Reveal.getCurrentSlide();
+  const f = slide.querySelector('iframe') || Reveal.getSlideBackground(slide)?.querySelector('iframe');
+  if (f) f.src = f.src;          // works across origins, unlike contentWindow.location.reload()
+}
 document.querySelectorAll('.demo-nav button').forEach(b => b.addEventListener('click', e => {
   e.stopPropagation();
-  b.dataset.go === 'next' ? Reveal.right() : Reveal.left();
+  const go = b.dataset.go;
+  go === 'reboot' ? rebootDemo() : go === 'next' ? Reveal.right() : Reveal.left();
   window.focus();
 }));
 const NAV_KEYS = { ArrowRight: () => Reveal.right(), ArrowLeft: () => Reveal.left(), ArrowDown: () => Reveal.down(), ArrowUp: () => Reveal.up(),
@@ -772,11 +780,7 @@ Reveal.on('slidechanged', e => { if (e.currentSlide.classList.contains('demo-sli
 Reveal.on('ready', e => { if (e.currentSlide.classList.contains('demo-slide')) setTimeout(() => hookDemoKeys(e.currentSlide), 300); });
 
 // 'D' reboots the demo: reloads the current slide's iframe, inline or background
-Reveal.addKeyBinding({ keyCode: 68, key: 'D', description: 'Reboot demo' }, () => {
-  const slide = Reveal.getCurrentSlide();
-  const f = slide.querySelector('iframe') || Reveal.getSlideBackground(slide)?.querySelector('iframe');
-  if (f) f.contentWindow.location.reload();
-});
+Reveal.addKeyBinding({ keyCode: 68, key: 'D', description: 'Reboot demo' }, rebootDemo);
 </script>
 </body>
 </html>

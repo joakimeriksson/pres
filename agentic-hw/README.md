@@ -43,7 +43,7 @@ emulator boots when you arrive, so the audience sees the ROM → bootloader → 
 * Other scenarios: change `fw=atech` to any name in `demos/esp32sim/wasm/fw/demos.json`
   (`atech-sid` = C64 SID jukebox, `c6-contiki-net` = two Contiki-NG motes on one radio, `c6-rpl-net` = RPL root + client).
 * The demo sections carry `data-demo-fw="<name>"`; a few lines at the top of the script turn that into the iframe URL:
-  the local symlink when served from localhost, `https://joakimeriksson.github.io/esp32sim/` when the deck is on GitHub Pages.
+  the local symlink when served from localhost, `https://mikroverk.github.io/esp32sim/` when the deck is on GitHub Pages.
 * Taking the deck to another machine without network: replace the symlink with a copy of `~/work/esp32sim/web`
   (about 80 MB with all firmware; the Espressif mask ROM in `wasm/fw/` is not redistributable, keep it off public hosts).
 
@@ -52,7 +52,8 @@ emulator boots when you arrive, so the audience sees the ROM → bootloader → 
 Plain GitHub Pages, no build: the repo `joakimeriksson/pres` publishes its `main` branch root, so this deck is at
 **https://joakimeriksson.github.io/pres/agentic-hw/** and every other top-level folder with an `index.html` gets the
 same treatment. Nothing needs special headers: the demo slides detect the github.io host and load the emulator from
-`joakimeriksson.github.io/esp32sim` (same origin, so `D` still reboots it). Speaker view (`S`) opens a popup, allow it once.
+`mikroverk.github.io/esp32sim`. That is a different origin from the deck, so once you click inside the emulator the
+deck no longer hears the keyboard there: use the ↻ ‹ › buttons in the caption bar (locally, keys are forwarded). Speaker view (`S`) opens a popup, allow it once.
 
 ## The other animated bits
 
