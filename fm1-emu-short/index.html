@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Emulating a synthesizer before it arrived (short) — Joakim Eriksson, RISE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="vendor/reset.css">
+<link rel="stylesheet" href="vendor/reveal.css">
+<style>
+/* ---------- tokens (as in agentic-hw) ---------- */
+:root{
+  --ink:#222222;
+  --grey:#666666;
+  --mute:#9a9a9a;
+  --teal:#009BA5;
+  --teal-tint:#E6F4F5;
+  --yellow:#FFE500;     /* RISE accent: reserved for the human in the loop */
+  --coral:#D9534F;
+  --coral-tint:#FBEBEA;
+  --paper:#ffffff;
+  --panel:#18191b;      /* the FM-1 page's background */
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+/* ---------- base ---------- */
+.reveal{font-family:var(--sans);color:var(--ink);font-size:24px;line-height:1.35}
+.reveal .slides{text-align:left}
+.reveal .slides section{height:720px;box-sizing:border-box;padding:52px 64px 48px 64px}
+.reveal .slides section::after{content:"";position:absolute;right:48px;bottom:36px;width:38px;height:48px;
+  background:url(assets/rise-logo.png) no-repeat center/contain}
+.reveal .slides section.title::after{width:88px;height:112px;right:64px;top:52px;bottom:auto}
+.reveal h1,.reveal h2,.reveal h3{font-family:var(--sans);color:var(--ink);text-transform:none;letter-spacing:-.015em;margin:0}
+.reveal h1{font-size:72px;font-weight:400;line-height:1.02}
+.reveal h2{font-size:40px;font-weight:700;line-height:1.15;margin-bottom:6px}
+.reveal h3{font-size:24px;font-weight:700;color:var(--teal);margin:0 0 10px}
+.reveal p{margin:0 0 .6em}
+.reveal .sub{font-size:22px;color:var(--grey);margin-bottom:24px}
+.reveal ul{margin:0;padding-left:1.1em}
+.reveal li{margin:0 0 .45em;padding-left:.15em}
+.reveal li::marker{color:var(--teal)}
+.reveal strong{font-weight:700}
+.reveal em{font-style:italic}
+.reveal code,.reveal .mono{font-family:var(--mono);font-size:.92em}
+.reveal .small{font-size:19px;line-height:1.32}
+.reveal .grey{color:var(--grey)}
+.reveal .teal{color:var(--teal)}
+.reveal .coral{color:var(--coral)}
+.reveal .num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;
+  background:var(--teal);color:#fff;font-weight:700;font-size:22px;vertical-align:middle;margin-right:14px;position:relative;top:-4px}
+.reveal .quote{background:var(--teal-tint);padding:16px 22px;font-style:italic;font-size:22px;margin-top:18px}
+.reveal .quote .who{display:block;font-style:normal;font-size:17px;color:var(--grey);margin-top:4px}
+.reveal .warn{background:var(--coral-tint)}
+.reveal .cols{display:grid;gap:36px}
+.reveal .cols.two{grid-template-columns:1fr 1fr}
+.reveal .cols.three{grid-template-columns:1fr 1fr 1fr;gap:22px}
+.reveal .card{background:var(--teal-tint);padding:20px 22px;font-size:20px}
+.reveal .card h3{font-size:22px}
+.reveal .card li{margin-bottom:.4em}
+.reveal .card.human{background:#FFF9C2}
+.reveal .foot{position:absolute;left:64px;right:140px;bottom:44px;font-size:20px}
+.reveal .stats{display:flex;gap:40px;margin:22px 0 26px}
+.reveal .stat b{display:block;font-size:52px;font-weight:700;color:var(--teal);line-height:1;letter-spacing:-.02em}
+.reveal .stat span{display:block;font-size:17px;color:var(--grey);margin-top:6px;max-width:180px}
+.reveal .stat.bad b{color:var(--coral)}
+.reveal .stat b i{font-style:normal}
+.reveal .pattern strong{font-size:22px}
+.reveal .pattern .num{width:38px;height:38px;font-size:19px}
+.reveal .card p:has(> .num),.reveal .pattern p:has(> .num){display:flex;align-items:flex-start;gap:12px}
+.reveal .card p:has(> .num) .num,.reveal .pattern p:has(> .num) .num{flex:none;margin:0;top:-2px}
+.reveal .card p:has(> .num) strong,.reveal .pattern p:has(> .num) strong{line-height:1.25;padding-top:6px}
+/* role chip on example slides */
+.reveal .role{position:absolute;right:64px;top:16px;display:flex;gap:6px;align-items:center;font-size:15px;color:var(--mute)}
+.reveal .role i{font-style:normal;padding:3px 9px;border:1px solid #ccc;border-radius:14px}
+.reveal .role i.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:700}
+.reveal .role i.human{background:var(--yellow);border-color:var(--yellow);color:var(--ink);font-weight:700}
+.reveal .role i.off{border-style:dashed;color:#bbb}
+/* tables */
+.reveal table{border-collapse:collapse;width:100%;font-size:20px;margin:10px 0}
+.reveal th{text-align:left;font-weight:700;padding:8px 14px}
+.reveal td{padding:9px 14px;vertical-align:middle;border:0}
+.reveal tr:nth-child(even) td{background:var(--teal-tint)}
+.reveal table.head th{background:var(--teal);color:#fff}
+.reveal td.r,.reveal th.r{text-align:right}
+.reveal table.tight td{padding:6px 14px}
+/* diagrams */
+.reveal svg text{font-family:var(--sans)}
+.reveal .node{fill:#fff;stroke:var(--teal);stroke-width:2.5}
+.reveal .node.em{fill:var(--teal-tint)}
+.reveal .node.si{fill:var(--teal)}
+.reveal .node.gone{fill:#fff;stroke:#bbb;stroke-dasharray:7 6}
+.reveal .arrow{stroke:var(--teal);stroke-width:2.5;fill:none}
+.reveal .dot{fill:var(--yellow);stroke:var(--ink);stroke-width:1.5}
+.reveal .dot.model{fill:var(--teal);stroke:none}
+/* fragments: keep quiet */
+.reveal .fragment.rise{opacity:0;transform:translateY(8px);transition:all .35s ease}
+.reveal .fragment.rise.visible{opacity:1;transform:none}
+/* code */
+.reveal pre.code{font-family:var(--mono);font-size:18px;line-height:1.45;background:var(--panel);color:#e8e8e8;padding:18px 22px;margin:8px 0 14px;border-radius:6px;white-space:pre;box-shadow:none;width:auto}
+.reveal pre.code .c{color:#8a8f96}
+.reveal pre.code .k{color:#6fd3da}
+.reveal pre.code .n{color:#f0b35a}
+.reveal .probes .stat b{font-size:42px}
+/* the FM-1's screens */
+.reveal .lcds{display:grid;grid-template-columns:repeat(3,168px);gap:10px;padding:12px;background:var(--panel);border-radius:10px;width:max-content}
+.reveal .lcds img{width:168px;height:168px;display:block;image-rendering:auto;border-radius:3px}
+.reveal .lcdcap{font-size:15px;color:var(--grey);margin-top:8px;max-width:540px}
+/* full-bleed slides: the wall of firmwares, the live demo */
+.reveal .slides section.bleed{padding:0;background:var(--panel)}
+.reveal .slides section.bleed::after,.reveal .slides section.demo-slide::after,.reveal .slides section.stack::after{display:none}
+.reveal .wall{position:absolute;left:0;top:0;width:1280px;height:638px;object-fit:cover;object-position:center top}
+.reveal .wallcap{position:absolute;left:0;right:0;bottom:0;height:82px;box-sizing:border-box;padding:14px 64px;background:#fff;border-top:3px solid var(--teal);font-size:22px;display:flex;align-items:center;gap:24px}
+.reveal .wallcap b.big{font-size:40px;color:var(--teal);letter-spacing:-.02em}
+.reveal .slides section.demo-slide{padding:0}
+.reveal .demo-cap{position:absolute;left:0;right:0;bottom:0;padding:10px 200px 10px 64px;background:rgba(255,255,255,.94);border-top:2px solid var(--teal);font-size:19px;pointer-events:none}
+.reveal .demo-nav{position:absolute;right:64px;bottom:7px;display:flex;gap:8px;pointer-events:auto}
+.reveal .demo-nav button{font:700 22px/1 var(--sans);color:#fff;background:var(--teal);border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+.reveal .demo-nav button:hover{background:#007d85}
+.reveal .kbd{font-family:var(--mono);font-size:.85em;background:#eee;padding:1px 6px;border-radius:4px}
+/* catalog strip (slide 7): one cell per catalog firmware, checked in turn */
+.reveal .cat{display:grid;grid-template-columns:repeat(19,1fr);gap:4px;margin:10px 0 8px}
+.reveal .cat i{height:22px;border-radius:2px;background:#e3e6e8;transition:background .15s}
+.reveal .cat i.ok{background:var(--teal)}
+.reveal .cat i.moved{background:var(--yellow);outline:2px solid var(--ink);outline-offset:-2px}
+.reveal .catlegend{font-size:16px;color:var(--grey);display:flex;gap:18px;align-items:center}
+.reveal .catlegend i{display:inline-block;width:14px;height:14px;border-radius:2px;margin-right:6px;vertical-align:-2px}
+/* timeline (slide 11) */
+.reveal .tl{position:relative;margin:30px 0 0;height:250px}
+.reveal .tl::before{content:"";position:absolute;left:0;right:0;top:54px;height:4px;background:var(--teal)}
+.reveal .tl .ev{position:absolute;top:0;width:128px;font-size:15px;line-height:1.25}
+.reveal .tl .ev b{display:block;font-size:17px;color:var(--teal);margin-bottom:46px}
+.reveal .tl .ev::before{content:"";position:absolute;left:0;top:47px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--teal)}
+.reveal .tl .ev.hw::before{background:var(--yellow);border-color:var(--ink)}
+.reveal .tl .ev.bad::before{background:var(--coral);border-color:var(--coral)}
+.reveal .tl .ev.bad b{color:var(--coral)}
+.reveal .tl .ev.rel::before{background:var(--teal)}
+.reveal .tl .ev span{display:block;margin-top:14px}
+@media (prefers-reduced-motion:reduce){ .reveal .fragment.rise{transition:none} .reveal svg animateMotion{display:none} }
+@media print{ .reveal .slides section::after{display:block} }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============ 1 · Title ============ -->
+<section class="title" data-timing="15">
+  <div style="margin-top:96px;display:grid;grid-template-columns:1fr 470px;gap:40px;align-items:end">
+    <div>
+      <h1>Emulating a synthesizer<br>before it arrived</h1>
+      <p style="font-size:30px;color:var(--grey);margin:28px 0 34px">An undocumented CPU, a coding agent, and the vendor's own tools as the oracle</p>
+      <p style="font-size:21px"><strong>M-VAVE FM-1</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>JieLi pi32v2</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>95 community firmwares</strong><span class="teal"> &nbsp;·&nbsp; </span><strong>in the browser</strong></p>
+      <p class="small grey">Joakim Eriksson, RISE — October 2026</p>
+    </div>
+    <img src="assets/panel-felucca.png" alt="The emulated FM-1's panel running Felucca, a chord held" style="width:470px;border-radius:10px;margin-bottom:8px">
+  </div>
+  <aside class="notes">0:00. This is a pocket synthesizer. In October I ordered one, and before it arrived I had an emulator of it running every firmware people had written for it — built with a coding agent in five days. This talk is how, and what kept it honest when there was no board to compare with.</aside>
+</section>
+
+<!-- ============ 2 · The device and the problem ============ -->
+<section data-timing="60">
+  <h2>A pocket synth that people write firmware for</h2>
+  <div class="cols two" style="grid-template-columns:1fr 540px;margin-top:22px;gap:40px">
+    <div>
+      <ul class="small">
+        <li><strong>M-VAVE FM-1:</strong> a six-operator FM synth with a 240×240 colour screen, 27 keys, 7 encoders, MIDI in and stereo out.</li>
+        <li>Its updates are USB-MIDI messages with only a CRC check, so <strong>the community wrote its own firmwares within weeks:</strong> drum machines, grooveboxes, ambient generators, a chord harp… and Doom.</li>
+        <li><strong>The goal:</strong> run them <em>unmodified</em>. Try one before you flash it, write one without the synth on the desk, play them in a browser.</li>
+      </ul>
+      <div class="card fragment rise" style="margin-top:18px;font-size:18px;padding:14px 20px">
+        <p style="margin:0 0 6px"><strong class="coral">The CPU is undocumented.</strong> JieLi's pi32v2: 2-, 4- and 6-byte instructions, dual-issue pairs, hardware loops. No manual.</p>
+        <p style="margin:0 0 6px"><strong class="teal">The vendor's toolchain is public.</strong> A Clang 4.0.1 fork and an objdump that disassembles it. Linux x86-64 only: Docker on a Mac.</p>
+        <p style="margin:0"><strong class="coral">There was no hardware.</strong> The FM-1 was ordered on 8 October and had not arrived.</p>
+      </div>
+    </div>
+    <div>
+      <div class="lcds">
+        <img src="assets/lcd/fm1doom.png" alt="FM-1 Doom"><img src="assets/lcd/x0x.png" alt="X0X, a TR-909 style drum machine"><img src="assets/lcd/amb.png" alt="Ambient generator">
+        <img src="assets/lcd/sid.png" alt="FM-1 SID"><img src="assets/lcd/rainbow.png" alt="Rainbow Mode"><img src="assets/lcd/choralroot.png" alt="Choralroot">
+      </div>
+      <p class="lcdcap">Six of them, on the emulated screen: Doom, a 909 drum machine, an ambient garden, a C64 SID synth, Rainbow Mode, a looper.</p>
+    </div>
+  </div>
+  <aside class="notes">0:15. The FM-1 is cheap, and its update channel is open enough that a community formed around writing replacement firmwares. The emulator's job: run those firmwares unmodified. Three facts shaped it: an undocumented CPU, a public vendor toolchain — which turned out to be the key — and no hardware on the desk.</aside>
+</section>
+
+<!-- ============ 3 · The loop without a board ============ -->
+<section data-timing="50">
+  <h2>No board yet? Then the vendor's tools are the oracle</h2>
+  <svg viewBox="0 0 1150 420" width="1150" height="420" style="margin-top:4px">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker>
+          <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#999"/></marker></defs>
+    <rect class="node" x="10" y="60" width="220" height="70" rx="14"/>
+    <text x="120" y="103" text-anchor="middle" font-size="22" font-weight="700">Agent</text>
+    <rect class="node" x="290" y="60" width="250" height="70" rx="14"/>
+    <text x="415" y="102" text-anchor="middle" font-size="20" font-weight="700">Emulator code</text>
+    <rect class="node em" x="600" y="60" width="250" height="70" rx="14"/>
+    <text x="725" y="94" text-anchor="middle" font-size="20" font-weight="700">Real firmwares</text>
+    <text x="725" y="116" text-anchor="middle" font-size="15" fill="#666">running on it</text>
+    <rect class="node gone" x="910" y="60" width="230" height="70" rx="14"/>
+    <text x="1025" y="94" text-anchor="middle" font-size="20" font-weight="700" fill="#aaa">Real FM-1</text>
+    <text x="1025" y="116" text-anchor="middle" font-size="15" fill="#aaa" font-style="italic">ordered, not here</text>
+    <path class="arrow" style="marker-end:url(#ah)" d="M230 95 L288 95"/>
+    <path class="arrow" style="marker-end:url(#ah)" d="M540 95 L598 95"/>
+    <path d="M850 95 L908 95" stroke="#bbb" stroke-width="2.5" stroke-dasharray="6 5" fill="none" style="marker-end:url(#ahg)"/>
+    <!-- the vendor's tools, under the emulator -->
+    <g class="fragment" data-fragment-index="1">
+      <rect x="290" y="176" width="850" height="96" rx="14" fill="#E6F4F5" stroke="#009BA5" stroke-width="2"/>
+      <text x="310" y="204" font-size="16" font-weight="700" fill="#009BA5">THE VENDOR'S OWN TOOLS</text>
+      <text x="310" y="234" font-size="17"><tspan font-weight="700">objdump</tspan><tspan fill="#666"> — how each instruction is encoded</tspan></text>
+      <text x="310" y="260" font-size="17"><tspan font-weight="700">assembler</tspan><tspan fill="#666"> — the bits no firmware happens to use</tspan></text>
+      <text x="740" y="234" font-size="17"><tspan font-weight="700">compiler</tspan><tspan fill="#666"> — what each instruction computes</tspan></text>
+      <text x="740" y="260" font-size="17"><tspan font-weight="700">firmwares</tspan><tspan fill="#666"> — what correct looks like</tspan></text>
+      <path class="arrow" style="marker-end:url(#ah)" d="M415 176 L415 134"/>
+      <path class="arrow" style="marker-end:url(#ah)" d="M725 176 L725 134"/>
+    </g>
+    <!-- the observation path back to the agent -->
+    <g class="fragment" data-fragment-index="2">
+      <path class="arrow" style="marker-end:url(#ah)" d="M725 60 L725 24 L120 24 L120 56"/>
+      <text x="140" y="16" font-size="16" fill="#666"><tspan font-weight="700" fill="#009BA5">observation: </tspan>the screen as images · the audio as bytes · the unknown, logged</text>
+      <circle class="dot model" r="7"><animateMotion dur="5s" repeatCount="indefinite" path="M120 95 L415 95 L725 95 L725 24 L120 24 Z"/></circle>
+    </g>
+    <g class="fragment rise" data-fragment-index="3">
+      <text x="10" y="330" font-size="23"><tspan font-weight="700" fill="#009BA5">Oracle</tspan><tspan fill="#666"> — the vendor's tools, until the board arrives</tspan></text>
+      <text x="10" y="366" font-size="23"><tspan font-weight="700" fill="#009BA5">Proxy</tspan><tspan fill="#666"> — the emulator becomes the board, for everyone who writes firmware</tspan></text>
+      <text x="10" y="402" font-size="23"><tspan font-weight="700" fill="#009BA5">Calibrator</tspan><tspan fill="#666"> — the board's job when it arrives: measure the chip, tune the emulator</tspan></text>
+    </g>
+  </svg>
+  <aside class="notes">1:15. Same loop as in my hardware-in-the-loop talk, with the board missing. What fills its place: the vendor's own tools. Their disassembler says how instructions are encoded, their assembler fills in the bits no firmware uses, their compiler says what instructions compute. And the firmwares themselves define what correct looks like: a screen, a sound. Oracle, proxy, calibrator again — and calibrator is the board's job once it arrives. That part comes later, and it is the part that hurt.</aside>
+</section>
+
+<!-- ============ 4 · Mining the ISA ============ -->
+<section data-timing="60">
+  <div class="role"><i>agent</i><i>code</i><i>emulator</i><i class="on">vendor tools = oracle</i><i class="off">board</i></div>
+  <h2><span class="num">1</span>Recovering the instruction set: a mining job</h2>
+  <p class="sub">Day one's plan: <em>"a mining exercise, not black-box discovery."</em></p>
+  <div class="stats" style="margin:8px 0 18px">
+    <div class="stat"><b class="count" data-to="421000" data-sep="1">0</b><span>instructions disassembled by the vendor's objdump</span></div>
+    <div class="stat"><b class="count" data-to="25">0</b><span>firmware listings mined</span></div>
+    <div class="stat"><b class="count" data-to="2765">0</b><span>instruction classes in one table</span></div>
+    <div class="stat"><b>0</b><span>mismatches against the vendor</span></div>
+  </div>
+  <div class="cols two" style="grid-template-columns:1fr 1fr;gap:34px">
+    <div>
+      <svg viewBox="0 0 560 250" width="560" height="250">
+        <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#009BA5"/></marker></defs>
+        <rect class="node" x="0" y="10" width="160" height="58" rx="10"/><text x="80" y="36" text-anchor="middle" font-size="16" font-weight="700">Firmware images</text><text x="80" y="56" text-anchor="middle" font-size="13" fill="#666">stock, loaders, community</text>
+        <rect class="node em" x="200" y="10" width="160" height="58" rx="10"/><text x="280" y="36" text-anchor="middle" font-size="16" font-weight="700">Vendor objdump</text><text x="280" y="56" text-anchor="middle" font-size="13" fill="#666">in Docker</text>
+        <rect class="node" x="400" y="10" width="160" height="58" rx="10"/><text x="480" y="36" text-anchor="middle" font-size="16" font-weight="700">Mask mining</text><text x="480" y="56" text-anchor="middle" font-size="13" fill="#666">same shape → one class</text>
+        <rect class="node si" x="400" y="100" width="160" height="58" rx="10"/><text x="480" y="126" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">isa/fm1.yaml</text><text x="480" y="146" text-anchor="middle" font-size="13" fill="#fff">the one source of truth</text>
+        <rect class="node" x="200" y="100" width="160" height="58" rx="10"/><text x="280" y="126" text-anchor="middle" font-size="16" font-weight="700">Operand solver</text><text x="280" y="146" text-anchor="middle" font-size="13" fill="#666">exact linear fits</text>
+        <rect class="node" x="0" y="100" width="160" height="58" rx="10"/><text x="80" y="126" text-anchor="middle" font-size="16" font-weight="700">Generated decoder</text><text x="80" y="146" text-anchor="middle" font-size="13" fill="#666">never edited by hand</text>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M160 39 L198 39"/><path class="arrow" style="marker-end:url(#ah4)" d="M360 39 L398 39"/>
+        <path class="arrow" style="marker-end:url(#ah4)" d="M480 68 L480 98"/><path class="arrow" style="marker-end:url(#ah4)" d="M400 129 L362 129"/><path class="arrow" style="marker-end:url(#ah4)" d="M200 129 L162 129"/>
+        <rect x="0" y="190" width="560" height="50" rx="10" fill="none" stroke="#009BA5" stroke-width="1.6" stroke-dasharray="6 5"/>
+        <text x="280" y="221" text-anchor="middle" font-size="15" fill="#444">gate: every decoded word compared with the vendor's own disassembly</text>
+        <path d="M80 158 L80 188" stroke="#009BA5" stroke-width="1.6" stroke-dasharray="4 4"/>
+      </svg>
+    </div>
+    <div class="small">
+      <p><strong>Operands as exact linear models.</strong> Each printed operand is fitted over the bits that vary. A fit is kept only if it reproduces <em>every</em> sample of its class.</p>
+      <p class="fragment rise"><strong>One rule</strong> for a packed 12-bit constant reproduces a 70-entry table of observed constants, IEEE floats among them, and about 1 650 samples.</p>
+      <p class="fragment rise"><strong>Felucca 1.6 came out on the day the report was written</strong> and halted on <code>d7 ec 51 38</code>. Comparing every load and store across the 25 listings gave <strong>one model: 27 884 samples, 0 mismatches.</strong> It played the same day.</p>
+    </div>
+  </div>
+  <aside class="notes">2:05. The vendor objdump prints every instruction's bytes next to its text. Over 421 thousand instructions, group by printed shape, and the bits that never vary are the opcode. Operands are then fitted as exact linear models — accepted only if every sample reproduces. The YAML table is the single source of truth; the Rust decoder is generated from it. When a new Felucca halted on an unknown instruction, the fix was one more model, checked against 27 thousand samples.</aside>
+</section>
+
+<!-- ============ 5 · The compiler as oracle ============ -->
+<section data-timing="60">
+  <div class="role"><i>agent</i><i>code</i><i class="on">emulator = proxy</i><i class="on">catalog = oracle</i><i class="off">board</i></div>
+  <h2><span class="num">2</span>Byte-identical, or it didn't happen</h2>
+  <p class="sub">Three ways to run the same code: one instruction at a time, a block interpreter, and JITs to ARM64, x86-64 and WebAssembly</p>
+  <div class="cols two" style="grid-template-columns:1fr 1fr;gap:40px">
+    <div class="small">
+      <p><strong>The rule:</strong> an optimisation is accepted only if every firmware's audio stays <strong>byte-identical</strong> in every mode, and to the build before. "Did the JIT break something subtle?" becomes a file comparison.</p>
+      <p><strong>Today, in CI:</strong> on every emulator pull request and before every release, all 95 catalog firmwares play 8 s of scripted keys, MIDI and PLAY, compiled <em>and</em> interpreted, against stored audio hashes. About 5 minutes, 4 machines.</p>
+      <div class="stats" style="margin:16px 0 0;gap:30px">
+        <div class="stat"><b>5–9×</b><span>real time at the chip's 240 MHz, natively (an M5 Max)</span></div>
+        <div class="stat"><b>~25 µs</b><span>to compile a hot region to WebAssembly, inside the browser's audio thread</span></div>
+      </div>
+    </div>
+    <div>
+      <h3>The catalog check, on the fix for Rainbow Mode's hang</h3>
+      <div class="cat" id="cat" data-n="95" data-moved="6,19,33,47,61,80"></div>
+      <div class="catlegend"><span><i style="background:var(--teal)"></i>identical</span><span><i style="background:var(--yellow);outline:2px solid #222;outline-offset:-2px"></i>sound changed: listed, listened to, re-hashed</span></div>
+      <p class="small" style="margin-top:14px">A contributor's fix (the global interrupt-enable bit) made Rainbow Mode play instead of hang. The check listed exactly <strong>which six firmwares changed sound</strong>. Each change was right: Rainbow plays, a note now lands on time.</p>
+      <p class="small teal"><strong>Pin every output first. Then going faster is safe, and a change that moves a sound has to say so.</strong></p>
+    </div>
+  </div>
+  <aside class="notes">4:40. This is the rule that made it safe to write two JITs without fear. Every optimisation: audio byte-identical across modes and builds. It is now CI: 95 firmwares, compiled and interpreted, hashed. Last week a contributor fixed an interrupt bit, and the check named the six firmwares whose sound changed — all six for the right reason. (The positions of the yellow cells are illustrative; the six were Bunker, DUELL, FMini, MAKU, Melodee, Rainbow.)</aside>
+</section>
+
+<!-- ============ 8 · The wall ============ -->
+<!-- ============ 9 · Live demo ============ -->
+<!-- The emulator's own page with ?embed=1 (only the device and its controls) as an interactive background.
+     It fetches each firmware from its author's site, so the demo needs the network. -->
+<section>
+<section data-demo-fw="felucca" data-background-interactive class="demo-slide" data-timing="60">
+  <div class="demo-cap"><strong>Live:</strong> the emulator compiled to WebAssembly, booting Felucca's real update package in this browser tab. <span class="grey">Click Start · <span class="kbd">D</span> reboots · <span class="kbd">↓</span> two more.</span></div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">6:00. Click Start. Felucca boots: the package is fetched from its author's GitHub Pages and unpacked by the page, exactly the file a real FM-1 would install. Play a chord with the mouse or the keyboard (A to apostrophe). The two sub-slides below are extras.</aside>
+</section>
+<section data-demo-fw="sid" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Extra:</strong> FM-1 SID — a Commodore 64 tune's own 6502 code and a SID chip model, running on the emulated FM-1's CPU.</div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">7:00. Extra. The firmware of the next slide, live.</aside>
+</section>
+<section data-demo-fw="fm1doom" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Extra:</strong> FM-1 Doom. A community port, unmodified, on the emulated chip.</div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">7:00. Extra, for fun.</aside>
+</section>
+</section>
+
+<!-- ============ 10 · FM-1 SID ============ -->
+<section data-timing="55">
+  <div class="role"><i>agent</i><i>code</i><i class="on">emulator = proxy</i><i class="off">board</i></div>
+  <h2><span class="num">3</span>A new firmware, written on the emulator</h2>
+  <p class="sub">FM-1 SID: could the FM-1 be a Commodore 64 sound chip? Machines inside machines, each one checked</p>
+  <div class="cols two" style="grid-template-columns:470px 1fr;gap:36px">
+    <svg viewBox="0 0 470 380" width="470" height="380">
+      <rect x="2" y="2" width="466" height="376" rx="16" fill="#fff" stroke="#009BA5" stroke-width="2.5"/>
+      <text x="22" y="32" font-size="17" font-weight="700">Your browser</text>
+      <rect x="20" y="46" width="430" height="314" rx="14" fill="#E6F4F5" stroke="#009BA5" stroke-width="2"/>
+      <text x="40" y="74" font-size="17" font-weight="700">WebAssembly</text><text x="160" y="74" font-size="14" fill="#666">+ hot code JIT-compiled to more Wasm</text>
+      <rect x="38" y="88" width="394" height="254" rx="12" fill="#fff" stroke="#009BA5" stroke-width="2"/>
+      <text x="58" y="116" font-size="17" font-weight="700">The emulated FM-1</text><text x="225" y="116" font-size="14" fill="#666">pi32v2 at 240 MHz</text>
+      <rect x="56" y="130" width="358" height="194" rx="10" fill="#009BA5"/>
+      <text x="76" y="158" font-size="17" font-weight="700" fill="#fff">FM-1 SID firmware</text>
+      <rect x="74" y="172" width="160" height="134" rx="8" fill="#fff"/>
+      <text x="154" y="198" text-anchor="middle" font-size="15" font-weight="700">m6502.h</text>
+      <text x="154" y="218" text-anchor="middle" font-size="13" fill="#666">a 6502, cycle-stepped</text>
+      <rect x="88" y="232" width="132" height="58" rx="6" fill="#FFE500" stroke="#222" stroke-width="1.2"/>
+      <text x="154" y="257" text-anchor="middle" font-size="14" font-weight="700">the C64 tune's</text>
+      <text x="154" y="276" text-anchor="middle" font-size="14" font-weight="700">own 6502 code</text>
+      <rect x="244" y="172" width="152" height="134" rx="8" fill="#fff"/>
+      <text x="320" y="198" text-anchor="middle" font-size="15" font-weight="700">reSID 0.16</text>
+      <text x="320" y="218" text-anchor="middle" font-size="13" fill="#666">the SID chip, clocked</text>
+      <text x="320" y="236" text-anchor="middle" font-size="13" fill="#666">to each write's cycle</text>
+      <path d="M234 262 L244 262" stroke="#009BA5" stroke-width="2"/>
+      <text x="320" y="272" text-anchor="middle" font-size="13" fill="#009BA5" font-weight="700">register writes →</text>
+    </svg>
+    <div>
+      <table class="head" style="font-size:17px;margin-top:0">
+        <tr><th>SID engine, per sample</th><th class="r">instructions</th><th class="r">of the core</th></tr>
+        <tr><td>own integer model</td><td class="r">316</td><td class="r">5.8 %</td></tr>
+        <tr><td><strong>reSID 0.16, fast: chosen</strong></td><td class="r"><strong>440</strong></td><td class="r"><strong>8.1 %</strong></td></tr>
+        <tr><td>reSID 0.16, interpolate</td><td class="r">5 562</td><td class="r coral">102 %</td></tr>
+        <tr><td>reSID 0.16, resample</td><td class="r">39 226</td><td class="r coral">721 %</td></tr>
+      </table>
+      <ul class="small" style="margin-top:12px">
+        <li>Measured by counting emulated instructions; output <strong>bit-identical</strong> to the same code built for the host.</li>
+        <li>Output correlates 0.984 with host reSID on the same register stream. With the effects at zero: <strong>0 of 176 512 samples</strong> differ from the build before.</li>
+        <li>Writing it <strong>found four more emulator bugs</strong>, the missing carry among them.</li>
+        <li class="fragment rise"><strong class="coral">Then it was offered as an install for the real FM-1, before anyone had run it on one.</strong></li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">7:00. The emulator as a development platform. A C64 tune's code runs in a 6502 emulator, compiled for the FM-1's CPU, running on the emulated FM-1, running in WebAssembly, whose hot code is compiled to more WebAssembly. The engine was chosen by measuring cost on the emulated chip. And writing a real firmware found four more emulator bugs — which is an argument for developing on an emulator where every fix comes with a probe. Last point: it was offered as an install for real units before anyone had run it on one. Hold that thought.</aside>
+</section>
+
+<!-- ============ 11 · Timeline ============ -->
+<section data-timing="60">
+  <div class="role"><i>agent</i><i>code</i><i>emulator</i><i class="on">users' FM-1s</i><i class="off">board</i></div>
+  <h2>Released before it was tested</h2>
+  <p class="sub">FM-1 SID went on the community's firmware hub, beside firmwares that had run on real units. Nobody on the project owned an FM-1.</p>
+  <div class="cols two" style="grid-template-columns:1fr 400px;gap:36px">
+    <ul style="font-size:21px">
+      <li><strong>11 Oct.</strong> Offered as an FM-1 update package. Tested on the emulator only.</li>
+      <li class="fragment rise"><strong class="coral">19 Oct, issues #22 and #24.</strong> It plays, but the computer no longer sees the FM-1. FM-1 SID had no USB stack, and an FM-1 is updated only through the firmware that is running.</li>
+      <li class="fragment rise"><strong>The way back was found by the community, not by us:</strong> OCT− and OCT+ held for five seconds at power-on enter the chip's own update mode, and a third-party flasher writes the stock firmware back. FM-1 SID came off the hub.</li>
+      <li class="fragment rise"><strong>23 Oct, my own unit.</strong> USB added, three ways back built in, every check on the emulator passed. On the device: no tune played, and no reply ever reached the computer.</li>
+    </ul>
+    <div class="card fragment rise" style="background:var(--coral-tint)">
+      <div class="stat bad"><b>4</b><span style="max-width:none">recoveries of my own unit through the chip's mask-ROM mode, from Linux: no macOS tool exists</span></div>
+      <p class="small" style="margin-top:16px">Each owner who installed it had to find and perform that recovery themselves.</p>
+    </div>
+  </div>
+  <div class="quote warn fragment rise" style="font-style:normal;font-size:19px;margin-right:76px">
+    The emulator could not have caught it: it had no USB model, and nothing in it asked whether a firmware can be replaced. <strong>A failure of process, not of emulation.</strong>
+  </div>
+  <aside class="notes">8:40. FM-1 SID went up as an installable package a day after it first played. Nobody on the project owned an FM-1. Eight days later two users opened issues: it plays, but my computer can't see the synth any more. It had no USB stack — and an FM-1 is only ever updated through the firmware that runs on it. The community found the way back, not us: a key combination into the chip's own update mode and a third-party flasher. When my own unit arrived, my first fix passed everything on the emulator and failed on the device: three recoveries from Linux, a fourth later. The emulator couldn't have caught this. It was a process failure: something that had never run on hardware was published as an install.</aside>
+</section>
+
+<!-- ============ 13 · fm1-dock ============ -->
+<section data-timing="45">
+  <h2>What I take from it</h2>
+  <div class="cols three" style="margin-top:26px">
+    <div class="card fragment rise"><p><span class="num">1</span><strong>An undocumented CPU is recoverable in days</strong></p><p class="small grey">…when the vendor's own tools are the oracle. Disassembler, assembler and compiler each answer a question no guess can.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>Pinned outputs make speed safe</strong></p><p class="small grey">Two JITs, then three, written without fear, because every firmware's sound is a hash. The same hashes now review contributors' fixes.</p></div>
+    <div class="card fragment rise"><p><span class="num">2</span><strong>The emulator came before the board, but the board decides</strong></p><p class="small grey">Right wherever the vendor's tools could see. Timing, caches and guards took the chip, and a day of probes.</p></div>
+  </div>
+  <p class="fragment rise" style="text-align:center;font-size:31px;margin-top:40px">Build the oracle before the board arrives. <strong class="teal">Then put the board in the loop anyway.</strong></p>
+  <aside class="notes">14:25. Three things. The vendor's tools made an undocumented CPU recoverable. Pinned outputs made speed safe. And the emulator came first — but it was right only where its oracles could see. What they could not see, timing, caches, protections, cost real users a recovery and me four, until a day of probes measured it. Build the oracle before the board arrives — then put the board in the loop anyway.</aside>
+</section>
+
+<!-- ============ 20 · Thanks ============ -->
+<section data-timing="15">
+  <div class="cols two" style="grid-template-columns:1fr 520px;align-items:center;margin-top:40px">
+    <div>
+      <h1 style="font-size:64px">Thanks for<br>listening</h1>
+      <p class="grey" style="font-size:22px;margin-top:26px">Joakim Eriksson, RISE</p>
+      <p class="small" style="line-height:1.6"><strong>Try it:</strong> joakimeriksson.github.io/fm1-emu<br><strong>Code and tech report:</strong> github.com/joakimeriksson/fm1-emu<br><strong>Firmwares:</strong> thefirmwarehub.com</p>
+      <p class="small grey" style="line-height:1.45;margin-top:18px">Built on the community's work: AL-255's FM-1-RE, ip2k's lunar-modulator, kagaimiq's jielie, hugelton's Felucca, zvenson's Dinghy, the community members who found the way back, the contributors, and every firmware author who published.</p>
+    </div>
+    <div>
+      <div class="lcds" style="grid-template-columns:repeat(3,150px)">
+        <img src="assets/lcd/cs1.png" alt="CS-1" style="width:150px;height:150px"><img src="assets/lcd/fart.png" alt="Fart Machine One" style="width:150px;height:150px"><img src="assets/lcd/fimba.png" alt="Fimba" style="width:150px;height:150px">
+      </div>
+    </div>
+  </div>
+  <aside class="notes">15:10. Thank you. The page is live; try a firmware before you flash it.</aside>
+</section>
+
+</div>
+</div>
+
+<script src="vendor/reveal.js"></script>
+<script src="vendor/notes.js"></script>
+<script>
+// Demo slides: the emulator's hosted page, embedded (?embed=1: only the device and its controls).
+const demoBase = 'https://joakimeriksson.github.io/fm1-emu/';
+document.querySelectorAll('section[data-demo-fw]').forEach(sec => {
+  sec.setAttribute('data-background-iframe', `${demoBase}?embed=1&mhz=240&fw=${sec.dataset.demoFw}`);
+});
+
+Reveal.initialize({
+  width: 1280, height: 720, margin: 0.04,
+  center: false, hash: true, progress: true, controls: false,
+  slideNumber: slide => [Reveal.getIndices(slide).h + 1, '/', Reveal.getHorizontalSlides().length],   // talk slides only, not the demo extras
+  transition: 'fade', transitionSpeed: 'fast', backgroundTransition: 'none',
+  defaultTiming: 45,           // seconds per slide for the speaker-view pacing timer
+  totalTime: 480,
+  preloadIframes: false,       // the demo boots when its slide appears
+  plugins: [ RevealNotes ]
+});
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Count-up stats when a slide becomes visible
+function fmt(n, sep){ return sep ? n.toLocaleString('en').replace(/,/g, ' ') : String(n); }
+function countUp(section){
+  section.querySelectorAll('.count[data-to]').forEach(el => {
+    const to = +el.dataset.to, sep = !!el.dataset.sep;
+    if (reduce) { el.textContent = fmt(to, sep); return; }
+    const t0 = performance.now(), dur = 900;
+    (function tick(now){
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(Math.round(to * e), sep);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  });
+}
+
+// Catalog strip (slide 7): each firmware's cell is checked in turn; the six whose sound moved turn yellow
+const cat = document.getElementById('cat');
+let catTimer = null;
+function runCatalog(on){
+  clearInterval(catTimer); catTimer = null;
+  if (!cat) return;
+  const n = +cat.dataset.n, moved = new Set(cat.dataset.moved.split(',').map(Number));
+  if (!cat.children.length) for (let i = 0; i < n; i++) cat.appendChild(document.createElement('i'));
+  const cells = [...cat.children];
+  const mark = i => cells[i].classList.add(moved.has(i) ? 'moved' : 'ok');
+  cells.forEach(c => c.classList.remove('ok', 'moved'));
+  if (!on) return;
+  if (reduce) { cells.forEach((_, i) => mark(i)); return; }
+  let i = 0;
+  catTimer = setInterval(() => { mark(i++); if (i >= n) { clearInterval(catTimer); catTimer = null; } }, 28);
+}
+
+function enter(slide){ countUp(slide); runCatalog(!!slide.querySelector('#cat')); }
+Reveal.on('ready', e => enter(e.currentSlide));
+Reveal.on('slidechanged', e => enter(e.currentSlide));
+
+// Demo slides: the ‹ › buttons get you out once the emulator page has the keyboard (it is another origin)
+function rebootDemo(){
+  const slide = Reveal.getCurrentSlide();
+  const f = slide.querySelector('iframe') || Reveal.getSlideBackground(slide)?.querySelector('iframe');
+  if (f) f.src = f.src;
+}
+document.querySelectorAll('.demo-nav button').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation();
+  const go = b.dataset.go;
+  go === 'reboot' ? rebootDemo() : go === 'next' ? Reveal.right() : Reveal.left();
+  window.focus();
+}));
+Reveal.addKeyBinding({ keyCode: 68, key: 'D', description: 'Reboot demo' }, rebootDemo);
+</script>
+</body>
+</html>
