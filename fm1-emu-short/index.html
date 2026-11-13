@@ -31,10 +31,35 @@
 .reveal .slides section.title::after{width:88px;height:112px;right:64px;top:52px;bottom:auto}
 .reveal h1,.reveal h2,.reveal h3{font-family:var(--sans);color:var(--ink);text-transform:none;letter-spacing:-.015em;margin:0}
 .reveal h1{font-size:72px;font-weight:400;line-height:1.02}
-.reveal h2{font-size:40px;font-weight:700;line-height:1.15;margin-bottom:6px}
+.reveal h2{font-size:42px;font-weight:700;line-height:1.12;letter-spacing:-.022em;margin-bottom:8px}
 .reveal h3{font-size:24px;font-weight:700;color:var(--teal);margin:0 0 10px}
 .reveal p{margin:0 0 .6em}
-.reveal .sub{font-size:22px;color:var(--grey);margin-bottom:24px}
+.reveal .sub{font-size:22px;color:#555;margin-bottom:24px}
+/* identity mark: a short teal bar over every content slide's headline */
+.reveal .slides section:not(.title):not(.bleed):not(.demo-slide):not(.stack)>h2:first-of-type::before{content:"";display:block;width:56px;height:5px;background:var(--teal);margin:0 0 14px}
+/* the three facts that shaped the project (slide 2) */
+.reveal .facts{margin-top:20px;display:grid;gap:10px}
+.reveal .facts p{margin:0;display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start;font-size:18px;line-height:1.3;padding:10px 16px;background:var(--teal-tint);border-left:5px solid var(--teal)}
+.reveal .facts p.no{background:var(--coral-tint);border-left-color:var(--coral)}
+.reveal .facts p>i{font-style:normal;font-weight:700;font-size:26px;line-height:1;color:var(--teal);text-align:center}
+.reveal .facts p.no>i{color:var(--coral)}
+.reveal .facts strong{display:block;font-size:20px}
+/* chapter tracker: where we are in the story */
+.reveal .chap{position:absolute;left:64px;top:18px;display:flex;gap:4px;font-size:14px;color:#b5b5b5;z-index:2}
+.reveal .chap span{padding:3px 0 4px;margin-right:14px;border-bottom:3px solid transparent}
+.reveal .chap span.past{color:var(--grey)}
+.reveal .chap span.on{color:var(--teal);font-weight:700;border-bottom-color:var(--teal)}
+/* defect -> symptom chains (bug slide) */
+.reveal .chain{display:grid;grid-template-columns:330px 70px 1fr 170px;align-items:center;row-gap:10px;margin-top:6px;font-size:18px}
+.reveal .chain>div{display:contents}
+.reveal .chain .d{background:#fff;border:2px solid var(--teal);border-radius:8px;padding:8px 12px;line-height:1.25}
+.reveal .chain .a{height:3px;background:var(--teal);position:relative;margin:0 10px}
+.reveal .chain .a::after{content:"";position:absolute;right:-2px;top:-6px;border:7.5px solid transparent;border-left:11px solid var(--teal);border-right:0}
+.reveal .chain .s{background:var(--coral-tint);border-left:5px solid var(--coral);padding:9px 14px;line-height:1.25}
+.reveal .chain .f{font-size:14px;color:var(--grey);padding-left:14px}
+.reveal .chain .hd{font-size:14px;color:var(--grey);font-weight:700}
+/* closing line */
+.reveal .punch{font-size:30px;line-height:1.25;letter-spacing:-.015em;text-align:center;margin-top:44px;padding-top:26px;border-top:4px solid var(--teal)}
 .reveal ul{margin:0;padding-left:1.1em}
 .reveal li{margin:0 0 .45em;padding-left:.15em}
 .reveal li::marker{color:var(--teal)}
@@ -162,14 +187,14 @@
   <div class="cols two" style="grid-template-columns:1fr 540px;margin-top:22px;gap:40px">
     <div>
       <ul class="small">
-        <li><strong>M-VAVE FM-1:</strong> a six-operator FM synth with a 240×240 colour screen, 27 keys, 7 encoders, MIDI in and stereo out.</li>
-        <li>Its updates are USB-MIDI messages with only a CRC check, so <strong>the community wrote its own firmwares within weeks:</strong> drum machines, grooveboxes, ambient generators, a chord harp… and Doom.</li>
-        <li><strong>The goal:</strong> run them <em>unmodified</em>. Try one before you flash it, write one without the synth on the desk, play them in a browser.</li>
+        <li><strong>M-VAVE FM-1:</strong> six-operator FM, 240×240 colour screen, 27 keys, 7 encoders, MIDI in, stereo out.</li>
+        <li>Updates are USB-MIDI with only a CRC check, so <strong>the community wrote its own firmwares within weeks:</strong> drum machines, grooveboxes, a chord harp… and Doom.</li>
+        <li><strong>The goal:</strong> run them <em>unmodified</em>. Try before you flash, develop without the synth, play in a browser.</li>
       </ul>
-      <div class="card fragment rise" style="margin-top:18px;font-size:18px;padding:14px 20px">
-        <p style="margin:0 0 6px"><strong class="coral">The CPU is undocumented.</strong> JieLi's pi32v2: 2-, 4- and 6-byte instructions, dual-issue pairs, hardware loops. No manual.</p>
-        <p style="margin:0 0 6px"><strong class="teal">The vendor's toolchain is public.</strong> A Clang 4.0.1 fork and an objdump that disassembles it. Linux x86-64 only: Docker on a Mac.</p>
-        <p style="margin:0"><strong class="coral">There was no hardware.</strong> The FM-1 was ordered on 8 October and had not arrived.</p>
+      <div class="facts">
+        <p class="no fragment rise"><i>✕</i><span><strong>The CPU is undocumented</strong>JieLi's pi32v2: 2-, 4- and 6-byte instructions, dual-issue pairs, hardware loops. No manual.</span></p>
+        <p class="fragment rise"><i>✓</i><span><strong>The vendor's toolchain is public</strong>A Clang 4.0.1 fork and an objdump that disassembles it. Linux x86-64 only: Docker on a Mac.</span></p>
+        <p class="no fragment rise"><i>✕</i><span><strong>There was no hardware</strong>The FM-1 was ordered on 8 October and had not arrived.</span></p>
       </div>
     </div>
     <div>
@@ -196,9 +221,10 @@
     <rect class="node em" x="600" y="60" width="250" height="70" rx="14"/>
     <text x="725" y="94" text-anchor="middle" font-size="20" font-weight="700">Real firmwares</text>
     <text x="725" y="116" text-anchor="middle" font-size="15" fill="#666">running on it</text>
-    <rect class="node gone" x="910" y="60" width="230" height="70" rx="14"/>
-    <text x="1025" y="94" text-anchor="middle" font-size="20" font-weight="700" fill="#aaa">Real FM-1</text>
-    <text x="1025" y="116" text-anchor="middle" font-size="15" fill="#aaa" font-style="italic">ordered, not here</text>
+    <rect class="node gone" x="912" y="30" width="226" height="138" rx="14"/>
+    <image href="assets/panel-felucca.png" x="967" y="38" width="116" height="74" style="filter:grayscale(1);opacity:.45"/>
+    <text x="1025" y="134" text-anchor="middle" font-size="18" font-weight="700" fill="#888">Real FM-1</text>
+    <text x="1025" y="156" text-anchor="middle" font-size="14" fill="#999" font-style="italic">ordered, not here</text>
     <path class="arrow" style="marker-end:url(#ah)" d="M230 95 L288 95"/>
     <path class="arrow" style="marker-end:url(#ah)" d="M540 95 L598 95"/>
     <path d="M850 95 L908 95" stroke="#bbb" stroke-width="2.5" stroke-dasharray="6 5" fill="none" style="marker-end:url(#ahg)"/>
@@ -295,10 +321,15 @@
 <!-- The emulator's own page with ?embed=1 (only the device and its controls) as an interactive background.
      It fetches each firmware from its author's site, so the demo needs the network. -->
 <section>
-<section data-demo-fw="felucca" data-background-interactive class="demo-slide" data-timing="60">
-  <div class="demo-cap"><strong>Live:</strong> the emulator compiled to WebAssembly, booting Felucca's real update package in this browser tab. <span class="grey">Click Start · <span class="kbd">D</span> reboots · <span class="kbd">↓</span> two more.</span></div>
+<section data-demo-fw="scintilla" data-background-interactive class="demo-slide" data-timing="60">
+  <div class="demo-cap"><strong>Live:</strong> my own firmware, Scintilla: the 1981 Elka Synthex with all 80 factory sounds, written on the emulator, booting its real update package in this browser tab. <span class="grey">Click Start · <span class="kbd">D</span> reboots · <span class="kbd">↓</span> three more.</span></div>
   <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
-  <aside class="notes">6:00. Click Start. Felucca boots: the package is fetched from its author's GitHub Pages and unpacked by the page, exactly the file a real FM-1 would install. Play a chord with the mouse or the keyboard (A to apostrophe). The two sub-slides below are extras.</aside>
+  <aside class="notes">6:00. Click Start. Scintilla boots: my own firmware, the Elka Synthex on the FM-1, written against the emulator before the board arrived, and the same package then ran unchanged on the real FM-1. Play a chord with the mouse or the keyboard (A to apostrophe); turn a knob to change sound (the laser harp is a good one). The sub-slides below are extras: Felucca, an unmodified community firmware, then SID and Doom.</aside>
+</section>
+<section data-demo-fw="felucca" data-background-interactive class="demo-slide" data-timing="0">
+  <div class="demo-cap"><strong>Extra:</strong> Felucca, a community firmware, its real update package unmodified on the emulated chip.</div>
+  <div class="demo-nav"><button data-go="reboot" title="reboot the demo (D)">↻</button><button data-go="prev" title="previous slide (←)">‹</button><button data-go="next" title="next slide (→)">›</button></div>
+  <aside class="notes">Extra. Felucca boots from its author's GitHub Pages, exactly the file a real FM-1 would install.</aside>
 </section>
 <section data-demo-fw="sid" data-background-interactive class="demo-slide" data-timing="0">
   <div class="demo-cap"><strong>Extra:</strong> FM-1 SID — a Commodore 64 tune's own 6502 code and a SID chip model, running on the emulated FM-1's CPU.</div>
@@ -367,12 +398,12 @@
   <div class="cols two" style="grid-template-columns:1fr 400px;gap:36px">
     <ul style="font-size:21px">
       <li><strong>11 Oct.</strong> Offered as an FM-1 update package. Tested on the emulator only.</li>
-      <li class="fragment rise"><strong class="coral">19 Oct, issues #22 and #24.</strong> It plays, but the computer no longer sees the FM-1. FM-1 SID had no USB stack, and an FM-1 is updated only through the firmware that is running.</li>
-      <li class="fragment rise"><strong>The way back was found by the community, not by us:</strong> OCT− and OCT+ held for five seconds at power-on enter the chip's own update mode, and a third-party flasher writes the stock firmware back. FM-1 SID came off the hub.</li>
-      <li class="fragment rise"><strong>23 Oct, my own unit.</strong> USB added, three ways back built in, every check on the emulator passed. On the device: no tune played, and no reply ever reached the computer.</li>
+      <li class="fragment rise"><strong class="coral">19 Oct, issues #22 and #24:</strong> it plays, but the computer no longer sees the FM-1. No USB stack, and an FM-1 is updated only through the running firmware.</li>
+      <li class="fragment rise"><strong>The community found the way back, not us:</strong> OCT− + OCT+ for five seconds at power-on enters the chip's update mode; a third-party flasher restores stock. FM-1 SID came off the hub.</li>
+      <li class="fragment rise"><strong>23 Oct, my own unit.</strong> USB added, three ways back, every emulator check passed. On the device: no tune, no reply to the computer.</li>
     </ul>
     <div class="card fragment rise" style="background:var(--coral-tint)">
-      <div class="stat bad"><b>4</b><span style="max-width:none">recoveries of my own unit through the chip's mask-ROM mode, from Linux: no macOS tool exists</span></div>
+      <div class="stat bad"><b style="font-size:96px">4</b><span style="max-width:none">recoveries of my own unit through the chip's mask-ROM mode, from Linux: no macOS tool exists</span></div>
       <p class="small" style="margin-top:16px">Each owner who installed it had to find and perform that recovery themselves.</p>
     </div>
   </div>
@@ -390,7 +421,7 @@
     <div class="card fragment rise"><p><span class="num">2</span><strong>Pinned outputs make speed safe</strong></p><p class="small grey">Two JITs, then three, written without fear, because every firmware's sound is a hash. The same hashes now review contributors' fixes.</p></div>
     <div class="card fragment rise"><p><span class="num">2</span><strong>The emulator came before the board, but the board decides</strong></p><p class="small grey">Right wherever the vendor's tools could see. Timing, caches and guards took the chip, and a day of probes.</p></div>
   </div>
-  <p class="fragment rise" style="text-align:center;font-size:31px;margin-top:40px">Build the oracle before the board arrives. <strong class="teal">Then put the board in the loop anyway.</strong></p>
+  <p class="punch fragment rise">Build the oracle before the board arrives. <strong class="teal">Then put the board in the loop anyway.</strong></p>
   <aside class="notes">14:25. Three things. The vendor's tools made an undocumented CPU recoverable. Pinned outputs made speed safe. And the emulator came first — but it was right only where its oracles could see. What they could not see, timing, caches, protections, cost real users a recovery and me four, until a day of probes measured it. Build the oracle before the board arrives — then put the board in the loop anyway.</aside>
 </section>
 
@@ -433,6 +464,16 @@ Reveal.initialize({
   totalTime: 480,
   preloadIframes: false,       // the demo boots when its slide appears
   plugins: [ RevealNotes ]
+});
+
+const CHAP = [null,0,0,1,1,2,2,3,4,null];
+// Chapter tracker: the story's five acts, injected on each talk slide
+const ACTS = ['The problem','The method','The payoff','The twist','The lessons'];
+Reveal.getHorizontalSlides().forEach((s, h) => {
+  const a = CHAP[h]; if (a == null) return;
+  const el = document.createElement('div'); el.className = 'chap';
+  el.innerHTML = ACTS.map((t, i) => `<span class="${i < a ? 'past' : i === a ? 'on' : ''}">${t}</span>`).join('');
+  (s.querySelector(':scope > section:not(.demo-slide)') || (s.classList.contains('stack') || s.querySelector(':scope > section') ? null : s))?.prepend(el);
 });
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
